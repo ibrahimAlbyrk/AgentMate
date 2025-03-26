@@ -69,7 +69,7 @@ async def handle_gmail_classification(raw_data: str):
                 date = email.get("date", None)
                 language = classification.get("language", None)
                 important = classification.get('important', None)
-                text = self._compose_email_text(email, classification)
+                text = _compose_email_text(email, classification)
 
                 conversation = ConversationData(
                     started_at=date,
@@ -82,7 +82,7 @@ async def handle_gmail_classification(raw_data: str):
                 await omi.create_conversation(uid, conversation)
 
                 await ProcessedGmailService.add(
-                    session=omi.session,
+                    session=session,
                     uid=uid,
                     gmail_id=gmail_id,
                     # content=text[:200]
