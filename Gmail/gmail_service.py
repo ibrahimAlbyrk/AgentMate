@@ -90,6 +90,7 @@ class GmailService:
         sender = next((h["value"] for h in headers if h["name"].lower() == "from"), "Unknown Sender")
         body = self._decode_email_body(payload)
 
+
         return {
             'id': msg_id,
             'date': date_iso,
