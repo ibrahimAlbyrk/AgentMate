@@ -13,6 +13,8 @@ from DB.Services.user_settings_service import UserSettingsService
 from DB.Services.processed_gmail_service import ProcessedGmailService
 from fastapi import APIRouter, Request, HTTPException, status, Depends
 
+from Core.config import settings
+
 from Subscribers.gmail_subscriber import event_bus
 
 router = APIRouter(tags=["Unified Service Webhook"])
@@ -20,20 +22,6 @@ router = APIRouter(tags=["Unified Service Webhook"])
 agent_manager = AgentManager()
 memory_engine = EmailMemorySummarizerEngine()
 omi = OmiConnector()
-
-DEFAULT_CONFIGS = {
-    "gmail": {
-        "mail_check_interval": 60,
-        "mail_count": 3,
-        "important_categories": memory_engine.default_important_categories,
-        "ignored_categories": memory_engine.default_ignored_categories,
-    },
-}
-
-CONFIG_MODELS = {
-    "gmail": GmailConfig,
-    # "notion": NotionConfig
-}
 
 
 @router.get("/{service}/get-settings")
@@ -43,7 +31,7 @@ async def get_settings(service: str, session: AsyncSession = Depends(get_session
         raise HTTPException(status_code=400, detail=f"UID not provided")
 
     config = await UserSettingsService.get_config(session, uid, service)
-    default = DEFAULT_CONFIGS.get(service, {})
+    default = settings.DEFAULT_CONFIGS.get(service, {})
 
     if not config:
         return default
@@ -67,7 +55,7 @@ async def update_settings(service: str, request: Request, db: AsyncSession = Dep
 
     config_data = data.get("config")
 
-    config_model = CONFIG_MODELS.get(service)
+    config_model = settings.CONFIG_MODELS.get(service)
     if config_model:
         try:
             config = config_model(**config_data).model_dump()
