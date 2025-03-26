@@ -39,8 +39,21 @@ async def is_logged_in(service: str, uid: str):
     return {"is_logged_in": False}
 
 
+@router.post("/{service}/login-directly")
+async def service_login_directly(service: str, credentials: str):
+    uid = request.query_params.get("uid")
+    if not uid:
+        raise HTTPException(status_code=400, detail="Missing uid")
+
+    provider = AUTH_PROVIDERS.get(service)
+    if not provider:
+        raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
+
+    _save_token(credentials)
+
+
 @router.get("/{service}/login")
-async def gmail_login(service: str, request: Request):
+async def service_login(service: str, request: Request):
     uid = request.query_params.get("uid")
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
@@ -83,13 +96,18 @@ async def service_callback(service: str, request: Request):
     flow.fetch_token(authorization_response=str(request.url))
     credentials = flow.credentials
 
+    _save_token(credentials)
+
+    del OAUTH_FLOW_CACHE[state]
+
+    redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
+    return RedirectResponse(url=redirect_uri)
+
+
+def _save_token(credentials):
     token_path = settings.TOKEN_PATH.format(uid=uid, service=service)
     os.makedirs(os.path.dirname(token_path), exist_ok=True)
     with open(token_path, "wb") as token_file:
         pickle.dump(credentials, token_file)
 
     logger.debug(f"[{service}] Credentials stored for UID: {uid}")
-    del OAUTH_FLOW_CACHE[state]
-
-    redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
-    return RedirectResponse(url=redirect_uri)
