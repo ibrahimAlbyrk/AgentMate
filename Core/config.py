@@ -28,6 +28,21 @@ class Settings:
 
     # GOOGLE
     GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET")
+    GOOGLE_REDIRECT_URI: str = os.getenv("GOOGLE_REDIRECT_URI")
+    GOOGLE_GMAIL_SCOPES = [
+        "https://www.googleapis.com/auth/gmail.readonly",
+    ]
+
+    TOKEN_PATH = "tokens/{service}/{uid}.pickle"
+    POST_LOGIN_REDIRECT = "http://localhost/{service}?uid={uid}&status=connected"
+
+    AUTH_PROVIDERS: Dict[str, dict] = {
+        "gmail": {
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "scopes": GOOGLE_GMAIL_SCOPES,
+            "redirect_uri": GOOGLE_REDIRECT_URI
+        }
+    }
 
     # ASYNC
     USE_ASYNC: bool = True
