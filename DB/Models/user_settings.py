@@ -1,6 +1,6 @@
 from datetime import datetime
 from DB.Models.base import BaseModel
-from sqlalchemy import Column, String, JSON, DateTime, PrimaryKeyConstraint
+from sqlalchemy import Column, String, Boolean, JSON, DateTime, PrimaryKeyConstraint
 
 class UserSettings(BaseModel):
     __tablename__ = "user_settings"
