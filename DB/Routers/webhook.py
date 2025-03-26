@@ -71,7 +71,11 @@ async def update_settings(service: str, request: Request, db: AsyncSession = Dep
 
 
 @router.get("/gmail/get-email-subjects")
-async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10, session: AsyncSession = Depends(get_db)):
+async def get_email_subjects(offset: int = 0, limit: int = 10, session: AsyncSession = Depends(get_db)):
+    uid = request.query_params.get("uid")
+    if not uid:
+        raise HTTPException(status_code=400, detail=f"UID not provided")
+
     user = await UserSettingsService.get_user(session, uid)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -115,6 +119,10 @@ async def convert_to_memories(request: Request, session: AsyncSession = Depends(
 
 
 @router.get("/setup-complete")
-async def is_setup_completed(uid: str, session: AsyncSession = Depends(get_db)):
+async def is_setup_completed(session: AsyncSession = Depends(get_db)):
+    uid = request.query_params.get("uid")
+    if not uid:
+        raise HTTPException(status_code=400, detail="Missing uid")
+
     has_user = await UserSettingsService.has_user(session, uid)
     return {"is_setup_completed": has_user}
