@@ -2,7 +2,7 @@ import asyncio
 import json
 from Core.event_bus import EventBus
 from Core.logger import LoggerCreator
-from Gmail.gservice import GmailService
+from Gmail.gmail_service import GmailService
 from DB.database import AsyncSessionLocal
 from Interfaces.agent_interface import IAgent
 from DB.Services.user_settings_service import UserSettingsService
@@ -53,7 +53,7 @@ class GmailAgent(IAgent):
                     interval = config.get("mail_check_interval", 60)
                     mail_count = config.get("mail_count", 3)
 
-                    service = GmailService(uid, config)
+                    service = GmailService(uid)
                     emails = await service.fetch_latest_emails(limit=mail_count)
 
                     new_emails = []
