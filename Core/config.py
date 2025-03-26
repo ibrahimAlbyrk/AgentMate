@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
+from DB.Schemas.gmail_config import GmailConfig
 
 load_dotenv()
 
@@ -25,6 +26,9 @@ class Settings:
     OMI_API_KEY: str = os.getenv("OMI_API_KEY")
     OMI_APP_ID: str = os.getenv("OMI_APP_ID")
 
+    # GOOGLE
+    GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET")
+
     # ASYNC
     USE_ASYNC: bool = True
     MAX_TASK_WORKER: int = 10
@@ -36,6 +40,31 @@ class Settings:
         "warning": True,
         "error": True,
         "fatal": True
+    }
+
+    class ClassificationConfig:
+        DEFAULT_IMPORTANT_CATEGORIES = [
+            "urgent", "meeting", "invoice", "payment due", "project update",
+            "Github", "security alert", "password reset", "account verification",
+            "legal notice", "deadline reminder", "contract", "shipping"
+        ]
+        DEFAULT_IGNORED_CATEGORIES = [
+            "newsletter", "promotion", "social media", "spam", "survey",
+            "event invitation", "job alert", "greetings"
+        ]
+
+    DEFAULT_CONFIGS = {
+        "gmail": {
+            "mail_check_interval": 60,
+            "mail_count": 3,
+            "important_categories": ClassificationConfig.DEFAULT_IMPORTANT_CATEGORIES,
+            "ignored_categories": ClassificationConfig.DEFAULT_IGNORED_CATEGORIES,
+        },
+    }
+
+    CONFIG_MODELS = {
+        "gmail": GmailConfig,
+        # "notion": NotionConfig
     }
 
     class Config:
