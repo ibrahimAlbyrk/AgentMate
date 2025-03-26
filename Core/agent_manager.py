@@ -29,7 +29,7 @@ class AgentManager:
             return
 
         if hasattr(agent, "stop") and callable(getattr(agent, "stop")):
-            await agent.stop()
+            await agent.stop(uid)
             self.logger.debug(f"Stopped {service} agent for {uid}")
         else:
             self.logger.warning(f"{service} agent has no stop() method")
