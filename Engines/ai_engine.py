@@ -52,15 +52,6 @@ class EmailClassifierEngine(BaseAIEngine):
     def __init__(self):
         super().__init__(name="EmailClassifier")
         self.task_runner = TaskRunner()
-        self.default_important_categories = [
-            "urgent", "meeting", "invoice", "payment due", "project update",
-            "Github", "security alert", "password reset", "account verification",
-            "legal notice", "deadline reminder", "contract", "shipping"
-        ]
-        self.default_ignored_categories = [
-            "newsletter", "promotion", "social media", "spam", "survey",
-            "event invitation", "job alert", "greetings"
-        ]
 
     async def classify(self,
                        email: dict,
