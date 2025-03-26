@@ -1,72 +1,132 @@
-from DB.database import get_db
-from DB.Schemas.gmail_config import GmailConfig
-from fastapi import APIRouter, Request, Depends
+import json
+
+from pydantic import ValidationError
+
+from DB.database import get_session
+from fastapi.responses import JSONResponse
+from Core.agent_manager import AgentManager
 from sqlalchemy.ext.asyncio import AsyncSession
-from Core.agent_starter import agent_manager, start_user_agents
+from DB.Schemas.gmail_config import GmailConfig
+from Engines.ai_engine import EmailMemorySummarizerEngine
+from Connectors.omi_connector import OmiConnector, MemoryData
 from DB.Services.user_settings_service import UserSettingsService
+from DB.Services.processed_gmail_service import ProcessedGmailService
+from fastapi import APIRouter, Request, HTTPException, status, Depends
 
-router = APIRouter(prefix="/webhook", tags=["Webhook Events"])
+from Subscribers.gmail_subscriber import event_bus
 
-@router.post("/update-settings")
-async def update_settings(request: Request, db: AsyncSession = Depends(get_db)):
+router = APIRouter(tags=["Unified Service Webhook"])
+
+agent_manager = AgentManager()
+memory_engine = EmailMemorySummarizerEngine()
+omi = OmiConnector()
+
+DEFAULT_CONFIGS = {
+    "gmail": {
+        "mail_check_interval": 60,
+        "mail_count": 3,
+        "important_categories": memory_engine.default_important_categories,
+        "ignored_categories": memory_engine.default_ignored_categories,
+    },
+}
+
+CONFIG_MODELS = {
+    "gmail": GmailConfig,
+    # "notion": NotionConfig
+}
+
+
+@router.get("/{service}/get-settings")
+async def get_settings(service: str, session: AsyncSession = Depends(get_session)):
+    uid = request.query_params.get("uid")
+    if not uid:
+        raise HTTPException(status_code=400, detail=f"UID not provided")
+
+    config = await UserSettingsService.get_config(session, uid, service)
+    default = DEFAULT_CONFIGS.get(service, {})
+
+    if not config:
+        return default
+
+    return {
+        key: config.get(key, default.get(key))
+        for key in default
+    }
+
+
+@router.post("/{service}/update-settings")
+async def update_settings(service: str, request: Request, db: AsyncSession = Depends(get_db)):
+    uid = request.query_params.get("uid")
+    if not uid:
+        raise HTTPException(status_code=400, detail=f"UID not provided")
+
     try:
         data = await request.json()
     except Exception:
         return {"error": "Invalid or empty JSON body."}
 
-    uid = data.get("uid")
-    service = data.get("service")
-    config = data.get("config")
+    config_data = data.get("config")
 
-    if not all([uid, service, config]):
-        return {"error", "UID, service and config are required"}
-
-    if service == "gmail":
+    config_model = CONFIG_MODELS.get(service)
+    if config_model:
         try:
-            GmailConfig(**config)
-        except Exception as e:
-            return {"error": f"Invalid Gmail config: {str(e)}"}
+            config = config_model(**config_data).model_dump()
+        except ValidationError as e:
+            raise HTTPException(status_code=400, detail=f"Invalid {service} config: {str(e)}")
+    else:
+        config = config_data
 
     await UserSettingsService.set_config(db, uid, service, config)
     await agent_manager.restart_agent(uid, service)
 
     return {"status": f"{service} agent restarted with new config"}
 
-@router.post("/logged-in")
-async def logged_in(request: Request, db: AsyncSession = Depends(get_db)):
-    try:
-        data = await request.json()
-    except Exception:
-        return {"error": "Invalid or empty JSON body."}
 
-    uid = data.get("uid")
+@router.get("/gmail/get-email-subjects")
+async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10, session: AsyncSession = Depends(get_session)):
+    user = await UserSettingsService.get_user(session, uid)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
 
+    config = user.get("config")
+    service = GmailService(uid, config)
+    subjects = await service.fetch_email_subjects_paginated(offset, limit)
+
+    return {"subjects": subjects}
+
+
+@router.post("/gmail/convert-to-memory")
+async def convert_to_memories(request: Request, session: AsyncSession = Depends(get_session)):
+    uid = request.query_params.get("uid")
     if not uid:
-        return {"error", "UID required"}
+        raise HTTPException(status_code=400, detail="Missing uid")
 
-    has_any_services = await UserSettingsService.has_any(db, uid)
+    data = await request.json()
+    mode = data.get("mode", "count")
+    service = GmailService(uid)
 
-    if not has_any_services:
-        return {"error", "Could not connect to any service yet"}
+    if mode == "count":
+        count = int(data.get("count", 0))
+        if not count:
+            raise HTTPException(status_code=400, detail="Missing count")
+        emails = await service.fetch_latest_emails(limit=count)
 
-    await start_user_agents(uid, db)
-    return {"status": "user agents started"}
+    elif mode == "selection":
+        selected = data.get("selectedSubjects", [])
+        if not selected:
+            raise HTTPException(status_code=400, detail="No emails selected")
+        ids = [item["id"] for item in selected]
+        emails = await service.fetch_emails_by_ids(ids)
 
-@router.post("/connect-service")
-async def connect_service(request: Request, db: AsyncSession = Depends(get_db)):
-    try:
-        data = await request.json()
-    except Exception:
-        return {"error": "Invalid or empty JSON body."}
+    else:
+        raise HTTPException(status_code=400, detail="Invalid mode")
 
-    uid = data.get("uid")
-    service = data.get("service")
-    config = data.get("config")
+    event_bus.publish("gmail.inbox.summary", emails)
 
-    if not all([uid, service, config]):
-        return {"error": "UID, service and config are required"}
+    return {"status": "done", "converted emails": len(emails)}
 
-    await UserSettingsService.set_config(db, uid, service, config)
-    await agent_manager.start_agent(uid, service)
 
-    return {"status": f"{service} agent started"}
+@router.get("/setup-complete")
+async def is_setup_completed(uid: str, session: AsyncSession = Depends(get_session)):
+    has_user = await UserSettingsService.has_user(session, uid)
+    return {"is_setup_completed": has_user}
