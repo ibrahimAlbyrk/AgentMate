@@ -7,10 +7,36 @@ from fastapi.responses import RedirectResponse
 from fastapi import APIRouter, Request, HTTPException
 from google.auth.transport.requests import Request as GoogleRequest
 
-router = APIRouter(prefix="auth/gmail", tags="Gmail Auth")
-logger = LoggerCreator.create_advanced_console("GmailAuth")
+router = APIRouter(tags=["Unified Auth"])
+logger = LoggerCreator.create_advanced_console("AuthRouter")
 
-OAUTH_FLOW_CACHE: Dict[str, dict] = {}
+OAUTH_FLOW_CACHE: dict[str, dict] = {}
+
+
+@router.get("/{service}/is-logged-in")
+async def is_logged_in(service: str, uid: str):
+    provider = settings.AUTH_PROVIDERS.get(service)
+    if not provider:
+        raise HTTPException(status_code=400, detail="Unknown service")
+
+    token_path = settings.TOKEN_PATH.format(uid=uid, service=service)
+    if not os.path.exists(token_path):
+        return {"is_logged_in": False}
+
+    try:
+        with open(token_path, "rb") as token_file:
+            credentials = pickle.load(token_file)
+        if credentials and credentials.valid:
+            return {"is_logged_in": True}
+        elif credentials and credentials.expired and credentials.refresh_token:
+            credentials.refresh(GoogleRequest())
+            with open(token_path, "wb") as token_file:
+                pickle.dump(credentials, token_file)
+            return {"is_logged_in": True}
+    except Exception as e:
+        logger.warning(f"[{service}] Login check failed for {uid}: {str(e)}")
+
+    return {"is_logged_in": False}
 
 
 @router.get("/{service}/login")
