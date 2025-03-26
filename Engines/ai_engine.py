@@ -112,7 +112,7 @@ class EmailClassifierEngine(BaseAIEngine):
 
                        IMPORTANT CATEGORIES: {important_categories}
                        IGNORED CATEGORIES: {ignored_categories}
-                       If both important and ignored categories seem applicable, always prioritize {"IMPORTANT" if always_important else "IGNORED"}.
+                       If both important and ignored categories seem applicable, always prioritize IGNORED.
                        Return language using ISO 639-1 format
                        Determine priority and sender importance based on urgency, deadlines, or identity.
                        Make sure sentiment, tags, and suggested actions are accurate based on content.
