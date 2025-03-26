@@ -7,6 +7,7 @@ from googleapiclient.discovery import build
 from email.utils import parsedate_to_datetime
 from google.auth.transport.requests import Request
 
+
 class GmailService:
     def __init__(self, uid: str):
         self.uid = uid
@@ -89,7 +90,6 @@ class GmailService:
         subject = next((h["value"] for h in headers if h["name"].lower() == "subject"), "No Subject")
         sender = next((h["value"] for h in headers if h["name"].lower() == "from"), "Unknown Sender")
         body = self._decode_email_body(payload)
-
 
         return {
             'id': msg_id,

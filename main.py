@@ -10,7 +10,7 @@ from Core.logger import LoggerCreator
 from Core.task_runner import TaskRunner
 from Core.startup import start_all_user_agents
 
-from DB.Routers import user_settings, agent_status, webhook
+from DB.Routers import user_settings, agent_status, webhook, auth_router
 from DB.database import AsyncSessionLocal
 
 from Subscribers.gmail_subscriber import register_subscribers
@@ -18,6 +18,7 @@ from Subscribers.gmail_subscriber import register_subscribers
 logger = LoggerCreator.create_advanced_console("Main")
 event_bus = EventBus()
 task_runner = TaskRunner()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -36,6 +37,7 @@ async def lifespan(app: FastAPI):
     task_runner.executor.shutdown(wait=False)
     logger.info("Shutdown complete.")
 
+
 app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
@@ -48,13 +50,13 @@ app.add_middleware(
 
 app.include_router(user_settings.router)
 app.include_router(agent_status.router)
+app.include_router(auth_router.router)
 app.include_router(webhook.router)
+
 
 @app.get("/")
 async def root():
     return {"status": "Agent Mate backend service is running..."}
-
-
 
 
 if __name__ == "__main__":

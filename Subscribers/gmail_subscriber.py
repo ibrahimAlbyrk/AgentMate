@@ -99,6 +99,7 @@ async def register_subscribers():
     event_bus.subscribe("gmail.inbox.classify", handle_gmail_classification)
     await event_bus.listen()
 
+
 def _compose_email_text(email: dict, classification: dict) -> str:
     subject = email.get('subject', '')
     sender = email.get('from', '')

@@ -9,11 +9,12 @@ from DB.Services.user_settings_service import UserSettingsService
 from Connectors.omi_connector import OmiConnector, ConversationData
 from DB.Services.processed_gmail_service import ProcessedGmailService
 
+
 class GmailAgent(IAgent):
     def __init__(self):
         self.logger = LoggerCreator.create_advanced_console("GmailAgent")
-        self.active_tasks = {} # {uid: asyncio.task}
-        self.stop_flags = {} # {uid: asyncio.event}
+        self.active_tasks = {}  # {uid: asyncio.task}
+        self.stop_flags = {}  # {uid: asyncio.event}
         self.event_bus = EventBus()
 
     async def run(self, uid: str):

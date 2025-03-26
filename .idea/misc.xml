@@ -3,4 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.12 (AgentMate)" />
   </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (AgentMate)" project-jdk-type="Python SDK" />
 </project>
