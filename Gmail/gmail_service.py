@@ -87,6 +87,7 @@ class GmailService:
         try:
             date_obj = parsedate_to_datetime(date).astimezone(timezone.utc)
             date_iso = date_obj.isoformat()
+            logger.debug(date_iso)
         except Exception:
             date_iso = date
 

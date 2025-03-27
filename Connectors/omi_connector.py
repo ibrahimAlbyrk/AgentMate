@@ -58,7 +58,7 @@ class OmiConnector:
 
         async with httpx.AsyncClient() as client:
             response = await client.post(url, json=payload, headers=headers)
-            self.logger.info(f"Memory creation response: {response.status_code} - {response.text}")
+            self.logger.debug(f"Memory creation response: {response.status_code} - {response.text}")
             return response
 
     async def create_conversation(self, uid: str, data: ConversationData):
@@ -79,5 +79,5 @@ class OmiConnector:
 
         async with httpx.AsyncClient() as client:
             response = await client.post(url, json=payload, headers=headers)
-            self.logger.info(f"Conversation creation response: {response.status_code} - {response.text}")
+            self.logger.debug(f"Conversation creation response: {response.status_code} - {response.text}")
             return response
