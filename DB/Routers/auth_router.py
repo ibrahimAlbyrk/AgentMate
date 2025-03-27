@@ -4,7 +4,7 @@ import pickle
 from Core.config import settings
 from Core.logger import LoggerCreator
 from google_auth_oauthlib.flow import Flow
-from fastapi.responses import JSONResponse
+from fastapi.responses import RedirectResponse
 from fastapi import APIRouter, Request, HTTPException
 from google.auth.transport.requests import Request as GoogleRequest
 
@@ -78,7 +78,7 @@ async def service_login(uid: str, service: str, request: Request):
     OAUTH_FLOW_CACHE[state] = {"flow": flow, "uid": uid, "service": service}
 
     logger.debug(f"[{service}] Redirecting UID {uid} to OAuth flow")
-    return JSONResponse({"redirect_url": auth_url})
+    return RedirectResponse(auth_url)
 
 
 @router.get("/{service}/callback")
@@ -109,7 +109,7 @@ async def service_callback(service: str, request: Request):
     del OAUTH_FLOW_CACHE[state]
 
     redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
-    return JSONResponse({"redirect_url": redirect_uri})
+    return RedirectResponse(url=redirect_uri)
 
 
 def _save_token(credentials):
