@@ -85,8 +85,8 @@ class EmailClassifierEngine(BaseEmailEngine):
                        email: dict,
                        important_categories: Optional[list[str]] = None,
                        ignored_categories: Optional[list[str]] = None) -> dict:
-        important_categories = important_categories or self.default_important
-        ignored_categories = ignored_categories or self.default_ignored
+        # important_categories = important_categories or settings.ClassificationConfig.DEFAULT_IMPORTANT_CATEGORIES
+        # ignored_categories = ignored_categories or settings.ClassificationConfig.DEFAULT_IGNORED_CATEGORIES
         tool = self._build_classify_tool(important_categories, ignored_categories)
 
         prompt = _build_classification_prompt(email)
