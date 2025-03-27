@@ -49,7 +49,7 @@ async def service_login_directly(uid: str, service: str, credentials: str):
     if not provider:
         raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
 
-    _save_token(credentials)
+    _save_token(uid, service, credentials)
 
 
 @router.get("/{service}/login")
@@ -74,7 +74,7 @@ async def service_login(uid: str, service: str, request: Request):
         redirect_uri=provider["redirect_uri"],
     )
 
-    auth_url, state = flow.authorization_url(prompt="consent", include_granted_scopes="true")
+    auth_url, state = flow.authorization_url(prompt="consent")
     OAUTH_FLOW_CACHE[state] = {"flow": flow, "uid": uid, "service": service}
 
     logger.debug(f"[{service}] Redirecting UID {uid} to OAuth flow")
@@ -99,10 +99,11 @@ async def service_callback(service: str, request: Request):
     if not provider:
         raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
 
+    logger.debug(f"request url: {request.url}")
     flow.fetch_token(authorization_response=str(request.url))
     credentials = flow.credentials
 
-    _save_token(credentials)
+    _save_token(uid, service, credentials)
 
     del OAUTH_FLOW_CACHE[state]
 
@@ -110,7 +111,7 @@ async def service_callback(service: str, request: Request):
     return RedirectResponse(url=redirect_uri)
 
 
-def _save_token(credentials):
+def _save_token(uid: str, service, credentials):
     token_path = settings.TOKEN_PATH.format(uid=uid, service=service)
     os.makedirs(os.path.dirname(token_path), exist_ok=True)
     with open(token_path, "wb") as token_file:
