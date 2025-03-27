@@ -60,8 +60,8 @@ async def handle_gmail_classification(raw_data: str):
                 return
 
             gmail_config = await UserSettingsService.get_gmail_config(session, uid)
-            important_categories = gmail_config.get("important_categories", [])
-            ignored_categories = gmail_config.get("ignored_categories", [])
+            important_categories = gmail_config.important_categories
+            ignored_categories = gmail_config.ignored_categories
 
             classifications = await classifier.classify_batch(unprocessed_emails, important_categories, ignored_categories)
 
