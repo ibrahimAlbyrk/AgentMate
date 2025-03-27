@@ -59,7 +59,7 @@ async def handle_gmail_classification(raw_data: str):
                 logger.debug(f"No new emails to classify for {uid}")
                 return
 
-            gmail_config = UserSettingsService.get_gmail_config(session, uid)
+            gmail_config = await UserSettingsService.get_gmail_config(session, uid)
             important_categories = gmail_config.get("important_categories", [])
             ignored_categories = gmail_config.get("ignored_categories", [])
 
