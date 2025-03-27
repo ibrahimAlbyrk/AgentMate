@@ -31,7 +31,7 @@ class Settings:
     ]
 
     TOKEN_PATH = "tokens/{service}/{uid}.pickle"
-    POST_LOGIN_REDIRECT = "http://localhost/{service}/settings?uid={uid}"
+    POST_LOGIN_REDIRECT = "https://omi-wroom.org/{service}/settings?uid={uid}"
 
     AUTH_PROVIDERS: dict[str, dict] = {
         "gmail": {
