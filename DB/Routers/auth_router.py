@@ -1,11 +1,14 @@
 import os
 import json
 import pickle
+from DB.database import get_db
 from Core.config import settings
 from Core.logger import LoggerCreator
 from google_auth_oauthlib.flow import Flow
 from fastapi.responses import RedirectResponse
-from fastapi import APIRouter, Request, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Request, HTTPException, Depends
+from DB.Services.user_settings_service import UserSettingsService
 from google.auth.transport.requests import Request as GoogleRequest
 
 router = APIRouter(tags=["Unified Auth"])
@@ -15,10 +18,14 @@ OAUTH_FLOW_CACHE: dict[str, dict] = {}
 
 
 @router.get("/{service}/is-logged-in")
-async def is_logged_in(service: str, uid: str):
+async def is_logged_in(service: str, uid: str, session: AsyncSession = Depends(get_db)):
     provider = settings.AUTH_PROVIDERS.get(service)
     if not provider:
         raise HTTPException(status_code=400, detail="Unknown service")
+
+    is_logged_in = UserSettingsService.is_logged_in(session, uid, service)
+    if not is_logged_in:
+        return {"is_logged_in": False}
 
     token_path = settings.TOKEN_PATH.format(uid=uid, service=service)
     if not os.path.exists(token_path):
@@ -61,6 +68,11 @@ async def service_login(uid: str, service: str, request: Request):
     if not provider:
         raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
 
+    is_logged_in = UserSettingsService.is_logged_in(session, uid, service)
+    if is_logged_in:
+        redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
+        return RedirectResponse(url=redirect_uri)
+
     client_secret_path =  provider["client_secret"]
     if not client_secret_path:
         raise HTTPException(status_code=400, detail="Missing client_secret")
@@ -82,7 +94,7 @@ async def service_login(uid: str, service: str, request: Request):
 
 
 @router.get("/{service}/callback")
-async def service_callback(service: str, request: Request):
+async def service_callback(service: str, request: Request, session: AsyncSession = Depends(get_db)):
     state = request.query_params.get("state")
     if not state or state not in OAUTH_FLOW_CACHE:
         raise HTTPException(status_code=400, detail=f"Invalid or expired OAuth state: {state}")
@@ -106,6 +118,9 @@ async def service_callback(service: str, request: Request):
     _save_token(uid, service, credentials)
 
     del OAUTH_FLOW_CACHE[state]
+
+    default_config = settings.DEFAULT_CONFIGS.get(service, {})
+    await UserSettingsService.set_config(session, uid, service, default_config)
 
     redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
     return RedirectResponse(url=redirect_uri)
