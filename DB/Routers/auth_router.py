@@ -65,7 +65,7 @@ async def service_login(uid: str, service: str, request: Request):
         raise HTTPException(status_code=400, detail="Missing client_secret")
 
     with open(client_secret_path, "rb") as client_secret_file:
-        client_secret = pickle.load(client_secret_file)
+        client_secret = json.load(client_secret_file)
 
     flow = Flow.from_client_config(
         client_secret,
