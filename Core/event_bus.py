@@ -32,7 +32,7 @@ class EventBus:
             if message:
                 channel = message["channel"]
                 data = message["data"]
-                self.logger.info(f"Received message on {channel}: {data}")
+                # self.logger.debug(f"Received message on {channel}: {data}")
                 if channel in self.subscribers:
                     await self.subscribers[channel](data)
             await asyncio.sleep(0.01)
