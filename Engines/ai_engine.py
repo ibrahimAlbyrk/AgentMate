@@ -83,15 +83,11 @@ class EmailClassifierEngine(BaseEmailEngine):
 
     async def classify(self,
                        email: dict,
-                       important_categories: Optional[list[str]] = None,
-                       ignored_categories: Optional[list[str]] = None) -> dict:
-        print(type(important_categories))
-        print(important_categories)
-        # important_categories = important_categories or settings.ClassificationConfig.DEFAULT_IMPORTANT_CATEGORIES
-        # ignored_categories = ignored_categories or settings.ClassificationConfig.DEFAULT_IGNORED_CATEGORIES
+                       important_categories: Optional[list[str]],
+                       ignored_categories: Optional[list[str]]) -> dict:
         tool = self._build_classify_tool(important_categories, ignored_categories)
 
-        prompt = _build_classification_prompt(email)
+        prompt = self._build_classification_prompt(email)
 
         request = AIRequest(
             messages=[{"role": "user", "content": prompt}],
