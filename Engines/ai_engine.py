@@ -1,4 +1,6 @@
 import json
+import asyncio
+import hashlib
 from openai import AsyncOpenAI
 from Core.config import settings
 from typing import Optional, Literal
@@ -24,9 +26,30 @@ class BaseAIEngine:
     def __init__(self, name: str):
         self.logger = LoggerCreator.create_advanced_console(name)
         self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+        self.cache = {}
+
+    @staticmethod
+    def _has_prompt(messages: list[dict]) -> str:
+        prompt_str = json.dumps(messages, sort_keys=True)
+        return hashlib.sha256(prompt_str.encode("utf-8")).hexdigest()
+
+    async def safe_run(self, request: AIRequest, retries=2):
+        for attempt in range(retries):
+            try:
+                return await self.run(request)
+            except Exception as e:
+                if attempt == retries - 1:
+                    self.logger.error(f"Final AI run failure: {str(e)}")
+                    return ""
+                self.logger.warning(f"Retrying AI run due to error: {str(e)}")
+                await asyncio.sleep(1)
 
     async def run(self, request: AIRequest) -> str:
         try:
+            prompt_hash = self._has_prompt(request.messages)
+            if prompt_hash in self.cache:
+                return self.cache[prompt_hash]
+
             params = {
                 "model": request.model,
                 "messages": request.messages,
@@ -42,16 +65,21 @@ class BaseAIEngine:
 
             if choice.tool_calls:
                 return choice.tool_calls[0].function.arguments
-            return choice.content.strip if choice.content else ""
+            return choice.content.strip() if choice.content else ""
         except Exception as e:
             self.logger.error(f"AI run error: {str(e)}")
             return ""
 
 
-class EmailClassifierEngine(BaseAIEngine):
+class BaseEmailEngine(BaseAIEngine):
+    def __init__(self, name: str):
+        super().__init__(name)
+        self.task_runner = TaskRunner()
+
+
+class EmailClassifierEngine(BaseEmailEngine):
     def __init__(self):
         super().__init__(name="EmailClassifier")
-        self.task_runner = TaskRunner()
 
     async def classify(self,
                        email: dict,
@@ -61,10 +89,7 @@ class EmailClassifierEngine(BaseAIEngine):
         ignored_categories = ignored_categories or self.default_ignored
         tool = self._build_classify_tool(important_categories, ignored_categories)
 
-        subject = email.get("subject", "")
-        sender = email.get("from", "")
-        content = email.get("body", "")
-        prompt = f"Title: {subject}\nFrom: {sender}\nContent: {content[:1000]}"
+        prompt = _build_classification_prompt(email)
 
         request = AIRequest(
             messages=[{"role": "user", "content": prompt}],
@@ -73,7 +98,7 @@ class EmailClassifierEngine(BaseAIEngine):
         )
 
         try:
-            result = await self.run(request)
+            result = await self.safe_run(request)
             return json.loads(result)
         except Exception as e:
             self.logger.error(f"Taxonomy JSON conversion error: {str(e)}")
@@ -89,6 +114,13 @@ class EmailClassifierEngine(BaseAIEngine):
         ])
 
     @staticmethod
+    def _build_classification_prompt(email: dict) -> str:
+        subject = email.get("subject", "")
+        sender = email.get("from", "Unknown")
+        content = email.get("body", "")[:2000] # Token trimming for now
+        return f"Title: {subject}\nFrom: {sender}\nContent: {content[:1000]}"
+
+    @staticmethod
     def _build_classify_tool(important_categories: list[str], ignored_categories: list[str]) -> dict:
         return {
             "type": "function",
@@ -101,8 +133,6 @@ class EmailClassifierEngine(BaseAIEngine):
                        IMPORTANT CATEGORIES (exactly match the main purpose or intent): {', '.join(important_categories)}
                        IGNORED CATEGORIES (emails that are promotional, generic, or low priority): {', '.join(ignored_categories)}
 
-                       IMPORTANT CATEGORIES: {important_categories}
-                       IGNORED CATEGORIES: {ignored_categories}
                        If both important and ignored categories seem applicable, always prioritize IGNORED.
                        Return language using ISO 639-1 format
                        Determine priority and sender importance based on urgency, deadlines, or identity.
@@ -166,10 +196,9 @@ class EmailClassifierEngine(BaseAIEngine):
         }
 
 
-class EmailMemorySummarizerEngine(BaseAIEngine):
-    def __init__(self, character_limit: Optional[int] = 300):
+class EmailMemorySummarizerEngine(BaseEmailEngine):
+    def __init__(self, character_limit: Optional[int] = 200):
         super().__init__(name="EmailMemorySummarizer")
-        self.task_runner = TaskRunner()
         self.character_limit = character_limit
 
     async def summarize(self, email: dict) -> str:
@@ -179,29 +208,10 @@ class EmailMemorySummarizerEngine(BaseAIEngine):
             return ""
 
         system_prompt = f"""
-        You are an intelligent assistant that builds long-term memory about the user based on the emails they receive or send.
-        Your goal is not just to summarize the email, but to deeply understand what it reveals about the user's life,
-        priorities, behaviors, goals, and environment.
-        You are always learning and updating your understanding of who the user is.
-
-        YOUR TASK:
-        From each email you process, extract valuable, context-rich insights that help you form a more complete picture of the user over time.
-        These are not summaries - they are memory entries.
-        Think of them as memories you'd remember if you were a human assistant trying to truly support and anticipate the user's needs.
-
-        EACH MEMORY ENTRY SHOULD:
-        - Reflect what this message reveals about the user's current status, relationships, tasks, interests, habits, challenges, or decisions
-        - Capture the underlying dynamics (e.g. the user is leading a project, made a choice, needs something, is being waited on)
-        - Focus only on the user, not others unless relevant to the user's world
-        - Be written like an internal note, not like a summary or reply
-
-        RULES:
-        1) Output only one memory entry per email.
-        2) It must be deeply user-centric and suitable for long-term use.
-        3) It should not exceed {self.character_limit} characters.
-        4) No formatting, lists, or markdown - just a natural, concise paragraph that feels like a meaningful observation.
-        5) Do not repeat the email's wording - interpret and condense meaning.
-
+        You are building long-term memory about the user from emails.
+        Focus on what the email reveals about their behavior, relationships, or decisions.
+        Output one paragraph of max {self.character_limit} chars, deeply user-centric.
+        Avoid summaries. Be concise and insightful.
         Always act like you're building an evolving, personal profile to better serve and understand the user over time.
         """
 
@@ -218,7 +228,7 @@ class EmailMemorySummarizerEngine(BaseAIEngine):
             temperature=0.3
         )
 
-        result = await self.run(request)
+        result = await self.safe_run(request)
         if len(result) > self.character_limit:
             result = result[:self.character_limit] + "..."
         return result
