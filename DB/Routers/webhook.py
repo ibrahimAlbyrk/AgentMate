@@ -25,8 +25,7 @@ omi = OmiConnector()
 
 
 @router.get("/{service}/get-settings")
-async def get_settings(service: str, session: AsyncSession = Depends(get_db)):
-    uid = request.query_params.get("uid")
+async def get_settings(uid: str, service: str, session: AsyncSession = Depends(get_db)):
     if not uid:
         raise HTTPException(status_code=400, detail=f"UID not provided")
 
@@ -43,8 +42,7 @@ async def get_settings(service: str, session: AsyncSession = Depends(get_db)):
 
 
 @router.post("/{service}/update-settings")
-async def update_settings(service: str, request: Request, db: AsyncSession = Depends(get_db)):
-    uid = request.query_params.get("uid")
+async def update_settings(uid: str, service: str, request: Request, db: AsyncSession = Depends(get_db)):
     if not uid:
         raise HTTPException(status_code=400, detail=f"UID not provided")
 
@@ -71,8 +69,7 @@ async def update_settings(service: str, request: Request, db: AsyncSession = Dep
 
 
 @router.get("/gmail/get-email-subjects")
-async def get_email_subjects(offset: int = 0, limit: int = 10, session: AsyncSession = Depends(get_db)):
-    uid = request.query_params.get("uid")
+async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10, session: AsyncSession = Depends(get_db)):
     if not uid:
         raise HTTPException(status_code=400, detail=f"UID not provided")
 
@@ -88,8 +85,7 @@ async def get_email_subjects(offset: int = 0, limit: int = 10, session: AsyncSes
 
 
 @router.post("/gmail/convert-to-memory")
-async def convert_to_memories(request: Request, session: AsyncSession = Depends(get_db)):
-    uid = request.query_params.get("uid")
+async def convert_to_memories(uid: str, request: Request, session: AsyncSession = Depends(get_db)):
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
@@ -119,10 +115,9 @@ async def convert_to_memories(request: Request, session: AsyncSession = Depends(
 
 
 @router.get("/setup-complete")
-async def is_setup_completed(session: AsyncSession = Depends(get_db)):
-    uid = request.query_params.get("uid")
+async def is_setup_completed(uid: str, session: AsyncSession = Depends(get_db)):
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
-    has_user = await UserSettingsService.has_user(session, uid)
+    has_user = await UserSettingsService.has_any(session, uid)
     return {"is_setup_completed": has_user}

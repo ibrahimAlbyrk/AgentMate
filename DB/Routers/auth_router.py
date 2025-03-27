@@ -40,8 +40,7 @@ async def is_logged_in(service: str, uid: str):
 
 
 @router.post("/{service}/login-directly")
-async def service_login_directly(service: str, credentials: str):
-    uid = request.query_params.get("uid")
+async def service_login_directly(uid: str, service: str, credentials: str):
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
@@ -53,8 +52,7 @@ async def service_login_directly(service: str, credentials: str):
 
 
 @router.get("/{service}/login")
-async def service_login(service: str, request: Request):
-    uid = request.query_params.get("uid")
+async def service_login(uid: str, service: str, request: Request):
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
@@ -92,6 +90,8 @@ async def service_callback(service: str, request: Request):
     provider = AUTH_PROVIDERS.get(service)
     if not provider:
         raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
+
+
 
     flow.fetch_token(authorization_response=str(request.url))
     credentials = flow.credentials
