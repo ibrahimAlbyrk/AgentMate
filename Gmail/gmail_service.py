@@ -1,14 +1,15 @@
 import os
 import pickle
 import base64
+from time import process_time
 from email import message_from_bytes
+from datetime import timezone, datetime, timedelta
 
 from Core.config import settings
 from Core.logger import LoggerCreator
 from googleapiclient.discovery import build
 from email.utils import parsedate_to_datetime
 from google.auth.transport.requests import Request
-
 
 class GmailService:
     def __init__(self, uid: str):
@@ -87,9 +88,8 @@ class GmailService:
         try:
             date_obj = parsedate_to_datetime(date).astimezone(timezone.utc)
             date_iso = date_obj.isoformat()
-            print(date_iso)
         except Exception as e:
-            print(f"Failed to parse date: {str(e)}")
+            self.logger.error(f"Failed to parse date: {str(e)}")
             date_iso = date
 
         subject = next((h["value"] for h in headers if h["name"].lower() == "subject"), "No Subject")
