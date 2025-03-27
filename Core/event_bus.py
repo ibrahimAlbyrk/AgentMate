@@ -18,7 +18,7 @@ class EventBus:
         if self.redis is None:
             await self.connect()
         await self.redis.publish(channel, message)
-        self.logger.info(f"Published to {channel}: {message}")
+        # self.logger.debug(f"Published to {channel}: {message}")
 
     def subscribe(self, channel: str, callback: Callable[[str], Awaitable[None]]):
         self.subscribers[channel] = callback
