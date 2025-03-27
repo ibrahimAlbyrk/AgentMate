@@ -60,7 +60,7 @@ async def service_login_directly(uid: str, service: str, credentials: str):
 
 
 @router.get("/{service}/login")
-async def service_login(uid: str, service: str, request: Request):
+async def service_login(uid: str, service: str, request: Request, session: AsyncSession = Depends(get_db)):
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
