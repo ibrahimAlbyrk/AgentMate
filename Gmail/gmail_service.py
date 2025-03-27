@@ -87,8 +87,9 @@ class GmailService:
         try:
             date_obj = parsedate_to_datetime(date).astimezone(timezone.utc)
             date_iso = date_obj.isoformat()
-            logger.debug(date_iso)
-        except Exception:
+            print(date_iso)
+        except Exception as e:
+            print(f"Failed to parse date: {str(e)}")
             date_iso = date
 
         subject = next((h["value"] for h in headers if h["name"].lower() == "subject"), "No Subject")
