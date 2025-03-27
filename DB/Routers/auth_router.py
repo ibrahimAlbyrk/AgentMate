@@ -99,8 +99,6 @@ async def service_callback(service: str, request: Request):
     if not provider:
         raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
 
-
-
     flow.fetch_token(authorization_response=str(request.url))
     credentials = flow.credentials
 

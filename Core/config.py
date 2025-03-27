@@ -25,7 +25,7 @@ class Settings:
 
     # GOOGLE
     GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET")
-    GOOGLE_REDIRECT_URI: str = "https://omi-wroom.org/gmail/callback"
+    GOOGLE_REDIRECT_URI: str = "https://omi-wroom.org/api/gmail/callback"
     GOOGLE_GMAIL_SCOPES = [
         "https://www.googleapis.com/auth/gmail.readonly",
     ]
