@@ -2,6 +2,8 @@ import os
 import pickle
 import base64
 from email import message_from_bytes
+
+from Core.config import settings
 from Core.logger import LoggerCreator
 from googleapiclient.discovery import build
 from email.utils import parsedate_to_datetime
@@ -16,7 +18,8 @@ class GmailService:
 
     def _get_gmail_service(self):
         creds = None
-        token_path = f"tokens/{self.uid}.pickle"
+
+        token_path = settings.TOKEN_PATH.format(uid=self.uid, service="gmail")
 
         if os.path.exists(token_path):
             with open(token_path, 'rb') as token_file:
