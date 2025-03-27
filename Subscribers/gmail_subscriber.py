@@ -59,7 +59,11 @@ async def handle_gmail_classification(raw_data: str):
                 logger.debug(f"No new emails to classify for {uid}")
                 return
 
-            classifications = await classifier.classify_batch(unprocessed_emails)
+            gmail_config = UserSettingsService.get_gmail_config(session, uid)
+            important_categories = gmail_config.get("important_categories", [])
+            ignored_categories = gmail_config.get("ignored_categories", [])
+
+            classifications = await classifier.classify_batch(unprocessed_emails, important_categories, ignored_categories)
 
             for i, email in enumerate(unprocessed_emails):
                 classification = classifications[index]
