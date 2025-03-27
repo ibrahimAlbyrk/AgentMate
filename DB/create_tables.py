@@ -2,7 +2,7 @@ import asyncio
 from DB.database import engine
 from DB.Models.base import BaseModel
 from Core.logger import LoggerCreator
-from Models import user_settings, processed_data
+from DB.Models import user_settings, processed_data
 
 logger = LoggerCreator.create_advanced_console("TableCreator")
 
