@@ -61,7 +61,7 @@ class GmailAgent(IAgent):
 
                     for email in emails:
                         gmail_id = email.get("id")
-                        if await ProcessedGmailService.has_processed(session, uid, gmail_id):
+                        if await ProcessedGmailService.has(session, uid, gmail_id):
                             continue
 
                         new_emails.append(email)
