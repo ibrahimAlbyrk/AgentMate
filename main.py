@@ -53,11 +53,5 @@ app.include_router(agent_status.router)
 app.include_router(auth_router.router)
 app.include_router(webhook.router)
 
-
-@app.get("/")
-async def root():
-    return {"status": "Agent Mate backend service is running..."}
-
-
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=5000)

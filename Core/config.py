@@ -16,9 +16,6 @@ class Settings:
     REDIS_URL: str = "redis://localhost:6379/0"
     POSTGRES_URI: str = "postgres://user:pass@host:port/dbname"
 
-    # APP
-    APP_SECRET_KEY: str = os.getenv("APP_SECRET_KEY")
-
     # OPEN AI
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
 
