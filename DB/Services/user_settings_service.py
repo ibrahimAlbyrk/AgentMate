@@ -33,7 +33,7 @@ class UserSettingsService:
 
     @staticmethod
     async def set_config(session: AsyncSession, uid: str, service_name: str, config: dict):
-        data = UserSettingsCreate(uid=uid, service_name=service_name, config=config)
+        data = UserSettingsCreate(uid=uid, service_name=service_name, config=config, is_logged_in=True, token_path="")
         await UserSettingsRepository.create_or_update(session, data)
 
     @staticmethod

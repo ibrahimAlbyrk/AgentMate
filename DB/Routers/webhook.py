@@ -5,6 +5,7 @@ from pydantic import ValidationError
 from DB.database import get_db
 from fastapi.responses import JSONResponse
 from Core.agent_manager import AgentManager
+from Gmail.gmail_service import GmailService
 from sqlalchemy.ext.asyncio import AsyncSession
 from DB.Schemas.gmail_config import GmailConfig
 from Engines.ai_engine import EmailMemorySummarizerEngine
@@ -73,12 +74,7 @@ async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10, session
     if not uid:
         raise HTTPException(status_code=400, detail=f"UID not provided")
 
-    user = await UserSettingsService.get_user(session, uid)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    config = user.get("config")
-    service = GmailService(uid, config)
+    service = GmailService(uid)
     subjects = await service.fetch_email_subjects_paginated(offset, limit)
 
     return {"subjects": subjects}
