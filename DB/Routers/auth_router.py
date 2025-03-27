@@ -60,8 +60,15 @@ async def service_login(uid: str, service: str, request: Request):
     if not provider:
         raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
 
+    client_secret_path =  provider["client_secret"]
+    if not client_secret_path:
+        raise HTTPException(status_code=400, detail="Missing client_secret")
+
+    with open(client_secret_path, "rb") as client_secret_file:
+        client_secret = pickle.load(client_secret_file)
+
     flow = Flow.from_client_config(
-        provider["client_secret"],
+        client_secret,
         scopes=provider["scopes"],
         redirect_uri=provider["redirect_uri"],
     )
