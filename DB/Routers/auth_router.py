@@ -44,7 +44,7 @@ async def service_login_directly(uid: str, service: str, credentials: str):
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
-    provider = AUTH_PROVIDERS.get(service)
+    provider = settings.AUTH_PROVIDERS.get(service)
     if not provider:
         raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
 
@@ -56,7 +56,7 @@ async def service_login(uid: str, service: str, request: Request):
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
-    provider = AUTH_PROVIDERS.get(service)
+    provider = settings.AUTH_PROVIDERS.get(service)
     if not provider:
         raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
 
@@ -87,7 +87,7 @@ async def service_callback(service: str, request: Request):
     if cached_service != service:
         raise HTTPException(status_code=400, detail=f"Service mismatch in OAuth state")
 
-    provider = AUTH_PROVIDERS.get(service)
+    provider = settings.AUTH_PROVIDERS.get(service)
     if not provider:
         raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
 
