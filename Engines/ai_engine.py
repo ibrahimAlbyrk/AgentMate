@@ -9,7 +9,6 @@ from tiktoken import encoding_for_model
 from Core.task_runner import TaskRunner
 
 from Engines.task_queue_manager import queue_manager
-from Engines.global_token_orchestrator import GlobalTokenOrchestrator
 
 from Core.Retry.decorator import retryable
 
@@ -57,14 +56,6 @@ class BaseAIEngine:
             prompt_hash = self._has_prompt(request.messages)
             if prompt_hash in self.cache:
                 return self.cache[prompt_hash]
-
-            total_estimated_tokens = self.estimate_total_tokens(
-                request.messages, request.estimated_response_tokens
-            )
-
-            orchestrator = GlobalTokenOrchestrator.get_instance()
-            if orchestrator:
-                await orchestrator.wait_for_slot(total_estimated_tokens)
 
             params = {
                 "model": request.model,

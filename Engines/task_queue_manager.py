@@ -50,4 +50,4 @@ class TaskQueueManager:
                 logger.debug(f"Queue for {user_id} removed due to inactivity.")
             await asyncio.sleep(60)
 
-queue_manager = TaskQueueManager()
+queue_manager = TaskQueueManager(token_limit_per_minute=50000)
