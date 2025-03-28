@@ -67,6 +67,7 @@ class GmailService:
 
             subject = "No Subject"
             headers = msg.get("payload", {}).get("headers", [])
+            print(headers)
             for h in headers:
                 if h.get("name", "").lower() == "subject":
                     subject = h["value"]
