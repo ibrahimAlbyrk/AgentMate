@@ -11,6 +11,8 @@ from Engines.ai_engine import EmailMemorySummarizerEngine, EmailClassifierEngine
 from DB.Services.user_settings_service import UserSettingsService
 from DB.Services.processed_gmail_service import ProcessedGmailService
 
+from Subscribers.base_subscriber import BaseSubscriber
+
 logger = LoggerCreator.create_advanced_console("GmailSubscriber")
 
 event_bus = EventBus()
@@ -21,7 +23,13 @@ classifier = EmailClassifierEngine()
 omi = OmiConnector()
 
 
-async def handle_gmail_summary(raw_data: str):
+class GmailSubscriber(BaseSubscriber):
+    async def register(self):
+        self.event_bus.subscribe("gmail.inbox.summary", _handle_gmail_summary)
+        self.event_bus.subscribe("gmail.inbox.classify", _handle_gmail_classification)
+
+
+async def _handle_gmail_summary(raw_data: str):
     try:
         payload = json.loads(raw_data)
         uid: str = payload["uid"]
@@ -41,7 +49,7 @@ async def handle_gmail_summary(raw_data: str):
         logger.error(f"Error handling gmail inbox: {str(e)}")
 
 
-async def handle_gmail_classification(raw_data: str):
+async def _handle_gmail_classification(raw_data: str):
     try:
         payload = json.loads(raw_data)
         uid = payload["uid"]
@@ -63,7 +71,8 @@ async def handle_gmail_classification(raw_data: str):
             important_categories = gmail_config.important_categories
             ignored_categories = gmail_config.ignored_categories
 
-            classifications = await classifier.classify_batch(unprocessed_emails, important_categories, ignored_categories)
+            classifications = await classifier.classify_batch(unprocessed_emails, important_categories,
+                                                              ignored_categories)
 
             for i, email in enumerate(unprocessed_emails):
                 classification = classifications[index]
@@ -95,13 +104,6 @@ async def handle_gmail_classification(raw_data: str):
 
     except Exception as e:
         logger.error(f"Error in handle_gmail_classification: {str(e)}")
-
-
-async def register_subscribers():
-    await event_bus.connect()
-    event_bus.subscribe("gmail.inbox.summary", handle_gmail_summary)
-    event_bus.subscribe("gmail.inbox.classify", handle_gmail_classification)
-    await event_bus.listen()
 
 
 def _compose_email_text(email: dict, classification: dict) -> str:
