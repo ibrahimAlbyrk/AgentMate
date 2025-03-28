@@ -10,6 +10,8 @@ from Core.logger import LoggerCreator
 from Core.task_runner import TaskRunner
 from Core.startup import start_all_user_agents
 
+from Engines.task_queue_manager import queue_manager
+
 from DB.Routers import user_settings, agent_status, webhook, auth_router, websocket_router
 from DB.database import AsyncSessionLocal
 
@@ -22,6 +24,8 @@ task_runner = TaskRunner()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    queue_manager.start()
+
     await start_all_subscribers()
 
     async with AsyncSessionLocal() as session:
@@ -51,4 +55,4 @@ app.include_router(webhook.router)
 app.include_router(websocket_router.router)
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=6000, reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=6000)
