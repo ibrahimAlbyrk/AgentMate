@@ -2,12 +2,24 @@ from Core.logger import LoggerCreator
 from Core.agent_factory import AgentFactory
 from Interfaces.agent_interface import IAgent
 
-class AgentManager:
-    def __init__(self):
-        self.logger = LoggerCreator.create_advanced_console("AgentManager")
-        self.running_agents: dict[str, dict[str, IAgent]] = {} # {uid: {service: agent}}
+from typing import ClassVar
 
-    async def start_agent(self, uid:str, service: str):
+
+class AgentManager:
+    _instance: ClassVar["AgentManager"] = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(AgentManager, cls).__new__(cls)
+            cls._instance._initialize()
+        return cls._instance
+
+    def _initialize(self):
+        self.logger = LoggerCreator.create_advanced_console("AgentManager")
+        self.running_agents: dict[str, dict[str, IAgent]] = {}
+        """ {uid: {service_name: agent}} """
+
+    async def start_agent(self, uid: str, service: str):
         agent = AgentFactory.create(service)
         if not agent:
             self.logger.warning(f"No agent registered for {service} service")
