@@ -24,7 +24,7 @@ class TaskQueue:
             self.semaphore = asyncio.Semaphore(new_limit)
 
     async def enqueue(self, task_func: Callable[[], Awaitable[Any]], content: str = ""):
-        await self.queue.put((task_func(), content))
+        await self.queue.put((task_func, content))
         if not self.running:
             asyncio.create_task(self._start())
 
