@@ -107,7 +107,8 @@ async def convert_to_memories(uid: str, request: Request):
     else:
         raise HTTPException(status_code=400, detail="Invalid mode")
 
-    await event_bus.publish("gmail.inbox.summary", json.dumps(emails))
+    event_message = {"uid": uid, "emails": emails}
+    await event_bus.publish("gmail.inbox.summary", json.dumps(event_message))
 
     return {"status": "done", "memories": len(emails)}
 
