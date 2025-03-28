@@ -66,8 +66,8 @@ class GmailService:
             msg = await self._get_email_details(msg_id)
 
             subject = "No Subject"
+            print(msg)
             headers = msg.get("payload", {}).get("headers", [])
-            print(headers)
             for h in headers:
                 if h.get("name", "").lower() == "subject":
                     subject = h["value"]
