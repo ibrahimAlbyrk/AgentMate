@@ -29,7 +29,7 @@ class AgentSubscriber(BaseSubscriber):
         self.event_bus.subscribe("agent.restart", _handle_agent_restart)
 
 
-def _handle_agent_start_all(raw_data: str):
+async def _handle_agent_start_all(raw_data: str):
     data = _try_get_all_services(raw_data)
     if not data:
         return
@@ -37,49 +37,49 @@ def _handle_agent_start_all(raw_data: str):
     uid = data.get("uid")
     services = data.get("services")
 
-    agent_manager.start_all_for_user(uid, services)
+    await agent_manager.start_all_for_user(uid, services)
 
 
-def _handle_agent_stop_all(raw_data: str):
+async def _handle_agent_stop_all(raw_data: str):
     uid = _try_get_uid(raw_data)
     if not uid:
         return
 
-    agent_manager.stop_all_for_user(uid)
+    await agent_manager.stop_all_for_user(uid)
 
 
-def _handle_agent_start(raw_data: str):
+async def _handle_agent_start(raw_data: str):
     data = _try_get_data(raw_data)
     if not data:
         return
 
     is_running = agent_manager.is_running(uid, service)
     if is_running:
-        agent_manager.restart_agent(uid, service)
+        await agent_manager.restart_agent(uid, service)
     else:
-        agent_manager.start_agent(uid, service)
+        await agent_manager.start_agent(uid, service)
 
 
-def _handle_agent_stop(raw_data: str):
+async def _handle_agent_stop(raw_data: str):
     data = _try_get_data(raw_data)
     if not data:
         return
 
     is_running = agent_manager.is_running(uid, service)
     if is_running:
-        agent_manager.stop_agent(uid, service)
+        await agent_manager.stop_agent(uid, service)
 
 
-def _handle_agent_restart(raw_data: str):
+async def _handle_agent_restart(raw_data: str):
     data = _try_get_data(raw_data)
     if not data:
         return
 
     is_running = agent_manager.is_running(uid, service)
     if is_running:
-        agent_manager.restart_agent(uid, service)
+        await agent_manager.restart_agent(uid, service)
     else:
-        agent_manager.start_agent(uid, service)
+        await agent_manager.start_agent(uid, service)
 
 
 def _try_get_all_services(raw_data: str) -> dict:
