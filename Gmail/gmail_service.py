@@ -5,6 +5,8 @@ from time import process_time
 from email import message_from_bytes
 from datetime import timezone, datetime, timedelta
 
+from Core.Retry.decorator import retryable
+
 from Core.config import settings
 from Core.logger import LoggerCreator
 from googleapiclient.discovery import build
@@ -36,6 +38,7 @@ class GmailService:
 
         return build('gmail', 'v1', credentials=creds)
 
+    @retryable(max_retries=3, delay=1, backoff=True)
     async def fetch_latest_emails(self, limit: int = 5) -> list[dict]:
         self.logger.debug(f"Fetching {limit} emails for UID: {self.uid}")
         results = self.service.users().messages().list(userId='me', maxResults=limit, q='in:inbox').execute()
@@ -48,10 +51,12 @@ class GmailService:
 
         return emails
 
+    @retryable(max_retries=3, delay=1, backoff=True)
     async def fetch_emails_by_ids(self, ids: list[str]) -> list[dict]:
         self.logger.debug(f"Fetching emails by ID for UID: {self.uid}: {ids}")
         return [await self._get_email_details(msg_id) for msg_id in ids]
 
+    @retryable(max_retries=3, delay=1, backoff=True)
     async def fetch_email_subjects_paginated(self, offset: int = 0, limit: int = 10) -> list[str]:
         self.logger.debug(f"Fetching email subjects (offset={offset}, limit={limit}) for UID: {self.uid}")
         result = self.service.users().messages().list(userId='me', maxResults=offset + limit, q='in:inbox').execute()
@@ -78,6 +83,7 @@ class GmailService:
             })
 
         return subjects
+
 
     async def _get_email_subject_metadata(self, msg_id) -> dict:
         return self.service.users().messages().get(userId='me', id=msg_id, format='metadata',

@@ -7,6 +7,8 @@ from typing import Optional, Literal
 from Core.logger import LoggerCreator
 from Core.task_runner import TaskRunner
 
+from Core.Retry.decorator import retryable
+
 
 class AIRequest:
     def __init__(self, *,
@@ -33,17 +35,7 @@ class BaseAIEngine:
         prompt_str = json.dumps(messages, sort_keys=True)
         return hashlib.sha256(prompt_str.encode("utf-8")).hexdigest()
 
-    async def safe_run(self, request: AIRequest, retries=2):
-        for attempt in range(retries):
-            try:
-                return await self.run(request)
-            except Exception as e:
-                if attempt == retries - 1:
-                    self.logger.error(f"Final AI run failure: {str(e)}")
-                    return ""
-                self.logger.warning(f"Retrying AI run due to error: {str(e)}")
-                await asyncio.sleep(1)
-
+    @retryable(max_retries=5, delay=2, backoff=True)
     async def run(self, request: AIRequest) -> str:
         try:
             prompt_hash = self._has_prompt(request.messages)
@@ -96,7 +88,7 @@ class EmailClassifierEngine(BaseEmailEngine):
         )
 
         try:
-            result = await self.safe_run(request)
+            result = await self.run(request)
             return json.loads(result)
         except Exception as e:
             self.logger.error(f"Taxonomy JSON conversion error: {str(e)}")
@@ -226,7 +218,7 @@ class EmailMemorySummarizerEngine(BaseEmailEngine):
             temperature=0.3
         )
 
-        result = await self.safe_run(request)
+        result = await self.run(request)
         if len(result) > self.character_limit:
             result = result[:self.character_limit] + "..."
         return result
