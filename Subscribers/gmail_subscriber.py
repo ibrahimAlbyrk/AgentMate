@@ -1,4 +1,5 @@
 import json
+import traceback
 
 from Core.event_bus import EventBus
 from Core.logger import LoggerCreator
@@ -99,7 +100,7 @@ async def _handle_gmail_classification(raw_data: str):
 
 
     except Exception as e:
-        logger.error(f"Error in handle_gmail_classification: {str(e)}")
+        logger.error(f"Error in handle_gmail_classification: {str(e)}\n{traceback.format_exc()}")
 
 
 def _build_conversation(email, classification) -> ConversationData:
