@@ -86,13 +86,16 @@ async def _handle_gmail_classification(raw_data: str):
                 logger.error(f"Classification result mismatch or failed for UID: {uid}")
                 return
 
-            tasks = [
-                task
-                for email, cls in zip(unprocessed_emails, classifications)
-                for task in _build_email_tasks(uid, session, email, cls)
+            conversation_tasks = [
+                omi.create_conversation(uid, _build_conversation(email, classification))
+                for email, classification in zip(unprocessed_emails, classifications)
             ]
 
-            await task_runner.run_async_tasks(tasks)
+            await task_runner.run_async_tasks(conversation_tasks)
+
+            for email in unprocessed_emails:
+                gmail_id = email.get("id")
+                await ProcessedGmailService.add(session, uid, gmail_id)
 
 
     except Exception as e:
