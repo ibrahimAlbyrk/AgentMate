@@ -23,7 +23,7 @@ class RetryManager:
         delay = self.policy.delay
         last_exception = None
 
-        while attempt < self.retry_exceptions:
+        while attempt < self.policy.max_retries:
             try:
                 logger.debug(f"Attempt {attempt + 1} for {func.__name__}")
                 if inspect.iscoroutinefunction(fimc):
