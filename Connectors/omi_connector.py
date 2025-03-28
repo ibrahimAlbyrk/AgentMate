@@ -46,7 +46,7 @@ class OmiConnector:
         self.app_id = settings.OMI_APP_ID
         self.logger = LoggerCreator.create_advanced_console("OmiConnector")
 
-    @retryable(max_retries=5, delay=1, backoff=True)
+    @retryable(max_retries=5, delay=1, backoff=True, retry_exceptions=(Exception,))
     async def create_memory(self, uid: str, data: MemoryData):
         url = f"{self.base_url}/v2/integrations/{self.app_id}/user/memories?uid={uid}"
         headers = {
@@ -65,7 +65,7 @@ class OmiConnector:
             self.logger.debug(f"Memory creation response: {response.status_code} - {response.text}")
             return response
 
-    @retryable(max_retries=5, delay=1, backoff=True)
+    @retryable(max_retries=5, delay=1, backoff=True, retry_exceptions=(Exception,))
     async def create_conversation(self, uid: str, data: ConversationData):
         url = f"{self.base_url}/v2/integrations/{self.app_id}/user/conversations?uid={uid}"
         headers = {

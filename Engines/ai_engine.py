@@ -5,9 +5,11 @@ from openai import AsyncOpenAI
 from Core.config import settings
 from typing import Optional, Literal
 from Core.logger import LoggerCreator
+from tiktoken import encoding_for_model
 from Core.task_runner import TaskRunner
 
 from Engines.task_queue_manager import queue_manager
+from Engines.global_token_orchestrator import global_orchestrator
 
 from Core.Retry.decorator import retryable
 
@@ -18,12 +20,14 @@ class AIRequest:
                  model: Optional[str] = "gpt-4o-mini",
                  temperature: Optional[float] = 0.5,
                  tools: Optional[list[dict]] = None,
-                 tool_choice: Optional[dict] = None):
+                 tool_choice: Optional[dict] = None,
+                 estimated_response_tokens: Optional[int] = 500):
         self.model = model
         self.messages = messages
         self.temperature = temperature
         self.tools = tools
         self.tool_choice = tool_choice
+        self.estimated_response_tokens = estimated_response_tokens
 
 
 class BaseAIEngine:
@@ -37,12 +41,30 @@ class BaseAIEngine:
         prompt_str = json.dumps(messages, sort_keys=True)
         return hashlib.sha256(prompt_str.encode("utf-8")).hexdigest()
 
+    @staticmethod
+    def estimate_total_tokens(messages: list[dict], estimated_response_tokens: int) -> int:
+        try:
+            enc = encoding_for_model("gpt-4o-mini")
+            prompt_text = json.dumps(messages, sort_keys=True)
+            prompt_tokens = len(enc.encode(prompt_text))
+            return prompt_tokens + estimated_response_tokens
+        except Exception:
+            return 1000 + estimated_response_tokens
+
     @retryable(max_retries=5, delay=2, backoff=True)
     async def run(self, request: AIRequest) -> str:
         try:
             prompt_hash = self._has_prompt(request.messages)
             if prompt_hash in self.cache:
                 return self.cache[prompt_hash]
+
+            total_estimated_tokens = self.estimate_total_tokens(
+                request.messages, request.estimated_response_tokens
+            )
+
+            orchestrator = GlobalTokenOrchestrator.get_instance()
+            if orchestrator:
+                await orchestrator.wait_for_slot(total_estimated_tokens)
 
             params = {
                 "model": request.model,
@@ -54,7 +76,14 @@ class BaseAIEngine:
             if request.tool_choice:
                 params["tool_choice"] = request.tool_choice
 
-            response: ChatCompletion = await self.client.chat.completions.create(**params)
+            try:
+                response: ChatCompletion = await self.client.chat.completions.create(**params)
+            except OpenAIError as e:
+                if "rate_limit" in str(e).lower():
+                    self.logger.warning("[429] Rate limit exceeded. Waiting before retrying...")
+                    await asyncio.sleep(2)
+                raise e
+
             choice = response.choices[0].message
 
             if choice.tool_calls:

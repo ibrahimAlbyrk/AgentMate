@@ -15,7 +15,7 @@ class TaskQueueManager:
         self.queues: dict[str, dict] = {}  # user_id: {"queue": TaskQueue, "last_used": timestamp}
         self.token_limit_per_minute = token_limit_per_minute
         self.queue_idle_timeout = queue_idle_timeout
-        self.orchestrator = GlobalTokenOrchestrator(max_token_budget=token_limit_per_minute)
+        self.orchestrator = GlobalTokenOrchestrator.get_instance()
         self._cleanup_started = False
 
     async def start(self):
