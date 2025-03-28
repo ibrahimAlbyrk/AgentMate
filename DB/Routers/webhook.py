@@ -109,7 +109,7 @@ async def convert_to_memories(uid: str, request: Request):
 
     await event_bus.publish("gmail.inbox.summary", json.dumps(emails))
 
-    return {"status": "done", "converted emails": len(emails)}
+    return {"status": "done", "memories": len(emails)}
 
 
 @router.get("/setup-complete")
