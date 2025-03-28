@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from DB.Models.user_settings import UserSettings
 
-router = APIRouter(prefix="/status", tags=["Agent Status"])
+router = APIRouter(prefix="/agent", tags=["Agents"])
 
 @router.get("/status")
 async def get_active_agents(uid: str = Query(...), db: AsyncSession = Depends(get_db)):
