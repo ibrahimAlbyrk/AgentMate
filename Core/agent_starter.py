@@ -22,7 +22,7 @@ async def start_user_agents(uid: str, session: AsyncSession):
         logger.debug(f"Starting agents for {uid}: {services}")
 
         event_message = {"uid": uid, "services": services}
-        await event_bus.publish("agent.start_all", event_message)
+        await event_bus.publish("agent.start_all", json.dumps(event_message))
 
     except Exception as e:
         logger.error(f"start_user_agents error: {str(e)}")

@@ -83,8 +83,6 @@ def _try_get_all_services(raw_data: str) -> dict:
     try:
         payload = json.loads(raw_data)
         services = payload["services"]
-        logger.debug(type(services))
-        logger.debug(services)
         return services
     except Exception as e:
         logger.error(f"Error handling agent services data: {str(e)}")

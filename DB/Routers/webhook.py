@@ -66,7 +66,7 @@ async def update_settings(uid: str, service: str, request: Request, db: AsyncSes
     await UserSettingsService.set_config(db, uid, service, config)
 
     event_message = {"uid": uid, "service": service}
-    await EventBus.publish("agent.restart", event_message)
+    await EventBus.publish("agent.restart", json.dumps(event_message))
 
     return {"status": f"{service} agent restarted with new config"}
 
@@ -107,7 +107,7 @@ async def convert_to_memories(uid: str, request: Request):
     else:
         raise HTTPException(status_code=400, detail="Invalid mode")
 
-    event_bus.publish("gmail.inbox.summary", emails)
+    event_bus.publish("gmail.inbox.summary", json.dumps(emails))
 
     return {"status": "done", "converted emails": len(emails)}
 
