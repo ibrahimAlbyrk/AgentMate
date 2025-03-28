@@ -79,9 +79,8 @@ class GmailService:
 
         return subjects
 
-    @staticmethod
-    async def _get_email_subject_metadata(msg_id) -> dict:
-        return service.users().messages().get(userId='me', id=msg_id, format='metadata',
+    async def _get_email_subject_metadata(self, msg_id) -> dict:
+        return self.service.users().messages().get(userId='me', id=msg_id, format='metadata',
                                        metadataHeaders=["Subject"]).execute()
 
     async def _get_email_details(self, msg_id: str) -> dict:
