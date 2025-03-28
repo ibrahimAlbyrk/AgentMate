@@ -74,8 +74,12 @@ async def _handle_gmail_classification(raw_data: str):
             classifications = await classifier.classify_batch(unprocessed_emails, important_categories,
                                                               ignored_categories)
 
+            if not classifications or len(classifications) != len(unprocessed_emails):
+                logger.error(f"Classification result mismatch or failed for UID: {uid}")
+                return
+
             for i, email in enumerate(unprocessed_emails):
-                classification = classifications[index]
+                classification = classifications[i]
 
                 gmail_id = email.get("id")
 
