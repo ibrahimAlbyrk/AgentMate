@@ -30,9 +30,12 @@ class AgentSubscriber(BaseSubscriber):
 
 
 def _handle_agent_start_all(raw_data: str):
-    services = _try_get_all_services(raw_data)
-    if not services:
+    data = _try_get_all_services(raw_data)
+    if not data:
         return
+
+    uid = data.get("uid")
+    services = data.get("services")
 
     agent_manager.start_all_for_user(uid, services)
 
@@ -82,8 +85,9 @@ def _handle_agent_restart(raw_data: str):
 def _try_get_all_services(raw_data: str) -> dict:
     try:
         payload = json.loads(raw_data)
+        uid = payload["uid"]
         services = payload["services"]
-        return services
+        return {"uid": uid, "services": services}
     except Exception as e:
         logger.error(f"Error handling agent services data: {str(e)}")
         return None
