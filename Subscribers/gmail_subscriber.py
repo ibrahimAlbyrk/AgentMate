@@ -2,6 +2,7 @@ import json
 
 from Core.event_bus import EventBus
 from Core.logger import LoggerCreator
+from Core.task_runner import TaskRunner
 
 from DB.database import AsyncSessionLocal
 
@@ -21,6 +22,7 @@ summarizer = EmailMemorySummarizerEngine()
 classifier = EmailClassifierEngine()
 
 omi = OmiConnector()
+task_runner = TaskRunner()
 
 
 class GmailSubscriber(BaseSubscriber):
@@ -37,16 +39,23 @@ async def _handle_gmail_summary(raw_data: str):
 
         summaries = await summarizer.summarize_batch(emails)
 
-        for summary in summaries:
-            memory = MemoryData(
-                text=summary,
-                text_source="other",
-                text_source_spec="learning from emails"
-            )
-            await omi.create_memory(uid, memory)
+        tasks = _build_summary_tasks(uid, summaries)
+
+        await task_runner.run_async_tasks(tasks)
 
     except Exception as e:
-        logger.error(f"Error handling gmail inbox: {str(e)}")
+        import traceback
+        logger.error(f"Error handling gmail inbox: {str(e)}\n{traceback.format_exc()}")
+
+
+def _build_summary_tasks(uid: str, summaries: list[str]):
+    return [
+        omi.create_memory(uid, MemoryData(
+            text=summary,
+            text_source="other",
+            text_source_spec="learning from emails"
+        )) for summary in summaries
+    ]
 
 
 async def _handle_gmail_classification(raw_data: str):
@@ -57,8 +66,7 @@ async def _handle_gmail_classification(raw_data: str):
 
         async with AsyncSessionLocal() as session:
             unprocessed_emails = []
-
-            for index, email in enumerate(emails):
+            for email in emails:
                 gmail_id = email.get("id")
                 if not await ProcessedGmailService.has(session, uid, gmail_id):
                     unprocessed_emails.append(email)
@@ -78,36 +86,39 @@ async def _handle_gmail_classification(raw_data: str):
                 logger.error(f"Classification result mismatch or failed for UID: {uid}")
                 return
 
-            for i, email in enumerate(unprocessed_emails):
-                classification = classifications[i]
+            tasks = [
+                task
+                for email, cls in zip(unprocessed_emails, classifications)
+                for task in _build_email_tasks(uid, session, email, cls)
+            ]
 
-                gmail_id = email.get("id")
-
-                date = email.get("date", None)
-                language = classification.get("language", None)
-                important = classification.get('important', None)
-                text = _compose_email_text(email, classification)
-
-                conversation = ConversationData(
-                    started_at=date,
-                    text=text,
-                    text_source="other_text",
-                    text_source_spec=f"email about {important}" if important else "email",
-                    language=language
-                )
-
-                await omi.create_conversation(uid, conversation)
-
-                await ProcessedGmailService.add(
-                    session=session,
-                    uid=uid,
-                    gmail_id=gmail_id,
-                    # content=text[:200]
-                )
+            await task_runner.run_async_tasks(tasks)
 
 
     except Exception as e:
         logger.error(f"Error in handle_gmail_classification: {str(e)}")
+
+
+def _build_email_tasks(uid, session, email, classification):
+    gmail_id = email.get("id")
+    date = email.get("date", None)
+    language = classification.get("language", None)
+    important = classification.get("important", None)
+
+    text = _compose_email_text(email, classification)
+
+    conversation = ConversationData(
+        started_at=date,
+        text=text,
+        text_source="other_text",
+        text_source_spec=f"email about {important}" if important else "email",
+        language=language
+    )
+
+    return [
+        omi.create_conversation(uid, conversation),
+        ProcessedGmailService.add(session, uid, gmail_id)
+    ]
 
 
 def _compose_email_text(email: dict, classification: dict) -> str:
