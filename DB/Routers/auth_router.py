@@ -23,7 +23,7 @@ async def is_logged_in(service: str, uid: str, session: AsyncSession = Depends(g
     if not provider:
         raise HTTPException(status_code=400, detail="Unknown service")
 
-    is_logged_in = UserSettingsService.is_logged_in(session, uid, service)
+    is_logged_in = await UserSettingsService.is_logged_in(session, uid, service)
     if not is_logged_in:
         return {"is_logged_in": False}
 
@@ -61,26 +61,38 @@ async def service_login_directly(uid: str, service: str, credentials: str):
 
 @router.post("/{service}/logout")
 async def service_logout(uid: str, service: str, session: AsyncSession = Depends(get_db)):
+    """
+    Return:
+        - Success
+        - Info
+    """
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
-    is_logged_in = UserSettingsService.is_logged_in(session, uid, service)
+    is_logged_in = await UserSettingsService.is_logged_in(session, uid, service)
 
     if not is_logged_in:
-        return {"success": True}
+        return {
+            "success": True,
+            "info": "Already logged out"
+        }
 
-    login_success = False
-
-    provider = settings.AUTH_PROVIDERS.get(service)
-
-    if login_success:
+    try:
         await UserSettingsService.set_logged_in(session, uid, service, True)
+        login_success = True
+        info = "Successfully logged out"
+    except Exception as e:
+        login_success = False
+        info = f"An error occurred: {str(e)}"
 
-    return {"success": login_success}
+    return {
+        "success": login_success,
+        "info": info
+    }
 
 
 @router.get("/{service}/login")
-async def service_login(uid: str, service: str, request: Request, session: AsyncSession = Depends(get_db)):
+async def service_login(uid: str, service: str, session: AsyncSession = Depends(get_db)):
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
@@ -88,7 +100,7 @@ async def service_login(uid: str, service: str, request: Request, session: Async
     if not provider:
         raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
 
-    is_logged_in = UserSettingsService.is_logged_in(session, uid, service)
+    is_logged_in = await UserSettingsService.is_logged_in(session, uid, service)
     if is_logged_in:
         redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
         return RedirectResponse(url=redirect_uri)
