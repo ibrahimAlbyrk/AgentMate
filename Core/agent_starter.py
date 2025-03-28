@@ -21,7 +21,7 @@ async def start_user_agents(uid: str, session: AsyncSession):
 
         logger.debug(f"Starting agents for {uid}: {services}")
 
-        event_message = {"uid": uid, "service": service}
+        event_message = {"uid": uid, "services": services}
         await event_bus.publish("agent.start_all", event_message)
 
     except Exception as e:
