@@ -9,7 +9,7 @@ from tiktoken import encoding_for_model
 from Core.task_runner import TaskRunner
 
 from Engines.task_queue_manager import queue_manager
-from Engines.global_token_orchestrator import global_orchestrator
+from Engines.global_token_orchestrator import GlobalTokenOrchestrator
 
 from Core.Retry.decorator import retryable
 
