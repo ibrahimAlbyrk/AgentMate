@@ -79,7 +79,7 @@ def _handle_agent_restart(raw_data: str):
         agent_manager.start_agent(uid, service)
 
 
-def _try_get_all_services(raw_data: str) -> list[str]:
+def _try_get_all_services(raw_data: str) -> dict:
     try:
         payload = json.loads(raw_data)
         services = payload["services"]
