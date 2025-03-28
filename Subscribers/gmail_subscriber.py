@@ -40,6 +40,9 @@ async def _handle_gmail_summary(raw_data: str):
 
         summaries = await summarizer.summarize_batch(emails)
 
+        event_message = {"uid": uid, "memories": summaries}
+        await event_bus.publish("websocket.gmail.memory",json.dumps(event_message))
+
         tasks = _build_summary_tasks(uid, summaries)
 
         await task_runner.run_async_tasks(tasks)
