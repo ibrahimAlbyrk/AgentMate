@@ -51,6 +51,7 @@ class RetryManager:
                     return await self.policy.fallback(*args, **kwargs)
                 return self.policy.fallback(*args, **kwargs)
             except Exception as fallback_err:
-                logger.error(f"Fallback failed for {func.__name__}: {str(fallback_err)}")
+                # logger.error(f"Fallback failed for {func.__name__}: {str(fallback_err)}")
+                pass
 
         raise RetryException(last_exception, attempt)
