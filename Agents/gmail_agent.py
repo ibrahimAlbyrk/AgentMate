@@ -51,9 +51,6 @@ class GmailAgent(IAgent):
                     if not config:
                         self.logger.warning(f"No config found for GmailAgent uid: {uid}")
                         break
-                    self.logger.debug(f"[{uid}] config: {config}")
-                    self.logger.debug(
-                        f"[{uid}] mail_count: {config.get('mail_count')}, type: {type(config.get('mail_count'))}")
                     interval = config.get("mail_check_interval", 60)
                     mail_count = config.get("mail_count", 3)
 
