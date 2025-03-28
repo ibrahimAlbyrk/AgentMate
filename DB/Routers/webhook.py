@@ -72,7 +72,7 @@ async def update_settings(uid: str, service: str, request: Request, db: AsyncSes
 
 
 @router.get("/gmail/get-email-subjects")
-async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10, session: AsyncSession = Depends(get_db)):
+async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10):
     if not uid:
         raise HTTPException(status_code=400, detail=f"UID not provided")
 
@@ -83,7 +83,7 @@ async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10, session
 
 
 @router.post("/gmail/convert-to-memory")
-async def convert_to_memories(uid: str, request: Request, session: AsyncSession = Depends(get_db)):
+async def convert_to_memories(uid: str, request: Request):
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
