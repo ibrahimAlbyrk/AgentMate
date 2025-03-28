@@ -24,7 +24,7 @@ task_runner = TaskRunner()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    queue_manager.start()
+    await queue_manager.start()
 
     await start_all_subscribers()
 

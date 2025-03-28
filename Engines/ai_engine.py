@@ -7,6 +7,8 @@ from typing import Optional, Literal
 from Core.logger import LoggerCreator
 from Core.task_runner import TaskRunner
 
+from Engines.task_queue_manager import queue_manager
+
 from Core.Retry.decorator import retryable
 
 
@@ -66,7 +68,6 @@ class BaseAIEngine:
 class BaseEmailEngine(BaseAIEngine):
     def __init__(self, name: str):
         super().__init__(name)
-        self.task_runner = TaskRunner()
 
 
 class EmailClassifierEngine(BaseEmailEngine):
@@ -95,19 +96,34 @@ class EmailClassifierEngine(BaseEmailEngine):
             return {}
 
     async def classify_batch(self,
+                             uid: str,
                              emails: list[dict],
                              important_categories: Optional[list[str]] = None,
                              ignored_categories: Optional[list[str]] = None) -> list[dict]:
-        return await self.task_runner.run_async_tasks([
-            self.classify(email, important_categories=important_categories, ignored_categories=ignored_categories)
-            for email in emails
-        ])
+
+        results = [None] * len(emails)
+        queue = queue_manager.get_or_create_queue(
+            user_id=uid,
+            texts=[e["body"] for e in emails]
+        )
+
+        for index, email in enumerate(emails):
+            async def task(i=index, e=email):
+                result = await self.classify(e, important_categories, ignored_categories)
+                results[i] = result
+
+            await queue.enqueue(task, content=email["body"])
+
+        while any(r is None for r in results):
+            await asyncio.sleep(0.2)
+
+        return results
 
     @staticmethod
     def _build_classification_prompt(email: dict) -> str:
         subject = email.get("subject", "")
         sender = email.get("from", "Unknown")
-        content = email.get("body", "")[:2000] # Token trimming for now
+        content = email.get("body", "")[:2000]  # Token trimming for now
         return f"Title: {subject}\nFrom: {sender}\nContent: {content[:1000]}"
 
     @staticmethod
@@ -223,7 +239,22 @@ class EmailMemorySummarizerEngine(BaseEmailEngine):
             result = result[:self.character_limit] + "..."
         return result
 
-    async def summarize_batch(self, emails: list[dict]) -> list[str]:
-        return await self.task_runner.run_async_tasks([
-            self.summarize(email) for email in emails
-        ])
+    async def summarize_batch(self, uid: str, emails: list[dict]) -> list[str]:
+        results = [None] * len(emails)
+
+        queue = queue_manager.get_or_create_queue(
+            user_id=uid,
+            texts=[e["body"] for e in emails]
+        )
+
+        for index, email in enumerate(emails):
+            async def task(i=index, e=email):
+                result = await self.summarize(e)
+                result[i] = result
+
+            await queue.enqueue(task, content=email["body"])
+
+        while any(r is None for r in results):
+            await asyncio.sleep(0.2)
+
+        return results

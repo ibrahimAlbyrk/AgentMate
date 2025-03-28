@@ -38,12 +38,12 @@ async def _handle_gmail_summary(raw_data: str):
         uid: str = payload["uid"]
         emails: list[dict] = payload["emails"]
 
-        summaries = await summarizer.summarize_batch(emails)
+        summaries = await summarizer.summarize_batch(uid, emails)
 
         event_message = {"uid": uid, "memories": summaries}
         await event_bus.publish("websocket.gmail.memory",json.dumps(event_message))
 
-        tasks = _build_summary_tasks(uid, summaries)
+        tasks = _build_memory_tasks(uid, summaries)
 
         await task_runner.run_async_tasks(tasks)
 
@@ -52,7 +52,7 @@ async def _handle_gmail_summary(raw_data: str):
         logger.error(f"Error handling gmail inbox: {str(e)}\n{traceback.format_exc()}")
 
 
-def _build_summary_tasks(uid: str, summaries: list[str]):
+def _build_memory_tasks(uid: str, summaries: list[str]):
     return [
         omi.create_memory(uid, MemoryData(
             text=summary,
@@ -83,7 +83,7 @@ async def _handle_gmail_classification(raw_data: str):
             important_categories = gmail_config.important_categories
             ignored_categories = gmail_config.ignored_categories
 
-            classifications = await classifier.classify_batch(unprocessed_emails, important_categories,
+            classifications = await classifier.classify_batch(uid, unprocessed_emails, important_categories,
                                                               ignored_categories)
 
             if not classifications or len(classifications) != len(unprocessed_emails):
