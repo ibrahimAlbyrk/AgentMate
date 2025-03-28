@@ -6,14 +6,13 @@ import importlib
 from Core.event_bus import EventBus
 from Core.logger import LoggerCreator
 
+import Subscribers
 from Subscribers.base_subscriber import BaseSubscriber
 
 logger = LoggerCreator.create_advanced_console("SubscriberManager")
 event_bus = EventBus()
 
 async def start_all_subscribers():
-    from Subscribers import gmail_subscriber, agent_subscriber
-    import Subscribers
 
     logger.debug("Starting EventBus subscribers...")
     for _, module_name, _ in pkgutil.iter_modules(Subscribers.__path__):
