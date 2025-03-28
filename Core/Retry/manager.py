@@ -26,7 +26,7 @@ class RetryManager:
         while attempt < self.policy.max_retries:
             try:
                 logger.debug(f"Attempt {attempt + 1} for {func.__name__}")
-                if inspect.iscoroutinefunction(fimc):
+                if inspect.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
                 return func(*args, **kwargs)
             except self.retry_exceptions as e:
