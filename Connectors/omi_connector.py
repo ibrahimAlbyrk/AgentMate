@@ -4,6 +4,7 @@ from Core.config import settings
 from Core.logger import LoggerCreator
 from datetime import datetime, timezone
 
+timeout_config = httpx.Timeout(15.0, connect=5.0)
 
 class MemoryData:
     def __init__(self, text: str, text_source: str, text_source_spec: Optional[str] = ""):
@@ -56,7 +57,7 @@ class OmiConnector:
             "text_source_spec": data.text_source_spec
         }
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=timeout_config) as client:
             response = await client.post(url, json=payload, headers=headers)
             self.logger.debug(f"Memory creation response: {response.status_code} - {response.text}")
             return response
@@ -77,7 +78,7 @@ class OmiConnector:
             "text_source_spec": data.text_source_spec
         }
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=timeout_config) as client:
             response = await client.post(url, json=payload, headers=headers)
             self.logger.debug(f"Conversation creation response: {response.status_code} - {response.text}")
             return response
