@@ -25,7 +25,7 @@ async def _handle_memory_send(raw_data: str):
     uid = data.get("uid", "")
     memories = data.get("memories", [])
 
-    await send_message_to_active_connection(uid, message_type="gmail.memory", message=memories)
+    await send_message_to_active_connection(uid, message_type="gmail.memory", message={"memories": memories})
 
 
 def _get_data(raw_data: str) -> dict:
