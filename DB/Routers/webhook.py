@@ -4,7 +4,6 @@ from pydantic import ValidationError
 
 from DB.database import get_db
 from fastapi.responses import JSONResponse
-from Core.agent_manager import AgentManager
 from Gmail.gmail_service import GmailService
 from sqlalchemy.ext.asyncio import AsyncSession
 from DB.Schemas.gmail_config import GmailConfig
@@ -14,16 +13,17 @@ from DB.Services.user_settings_service import UserSettingsService
 from DB.Services.processed_gmail_service import ProcessedGmailService
 from fastapi import APIRouter, Request, HTTPException, status, Depends
 
+from Core.event_bus import EventBus
 from Core.config import settings
 
 from Subscribers.gmail_subscriber import event_bus
 
 router = APIRouter(tags=["Unified Service Webhook"])
 
-agent_manager = AgentManager()
 memory_engine = EmailMemorySummarizerEngine()
 omi = OmiConnector()
 
+EventBus = EventBus()
 
 @router.get("/{service}/get-settings")
 async def get_settings(uid: str, service: str, session: AsyncSession = Depends(get_db)):
@@ -64,7 +64,9 @@ async def update_settings(uid: str, service: str, request: Request, db: AsyncSes
         config = config_data
 
     await UserSettingsService.set_config(db, uid, service, config)
-    await agent_manager.restart_agent(uid, service)
+
+    event_message = {"uid": uid, "service": service}
+    await EventBus.publish("agent.restart", event_message)
 
     return {"status": f"{service} agent restarted with new config"}
 

@@ -1,12 +1,12 @@
 from sqlalchemy.future import select
 from Core.logger import LoggerCreator
-from Core.agent_manager import AgentManager
 from sqlalchemy.ext.asyncio import AsyncSession
 from DB.Models.user_settings import UserSettings
 
-logger = LoggerCreator.create_advanced_console("AgentStarter")
+from Core.event_bus import EventBus
 
-agent_manager = AgentManager()
+logger = LoggerCreator.create_advanced_console("AgentStarter")
+event_bus = EventBus()
 
 async def start_user_agents(uid: str, session: AsyncSession):
     try:
@@ -20,6 +20,9 @@ async def start_user_agents(uid: str, session: AsyncSession):
             return
 
         logger.debug(f"Starting agents for {uid}: {services}")
-        await agent_manager.start_all_for_user(uid, services)
+
+        event_message = {"uid": uid, "service": service}
+        await event_bus.publish("agent.start_all", event_message)
+
     except Exception as e:
         logger.error(f"start_user_agents error: {str(e)}")

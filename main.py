@@ -13,7 +13,7 @@ from Core.startup import start_all_user_agents
 from DB.Routers import user_settings, agent_status, webhook, auth_router
 from DB.database import AsyncSessionLocal
 
-from Subscribers.gmail_subscriber import register_subscribers
+from Subscribers.subscriber_manager import start_all_subscribers, stop_all_subscribers
 
 logger = LoggerCreator.create_advanced_console("Main")
 event_bus = EventBus()
@@ -22,18 +22,14 @@ task_runner = TaskRunner()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.debug("Starting EventBus subscribers...")
-
-    asyncio.create_task(register_subscribers())
+    await start_all_subscribers()
 
     async with AsyncSessionLocal() as session:
         await start_all_user_agents(session)
 
     yield
+    await stop_all_subscribers()
 
-    if event_bus.redis:
-        logger.debug("Shutting down EventBus and task pool...")
-        await event_bus.redis.close()
     task_runner.executor.shutdown(wait=False)
     logger.info("Shutdown complete.")
 
