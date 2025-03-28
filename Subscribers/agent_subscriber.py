@@ -53,6 +53,9 @@ async def _handle_agent_start(raw_data: str):
     if not data:
         return
 
+    uid = data.get("uid")
+    service = data.get("service")
+
     is_running = agent_manager.is_running(uid, service)
     if is_running:
         await agent_manager.restart_agent(uid, service)
@@ -65,6 +68,9 @@ async def _handle_agent_stop(raw_data: str):
     if not data:
         return
 
+    uid = data.get("uid")
+    service = data.get("service")
+
     is_running = agent_manager.is_running(uid, service)
     if is_running:
         await agent_manager.stop_agent(uid, service)
@@ -74,6 +80,9 @@ async def _handle_agent_restart(raw_data: str):
     data = _try_get_data(raw_data)
     if not data:
         return
+
+    uid = data.get("uid")
+    service = data.get("service")
 
     is_running = agent_manager.is_running(uid, service)
     if is_running:
