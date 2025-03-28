@@ -40,6 +40,21 @@ class Settings:
             "redirect_uri": GOOGLE_REDIRECT_URI
         }
     }
+    """
+    PROVIDERS:
+        - GMAIL:
+            - Client Secret
+            - Scopes
+            - Redirect URI
+        - CALENDER:
+        - NOTION:
+        - FACEBOOK:
+        - INSTAGRAM:
+        - YOUTUBE:
+        - DISCORD:
+        - SLACK:
+        - WHATSAPP:
+    """
 
     # ASYNC
     USE_ASYNC: bool = True
