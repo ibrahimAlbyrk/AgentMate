@@ -102,26 +102,20 @@ async def _handle_gmail_classification(raw_data: str):
         logger.error(f"Error in handle_gmail_classification: {str(e)}")
 
 
-def _build_email_tasks(uid, session, email, classification):
-    gmail_id = email.get("id")
+def _build_conversation(email, classification) -> ConversationData:
     date = email.get("date", None)
-    language = classification.get("language", None)
+    language = classification.get("language", 'en')
     important = classification.get("important", None)
 
     text = _compose_email_text(email, classification)
 
-    conversation = ConversationData(
+    return ConversationData(
         started_at=date,
         text=text,
         text_source="other_text",
-        text_source_spec=f"email about {important}" if important else "email",
+        text_source_spec=f"email about {classification.get(important)}" if classification.get(important) else "email",
         language=language
     )
-
-    return [
-        omi.create_conversation(uid, conversation),
-        ProcessedGmailService.add(session, uid, gmail_id)
-    ]
 
 
 def _compose_email_text(email: dict, classification: dict) -> str:
