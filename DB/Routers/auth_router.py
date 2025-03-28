@@ -59,6 +59,26 @@ async def service_login_directly(uid: str, service: str, credentials: str):
     _save_token(uid, service, credentials)
 
 
+@router.post("/{service}/logout")
+async def service_logout(uid: str, service: str, session: AsyncSession = Depends(get_db)):
+    if not uid:
+        raise HTTPException(status_code=400, detail="Missing uid")
+
+    is_logged_in = UserSettingsService.is_logged_in(session, uid, service)
+
+    if not is_logged_in:
+        return {"success": True}
+
+    login_success = False
+
+    provider = settings.AUTH_PROVIDERS.get(service)
+
+    if login_success:
+        await UserSettingsService.set_logged_in(session, uid, service, True)
+
+    return {"success": login_success}
+
+
 @router.get("/{service}/login")
 async def service_login(uid: str, service: str, request: Request, session: AsyncSession = Depends(get_db)):
     if not uid:
