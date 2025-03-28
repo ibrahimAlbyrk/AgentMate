@@ -63,10 +63,9 @@ class GmailService:
                 break
 
             msg_id = messages[i]['id']
-            msg = await self._get_email_details(msg_id)
+            msg = await self._get_email_subject_metadata(msg_id)
 
             subject = "No Subject"
-            print(msg)
             headers = msg.get("payload", {}).get("headers", [])
             for h in headers:
                 if h.get("name", "").lower() == "subject":
@@ -79,6 +78,11 @@ class GmailService:
             })
 
         return subjects
+
+    @staticmethod
+    async def _get_email_subject_metadata(msg_id) -> dict:
+        return service.users().messages().get(userId='me', id=msg_id, format='metadata',
+                                       metadataHeaders=["Subject"]).execute()
 
     async def _get_email_details(self, msg_id: str) -> dict:
         message = self.service.users().messages().get(userId='me', id=msg_id, format='full').execute()
