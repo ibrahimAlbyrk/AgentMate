@@ -250,7 +250,7 @@ class EmailMemorySummarizerEngine(BaseEmailEngine):
         for index, email in enumerate(emails):
             async def task(i=index, e=email):
                 result = await self.summarize(e)
-                result[i] = result
+                results[i] = result
 
             await queue.enqueue(task, content=email["body"])
 
