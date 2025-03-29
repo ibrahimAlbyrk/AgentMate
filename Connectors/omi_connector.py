@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 from Core.Retry.decorator import retryable
 
-timeout_config = httpx.Timeout(15.0, connect=5.0)
+timeout_config = httpx.Timeout(30.0)
 
 class MemoryData:
     def __init__(self, text: str, text_source: str, text_source_spec: Optional[str] = ""):
