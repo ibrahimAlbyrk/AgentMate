@@ -31,7 +31,8 @@ class GmailAgent(IAgent):
 
     def _handle_new_email_messages(self, event: TriggerEventData):
         raw_data = event.model_dump_json()
-        email = _decode_email(raw_data)
+        data = json.loads(raw_data)
+        email = _decode_email(data)
 
         print(f"Date: {email['date']}")
         print(f"From: {email['from']}")
