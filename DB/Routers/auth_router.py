@@ -110,12 +110,14 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
 
     service_name = settings.SERVICES.get(service)
     entity = toolset.get_entity(uid)
-    conn_req = entity.initiate_connection(service_name, redirect_url=f"{settings.BASE_URI}/{service}/callback?uid={uid}")
+    conn_req = entity.initiate_connection(service_name, redirect_url=f"{settings.BASE_URI}/api/{service}/callback?uid={uid}")
     redirect_uri = conn_req.redirectUrl
 
     logger.debug(f"[{service}] Redirecting UID {uid} to OAuth flow")
     return RedirectResponse(redirect_uri)
 
+
+# https://omi-wroom.org/gmail/callback?uid=bhnZLNzCiGgbsxxgpru2NKpxGJL2&status=success&connectedAccountId=4b8203f3-9647-4ed7-bc7b-f264b015f506&appName=gmail
 
 @router.get("/{service}/callback")
 async def service_callback(uid: str, service: str, request: Request, session: AsyncSession = Depends(get_db)):
