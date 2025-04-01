@@ -11,6 +11,8 @@ from DB.Services.user_settings_service import UserSettingsService
 from Connectors.omi_connector import OmiConnector, ConversationData
 from DB.Services.processed_gmail_service import ProcessedGmailService
 
+from composio_openai import App
+
 from DB.Services.user_settings_service import UserSettingsService
 
 
