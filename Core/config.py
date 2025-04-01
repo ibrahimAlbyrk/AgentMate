@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 from DB.Schemas.gmail_config import GmailConfig
 
+from composio_openai import App
+
 load_dotenv()
 
 
@@ -32,6 +34,10 @@ class Settings:
 
     TOKEN_PATH = "tokens/{service}/{uid}.pickle"
     POST_LOGIN_REDIRECT = "https://omi-wroom.org/{service}/settings?uid={uid}"
+
+    SERVICES: dict[str, App] = {
+        "gmail": App.GMAIL
+    }
 
     AUTH_PROVIDERS: dict[str, dict] = {
         "gmail": {

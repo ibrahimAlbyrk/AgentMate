@@ -7,6 +7,8 @@ class UserSettingsBase(BaseModel):
     uid: str
     service_name: str
 
+    service_id: str
+
     is_logged_in: bool
     token_path: str
 

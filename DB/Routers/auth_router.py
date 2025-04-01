@@ -11,6 +11,8 @@ from fastapi import APIRouter, Request, HTTPException, Depends
 from DB.Services.user_settings_service import UserSettingsService
 from google.auth.transport.requests import Request as GoogleRequest
 
+from Interfaces.agent_interface import toolset
+
 router = APIRouter(tags=["Unified Auth"])
 logger = LoggerCreator.create_advanced_console("AuthRouter")
 
@@ -91,6 +93,7 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
     }
 
 
+from composio_openai import ComposioToolSet, App, Action
 @router.get("/{service}/login")
 async def service_login(uid: str, service: str, session: AsyncSession = Depends(get_db)):
     if not uid:
@@ -105,24 +108,30 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
         redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
         return RedirectResponse(url=redirect_uri)
 
-    client_secret_path =  provider["client_secret"]
-    if not client_secret_path:
-        raise HTTPException(status_code=400, detail="Missing client_secret")
+    service_name = settings.SERVICES.get(service)
+    entity = toolset.get_entity(uid)
+    conn_req = entity.initiate_connection(service_name, redirect_uri=f"https://omi-wroom.org/{service}/settings")
+    redirect_uri = conn_req.redirect_uri
+    return RedirectResponse(redirect_uri)
 
-    with open(client_secret_path, "rb") as client_secret_file:
-        client_secret = json.load(client_secret_file)
+    # client_secret_path =  provider["client_secret"]
+    # if not client_secret_path:
+    #     raise HTTPException(status_code=400, detail="Missing client_secret")
 
-    flow = Flow.from_client_config(
-        client_secret,
-        scopes=provider["scopes"],
-        redirect_uri=provider["redirect_uri"],
-    )
-
-    auth_url, state = flow.authorization_url(prompt="consent")
-    OAUTH_FLOW_CACHE[state] = {"flow": flow, "uid": uid, "service": service}
-
-    logger.debug(f"[{service}] Redirecting UID {uid} to OAuth flow")
-    return RedirectResponse(auth_url)
+    # with open(client_secret_path, "rb") as client_secret_file:
+    #     client_secret = json.load(client_secret_file)
+    #
+    # flow = Flow.from_client_config(
+    #     client_secret,
+    #     scopes=provider["scopes"],
+    #     redirect_uri=provider["redirect_uri"],
+    # )
+    #
+    # auth_url, state = flow.authorization_url(prompt="consent")
+    # OAUTH_FLOW_CACHE[state] = {"flow": flow, "uid": uid, "service": service}
+    #
+    # logger.debug(f"[{service}] Redirecting UID {uid} to OAuth flow")
+    # return RedirectResponse(auth_url)
 
 
 @router.get("/{service}/callback")

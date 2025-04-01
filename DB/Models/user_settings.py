@@ -8,6 +8,8 @@ class UserSettings(BaseModel):
     uid = Column(String, nullable=False)
     service_name = Column(String, nullable=False)
 
+    service_id = Column(String, nullable=False)
+
     is_logged_in = Column(Boolean, default=False)
     token_path = Column(String, nullable=True)
 
