@@ -5,6 +5,7 @@ from Interfaces.agent_interface import IAgent
 from typing import ClassVar
 
 
+
 class AgentManager:
     _instance: ClassVar["AgentManager"] = None
 
