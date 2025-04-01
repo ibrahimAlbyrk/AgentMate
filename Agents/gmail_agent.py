@@ -29,14 +29,17 @@ class GmailAgent(IAgent):
 
     def _handle_new_email_messages(self, event):
         try:
-            event_dict = event.dict()
-            payload = event_dict["payload"]
+            raw_json = event.json()
+            event_dict = json.loads(raw_json)
 
+            payload = event_dict["payload"]
             sender = payload["sender"]
             subject = payload["subject"]
             content = payload["messageText"]
 
-            print(f"Sender: {sender}\nSubject: {subject}\nContent:\n{content}")
+            print(f"Sender: {sender}")
+            print(f"Subject: {subject}")
+            print(f"Content:\n{content}")
 
         except Exception as e:
             print("Error:", e)
