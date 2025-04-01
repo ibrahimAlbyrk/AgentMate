@@ -1,7 +1,6 @@
 import asyncio
 import json
 from typing import Optional
-from email.utils import parsedate_to_datetime
 
 from composio.client.collections import TriggerEventData
 
@@ -43,13 +42,6 @@ class GmailAgent(IAgent):
 
 def _decode_email(payload: dict) -> dict:
     date = payload.get("messageTimestamp")
-    try:
-        date_obj = parsedate_to_datetime(date).astimezone(timezone.utc)
-        date_iso = date_obj.isoformat()
-    except Exception as e:
-        self.logger.error(f"Failed to parse date: {str(e)}")
-        date_iso = date
-
     msg_id = payload.get("messageId")
     subject = payload.get("subject")
     sender = payload.get("sender")
@@ -57,7 +49,7 @@ def _decode_email(payload: dict) -> dict:
 
     return {
         'id': msg_id,
-        'date': date_iso,
+        'date': date,
         'subject': subject,
         'from': sender,
         'body': body
