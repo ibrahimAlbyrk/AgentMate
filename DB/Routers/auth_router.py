@@ -122,8 +122,9 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
 @router.get("/{service}/callback")
 async def service_callback(uid: str, service: str, request: Request, session: AsyncSession = Depends(get_db)):
     status = request.query_params.get("status")
-    if status is not "success":
-       return RedirectResponse(settings.BASE_URI)
+    print(status)
+    # if status is not "success":
+    #    return RedirectResponse(settings.BASE_URI)
 
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
