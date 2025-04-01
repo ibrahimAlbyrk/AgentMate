@@ -105,6 +105,8 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
 
     is_logged_in = await UserSettingsService.is_logged_in(session, uid, service)
     if is_logged_in:
+        data = await UserSettingsService.get(session, uid, service)
+        print(data.service_id)
         redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
         return RedirectResponse(url=redirect_uri)
 
