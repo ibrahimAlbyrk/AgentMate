@@ -31,7 +31,7 @@ async def stop_all_user_agents(session: AsyncSession):
             .distinct())
         uid_list = [row[0] for row in result.all()]
 
-        logger.debug(f"Starting agents for {len(uid_list)} registered user(s): {uid_list}")
+        logger.debug(f"Stopping agents for {len(uid_list)} registered user(s): {uid_list}")
 
         for uid in uid_list:
             await stop_user_agents(uid, session)
