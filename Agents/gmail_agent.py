@@ -95,16 +95,3 @@ class GmailAgent(IAgent):
 #             except Exception as e:
 #                 self.logger.error(f"GmailAgent loop error for {uid}: {str(e)}")
 #                 await asyncio.sleep(2)
-
-
-#
-# api_key = "jdamsz5eznofuv31v16157"
-# toolset = ComposioToolSet(api_key=api_key)
-#
-# uid = "bhnZLNzCiGgbsxxgpru2NKpxGJL2"
-# entity = toolset.get_entity(id=uid)
-# # conn_req = entity.initiate_connection(app_name=App.GMAIL, redirect_url="https://google.com")
-# # print(conn_req.redirectUrl)
-# # connection = conn_req.wait_until_active(toolset.client, timeout=20)
-# connection = entity.get_connection(App.GMAIL, "7d3ebbd9-6f62-406f-b767-a2bb40b2dc01")
-# print(connection.id)
