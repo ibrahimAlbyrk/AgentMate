@@ -11,13 +11,14 @@ from fastapi import APIRouter, Request, HTTPException, Depends
 from DB.Services.user_settings_service import UserSettingsService
 from google.auth.transport.requests import Request as GoogleRequest
 
-from Interfaces.agent_interface import toolset
+from composio_openai import ComposioToolSet, App, Action
 
 router = APIRouter(tags=["Unified Auth"])
 logger = LoggerCreator.create_advanced_console("AuthRouter")
 
 OAUTH_FLOW_CACHE: dict[str, dict] = {}
 
+toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
 
 @router.get("/{service}/is-logged-in")
 async def is_logged_in(service: str, uid: str, session: AsyncSession = Depends(get_db)):
@@ -93,7 +94,6 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
     }
 
 
-from composio_openai import ComposioToolSet, App, Action
 @router.get("/{service}/login")
 async def service_login(uid: str, service: str, session: AsyncSession = Depends(get_db)):
     if not uid:
@@ -110,7 +110,7 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
 
     service_name = settings.SERVICES.get(service)
     entity = toolset.get_entity(uid)
-    conn_req = entity.initiate_connection(service_name, redirect_uri=f"https://omi-wroom.org/{service}/settings")
+    conn_req = entity.initiate_connection(service_name, redirect_url=f"https://omi-wroom.org/{service}/settings")
     redirect_uri = conn_req.redirect_uri
     return RedirectResponse(redirect_uri)
 
