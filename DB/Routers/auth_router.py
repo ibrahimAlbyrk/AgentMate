@@ -110,58 +110,25 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
 
     service_name = settings.SERVICES.get(service)
     entity = toolset.get_entity(uid)
-    conn_req = entity.initiate_connection(service_name, redirect_url=f"https://omi-wroom.org/{service}/settings")
+    conn_req = entity.initiate_connection(service_name, redirect_url=f"{settings.BASE_URI}/{service}/callback?uid={uid}")
     redirect_uri = conn_req.redirectUrl
+
+    logger.debug(f"[{service}] Redirecting UID {uid} to OAuth flow")
     return RedirectResponse(redirect_uri)
-
-    # client_secret_path =  provider["client_secret"]
-    # if not client_secret_path:
-    #     raise HTTPException(status_code=400, detail="Missing client_secret")
-
-    # with open(client_secret_path, "rb") as client_secret_file:
-    #     client_secret = json.load(client_secret_file)
-    #
-    # flow = Flow.from_client_config(
-    #     client_secret,
-    #     scopes=provider["scopes"],
-    #     redirect_uri=provider["redirect_uri"],
-    # )
-    #
-    # auth_url, state = flow.authorization_url(prompt="consent")
-    # OAUTH_FLOW_CACHE[state] = {"flow": flow, "uid": uid, "service": service}
-    #
-    # logger.debug(f"[{service}] Redirecting UID {uid} to OAuth flow")
-    # return RedirectResponse(auth_url)
 
 
 @router.get("/{service}/callback")
-async def service_callback(service: str, request: Request, session: AsyncSession = Depends(get_db)):
-    state = request.query_params.get("state")
-    if not state or state not in OAUTH_FLOW_CACHE:
-        raise HTTPException(status_code=400, detail=f"Invalid or expired OAuth state: {state}")
+async def service_callback(uid: str, service: str, request: Request, session: AsyncSession = Depends(get_db)):
+    if not uid:
+        raise HTTPException(status_code=400, detail="Missing uid")
 
-    cache = OAUTH_FLOW_CACHE[state]
-    flow = cache["flow"]
-    uid = cache["uid"]
-    cached_service = cache["service"]
-
-    if cached_service != service:
-        raise HTTPException(status_code=400, detail=f"Service mismatch in OAuth state")
-
-    provider = settings.AUTH_PROVIDERS.get(service)
-    if not provider:
-        raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
-
-    logger.debug(f"request url: {request.url}")
-    flow.fetch_token(authorization_response=str(request.url))
-    credentials = flow.credentials
-
-    _save_token(uid, service, credentials)
-
-    del OAUTH_FLOW_CACHE[state]
+    app = settings.SERVICES.get(service)
+    entity = toolset.get_entity(uid)
+    connection = entity.get_connection(app)
+    service_id = connection.id
 
     default_config = settings.DEFAULT_CONFIGS.get(service, {})
-    await UserSettingsService.set_config(session, uid, service, default_config)
+    await UserSettingsService.set_config(session, uid, service_id, service, default_config)
 
     redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
     return RedirectResponse(url=redirect_uri)
