@@ -119,13 +119,18 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
 
 @router.get("/{service}/callback")
 async def service_callback(uid: str, service: str, request: Request, session: AsyncSession = Depends(get_db)):
+    status = request.query_params.get("status")
+    if status is not "success":
+       return RedirectResponse(settings.BASE_URI)
+
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
-    app = settings.SERVICES.get(service)
-    entity = toolset.get_entity(uid)
-    connection = entity.get_connection(app)
-    service_id = connection.id
+    service_id = request.query_params.get("connectedAccountId")
+    if not service_id:
+        raise HTTPException(status_code=400, detail="Missing service_id")
+
+    print(service_id)
 
     default_config = settings.DEFAULT_CONFIGS.get(service, {})
     await UserSettingsService.set_config(session, uid, service_id, service, default_config)
