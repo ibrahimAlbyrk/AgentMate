@@ -28,8 +28,12 @@ class GmailAgent(IAgent):
         pass
 
     def _handle_new_email_messages(self, event):
-       print(type(event))
-       print(event)
+        payload = event.dict()
+        sender = payload["sender"]
+        subject = payload["subject"]
+        content = payload["messageText"]
+
+        print(f"sender: {sender},\n subject: {subject}\n, content: {content}")
 
 # class GmailAgent(IAgent):
 #     def __init__(self, uid: str):
