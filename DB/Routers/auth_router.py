@@ -72,7 +72,9 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
-    is_logged_in = await UserSettingsService.is_logged_in(session, uid, service)
+    user_settings = await UserSettingsService.get(session, uid, service)
+    is_logged_in = user_settings.is_logged_in
+    service_id = user_settings.service_id
 
     if not is_logged_in:
         return {
@@ -82,6 +84,7 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
 
     try:
         await UserSettingsService.set_logged_in(session, uid, service, True)
+        toolset.client.connected_accounts.delete(service_id)
         login_success = True
         info = "Successfully logged out"
     except Exception as e:
