@@ -1,6 +1,7 @@
 import asyncio
 import json
 from typing import Optional
+from email.utils import parsedate_to_datetime
 
 from composio.client.collections import TriggerEventData
 
