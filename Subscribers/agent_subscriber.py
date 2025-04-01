@@ -36,7 +36,7 @@ async def _handle_agent_start_all(raw_data: str):
         return
 
     uid = data.get("uid")
-    service_id = data.service_id
+    service_id = data.get("service_id")
     services = data.get("services")
 
     await agent_manager.start_all_for_user(uid, service_id, services)
