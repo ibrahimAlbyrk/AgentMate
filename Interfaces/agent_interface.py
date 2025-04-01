@@ -17,7 +17,7 @@ class IAgent(ABC):
         self.listener = toolset.create_trigger_listener()
         self._listener_refs = []
 
-    def add_listener(self, trigger_name: str, handler: Callable, config: Optional[dict] = None):
+    def add_listener(self, trigger_name: str, handler: callable, config: Optional[dict] = None):
         config = config or {}
 
         self.entity.enable_trigger(
