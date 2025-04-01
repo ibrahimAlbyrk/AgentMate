@@ -31,9 +31,9 @@ class GmailAgent(IAgent):
 
     def _handle_new_email_messages(self, event: TriggerEventData):
         try:
-            print(f"Sender: {event.payload.get("sender")}")
-            print(f"Subject: {event.payload.get("subject")}")
-            print(f"Content:\n{event.payload.get("messageText")}")
+            print(f"Sender: {event.payload.get('sender')}")
+            print(f"Subject: {event.payload.get('subject')}")
+            print(f"Content:\n{event.payload.get('messageText')}")
 
         except Exception as e:
             print("Error:", e)
