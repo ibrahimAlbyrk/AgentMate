@@ -31,7 +31,7 @@ class IAgent(ABC):
 
     async def run(self):
         await self._run_impl()
-        agent_listener.wait_forever()
+        self.listener.wait_forever()
         print("listening...")
 
     @abstractmethod
@@ -39,7 +39,7 @@ class IAgent(ABC):
        pass
 
     async def stop(self):
-        agent_listener.stop()
+        self.listener.stop()
         await self._stop_impl()
 
     @abstractmethod

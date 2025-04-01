@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from Core.event_bus import EventBus
 from Core.logger import LoggerCreator
 from Core.task_runner import TaskRunner
-from Core.startup import start_all_user_agents
+from Core.startup import start_all_user_agents, stop_all_user_agents
 
 from Engines.task_queue_manager import queue_manager
 
@@ -33,6 +33,8 @@ async def lifespan(app: FastAPI):
 
     yield
     await stop_all_subscribers()
+    async with AsyncSessionLocal() as session:
+        await stop_all_user_agents(session)
 
     task_runner.executor.shutdown(wait=False)
     logger.info("Shutdown complete.")
