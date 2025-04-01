@@ -8,7 +8,10 @@ logger = LoggerCreator.create_advanced_console("StartupService")
 
 async def start_all_user_agents(session: AsyncSession):
     try:
-        result = await session.execute(select(UserSettings.uid).distinct())
+        result = await session.execute(
+            select(UserSettings.uid)
+            .where(UserSettings.is_logged_in == True)
+            .distinct())
         uid_list = [row[0] for row in result.all()]
 
         logger.debug(f"Starting agents for {len(uid_list)} registered user(s): {uid_list}")
