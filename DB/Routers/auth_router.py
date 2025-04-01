@@ -147,8 +147,14 @@ async def service_callback(uid: str, service: str, request: Request, session: As
     if not service_id:
         raise HTTPException(status_code=400, detail="Missing service_id")
 
-    default_config = settings.DEFAULT_CONFIGS.get(service, {})
-    await UserSettingsService.set_config(session, uid, service_id, service, default_config)
+    has_user = UserSettingsService.has_any(session, uid)
+
+    if has_user:
+        print("has user")
+        await UserSettingsService.set_logged_in(session, uid, service, True)
+    else:
+        default_config = settings.DEFAULT_CONFIGS.get(service, {})
+        await UserSettingsService.set_config(session, uid, service_id, service, default_config)
 
     redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
     return RedirectResponse(url=redirect_uri)
