@@ -22,11 +22,7 @@ class GmailAgent(IAgent):
         self.app_name = App.GMAIL
 
     async def _run_impl(self):
-        entity.enable_trigger(
-            app=app_name,
-            trigger_name="GMAIL_NEW_GMAIL_MESSAGE",
-            config={}
-        )
+        pass
 
     async def _stop_impl(self):
         pass

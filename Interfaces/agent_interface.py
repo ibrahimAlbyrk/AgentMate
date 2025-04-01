@@ -14,6 +14,11 @@ class IAgent(ABC):
         self.service_id = service_id
 
         self.entity = toolset.get_entity(uid)
+        entity.enable_trigger(
+            app=app_name,
+            trigger_name="GMAIL_NEW_GMAIL_MESSAGE",
+            config={}
+        )
         self.app_name: App = None
 
     async def run(self):
