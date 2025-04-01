@@ -147,7 +147,8 @@ async def service_callback(uid: str, service: str, request: Request, session: As
     if not service_id:
         raise HTTPException(status_code=400, detail="Missing service_id")
 
-    has_user = UserSettingsService.has_any(session, uid)
+    has_user = await UserSettingsService.has_any(session, uid)
+    print(has_user)
 
     if has_user:
         print("has user")
