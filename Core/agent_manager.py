@@ -19,8 +19,8 @@ class AgentManager:
         self.running_agents: dict[str, dict[str, IAgent]] = {}
         """ {uid: {service_name: agent}} """
 
-    async def start_agent(self, uid: str, service: str):
-        agent = AgentFactory.create(service)
+    async def start_agent(self, uid: str, service_id: str, service: str):
+        agent = AgentFactory.create(uid, service_id, service)
         if not agent:
             self.logger.warning(f"No agent registered for {service} service")
             return
@@ -30,7 +30,7 @@ class AgentManager:
             self.logger.debug(f"Agent for {service} already running for {uid}")
             return
 
-        await agent.run(uid)
+        await agent.run()
         self.running_agents[uid][service] = agent
         self.logger.debug(f"Started {service} agent for {uid}")
 
@@ -41,7 +41,7 @@ class AgentManager:
             return
 
         if hasattr(agent, "stop") and callable(getattr(agent, "stop")):
-            await agent.stop(uid)
+            await agent.stop()
             self.logger.debug(f"Stopped {service} agent for {uid}")
         else:
             self.logger.warning(f"{service} agent has no stop() method")
@@ -50,14 +50,14 @@ class AgentManager:
         if not self.running_agents[uid]:
             del self.running_agents[uid]
 
-    async def restart_agent(self, uid: str, service: str):
+    async def restart_agent(self, uid: str, service_id: str, service: str):
         self.logger.debug(f"Restarting {service} agent for {uid}")
         await self.stop_agent(uid, service)
-        await self.start_agent(uid, service)
+        await self.start_agent(uid, service_id, service)
 
-    async def start_all_for_user(self, uid: str, services: list[str]):
+    async def start_all_for_user(self, uid: str, service_id: str, services: list[str]):
         for service in services:
-            await self.start_agent(uid, service)
+            await self.start_agent(uid, service_id, service)
 
     async def stop_all_for_user(self, uid: str):
         services = list(self.running_agents.get(uid, {}).keys())

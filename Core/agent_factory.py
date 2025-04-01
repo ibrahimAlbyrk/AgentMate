@@ -8,16 +8,17 @@ from Interfaces.agent_interface import IAgent
 class AgentFactory:
     registry: dict[str, type[IAgent]] = {
         "gmail": GmailAgent,
-        # "notion": NotionClient,
+        # "notion": NotionAgent
         # "calendar": CalendarAgent,
         # "slack": SlackAgent,
     }
 
     @classmethod
-    def create(cls, service_name: str) -> IAgent | None:
+    def create(cls, uid: str, service_id, service_name: str) -> IAgent | None:
         agent_class = cls.registry.get(service_name)
-        return agent_class() if agent_class else None
+        return agent_class(uid, service_id) if agent_class else None
 
     @classmethod
-    def create_all(cls, service_names: list[str]) -> list[IAgent]:
-        return [cls.create(name) for name in service_names if cls.create(name) is not None]
+    def create_all(cls, uid: str, services: list[(str, str)]) -> list[IAgent]:
+        """services: list [ (service_id, service_name) ]"""
+        return [cls.create(uid, service[0], service[1]) for service in services if cls.create(uid, service[0], service[1]) is not None]

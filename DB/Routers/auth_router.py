@@ -130,8 +130,6 @@ async def service_callback(uid: str, service: str, request: Request, session: As
     if not service_id:
         raise HTTPException(status_code=400, detail="Missing service_id")
 
-    print(service_id)
-
     default_config = settings.DEFAULT_CONFIGS.get(service, {})
     await UserSettingsService.set_config(session, uid, service_id, service, default_config)
 
