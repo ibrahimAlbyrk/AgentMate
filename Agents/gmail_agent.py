@@ -30,13 +30,36 @@ class GmailAgent(IAgent):
         pass
 
     def _handle_new_email_messages(self, event: TriggerEventData):
-        try:
-            print(f"Sender: {event.payload.get('sender')}")
-            print(f"Subject: {event.payload.get('subject')}")
-            print(f"Content:\n{event.payload.get('messageText')}")
+        raw_data = event.model_dump_json()
+        email = _decode_email(raw_data)
 
-        except Exception as e:
-            print("Error:", e)
+        print(f"Date: {email['date']}")
+        print(f"From: {email['from']}")
+        print(f"Subject: {email['subject']}")
+        print(f"Body: {email['body']}")
+
+
+def _decode_email(payload: dict) -> dict:
+    date = payload.get("messageTimestamp")
+    try:
+        date_obj = parsedate_to_datetime(date).astimezone(timezone.utc)
+        date_iso = date_obj.isoformat()
+    except Exception as e:
+        self.logger.error(f"Failed to parse date: {str(e)}")
+        date_iso = date
+
+    msg_id = payload.get("messageId")
+    subject = payload.get("subject")
+    sender = payload.get("sender")
+    body = payload.get("messageText")
+
+    return {
+        'id': msg_id,
+        'date': date_iso,
+        'subject': subject,
+        'from': sender,
+        'body': body
+    }
 
 # class GmailAgent(IAgent):
 #     def __init__(self, uid: str):
