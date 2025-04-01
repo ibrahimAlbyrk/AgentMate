@@ -22,16 +22,11 @@ class GmailAgent(IAgent):
         self.app_name = App.GMAIL
 
     async def _run_impl(self):
-        pass
+        self.add_listener("GMAIL_NEW_GMAIL_MESSAGE", self._handle_new_email_messages)
 
     async def _stop_impl(self):
         pass
 
-    @agent_listener.callback(
-        filters={
-            "trigger_name": "GMAIL_NEW_GMAIL_MESSAGE",
-        }
-    )
     def _handle_new_email_messages(self, event):
         print(event)
 
