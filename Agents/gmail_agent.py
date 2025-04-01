@@ -6,7 +6,7 @@ from Core.event_bus import EventBus
 from Core.logger import LoggerCreator
 from Gmail.gmail_service import GmailService
 from DB.database import AsyncSessionLocal
-from Interfaces.agent_interface import IAgent, agent_listener
+from Interfaces.agent_interface import IAgent
 from DB.Services.user_settings_service import UserSettingsService
 from Connectors.omi_connector import OmiConnector, ConversationData
 from DB.Services.processed_gmail_service import ProcessedGmailService
