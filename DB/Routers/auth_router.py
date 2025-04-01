@@ -93,14 +93,18 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=response.text)
 
-        login_success = True
+        logout_success = True
         info = "Successfully logged out"
     except Exception as e:
-        login_success = False
+        logout_success = False
         info = f"An error occurred: {str(e)}"
 
+
+    if logout_success:
+        await UserSettingsService.set_logged_in(session, uid, service, False)
+
     return {
-        "success": login_success,
+        "success": logout_success,
         "info": info
     }
 
