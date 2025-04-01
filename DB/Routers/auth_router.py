@@ -117,14 +117,11 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
     return RedirectResponse(redirect_uri)
 
 
-# https://omi-wroom.org/gmail/callback?uid=bhnZLNzCiGgbsxxgpru2NKpxGJL2&status=success&connectedAccountId=4b8203f3-9647-4ed7-bc7b-f264b015f506&appName=gmail
-
 @router.get("/{service}/callback")
 async def service_callback(uid: str, service: str, request: Request, session: AsyncSession = Depends(get_db)):
     status = request.query_params.get("status")
-    print(status)
-    # if status is not "success":
-    #    return RedirectResponse(settings.BASE_URI)
+    if status != "success":
+       return RedirectResponse(settings.BASE_URI)
 
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
