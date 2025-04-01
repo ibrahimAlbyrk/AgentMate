@@ -84,7 +84,7 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
 
     try:
         await UserSettingsService.set_logged_in(session, uid, service, True)
-        del toolset.client.connected_accounts[service_id]
+        toolset.client.connected_accounts.delete(service_id)
         login_success = True
         info = "Successfully logged out"
     except Exception as e:
