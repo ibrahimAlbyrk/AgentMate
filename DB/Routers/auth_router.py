@@ -1,7 +1,7 @@
 import os
 import json
 import pickle
-from requests import Request
+import requests
 from DB.database import get_db
 from Core.config import settings
 from Core.logger import LoggerCreator
