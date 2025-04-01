@@ -6,6 +6,8 @@ from DB.Services.user_settings_service import UserSettingsService
 
 toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
 
+agent_listener = toolset.create_trigger_listener()
+
 class IAgent(ABC):
     def __init__(self, uid: str, service_id):
         self.uid = uid
@@ -14,10 +16,19 @@ class IAgent(ABC):
         self.entity = toolset.get_entity(uid)
         self.app_name: App = None
 
-    @abstractmethod
     async def run(self):
-        pass
+        await self._run_impl()
+        agent_listener.wait_forever()
+        print("listening...")
 
     @abstractmethod
+    async def _run_impl(self):
+       pass
+
     async def stop(self):
+        agent_listener.stop()
+        await self._stop_impl()
+
+    @abstractmethod
+    async def _stop_impl(self):
         pass

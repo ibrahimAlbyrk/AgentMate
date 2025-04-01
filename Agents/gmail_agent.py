@@ -6,7 +6,7 @@ from Core.event_bus import EventBus
 from Core.logger import LoggerCreator
 from Gmail.gmail_service import GmailService
 from DB.database import AsyncSessionLocal
-from Interfaces.agent_interface import IAgent
+from Interfaces.agent_interface import IAgent, agent_listener
 from DB.Services.user_settings_service import UserSettingsService
 from Connectors.omi_connector import OmiConnector, ConversationData
 from DB.Services.processed_gmail_service import ProcessedGmailService
@@ -16,17 +16,24 @@ from composio_openai import App
 from DB.Services.user_settings_service import UserSettingsService
 
 
-
 class GmailAgent(IAgent):
     def __init__(self, uid: str, service_id):
         super().__init__(uid, service_id)
         self.app_name = App.GMAIL
 
-    async def run(self):
+    async def _run_impl(self):
         pass
 
-    async def stop(self):
+    async def _stop_impl(self):
         pass
+
+    @agent_listener.callback(
+        filters={
+            "trigger_name": "GMAIL_NEW_GMAIL_MESSAGE",
+        }
+    )
+    def _handle_new_email_messages(self, event):
+        print(event)
 
 # class GmailAgent(IAgent):
 #     def __init__(self, uid: str):
