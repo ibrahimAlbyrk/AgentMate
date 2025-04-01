@@ -2,6 +2,8 @@ import asyncio
 import json
 from typing import Optional
 
+from composio.client.collections import TriggerEventData
+
 from Core.event_bus import EventBus
 from Core.logger import LoggerCreator
 from Gmail.gmail_service import GmailService
@@ -27,19 +29,11 @@ class GmailAgent(IAgent):
     async def _stop_impl(self):
         pass
 
-    def _handle_new_email_messages(self, event):
+    def _handle_new_email_messages(self, event: TriggerEventData):
         try:
-            raw_json = event.json()
-            event_dict = json.loads(raw_json)
-
-            payload = event_dict["payload"]
-            sender = payload["sender"]
-            subject = payload["subject"]
-            content = payload["messageText"]
-
-            print(f"Sender: {sender}")
-            print(f"Subject: {subject}")
-            print(f"Content:\n{content}")
+            print(f"Sender: {event.payload.get("sender")}")
+            print(f"Subject: {event.payload.get("subject")}")
+            print(f"Content:\n{event.payload.get("messageText")}")
 
         except Exception as e:
             print("Error:", e)
