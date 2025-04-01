@@ -111,7 +111,7 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
     service_name = settings.SERVICES.get(service)
     entity = toolset.get_entity(uid)
     conn_req = entity.initiate_connection(service_name, redirect_url=f"https://omi-wroom.org/{service}/settings")
-    redirect_uri = conn_req.redirect_uri
+    redirect_uri = conn_req.redirectUrl
     return RedirectResponse(redirect_uri)
 
     # client_secret_path =  provider["client_secret"]
