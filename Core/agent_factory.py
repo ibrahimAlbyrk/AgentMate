@@ -14,7 +14,7 @@ class AgentFactory:
     }
 
     @classmethod
-    def create(cls, uid: str, service_id, service_name: str) -> IAgent | None:
+    def create(cls, uid: str, service_id: str, service_name: str) -> IAgent | None:
         agent_class = cls.registry.get(service_name)
         return agent_class(uid, service_id) if agent_class else None
 
