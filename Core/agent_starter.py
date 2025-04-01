@@ -11,7 +11,7 @@ event_bus = EventBus()
 
 async def start_user_agents(uid: str, session: AsyncSession):
     try:
-        services = _get_services(uid, session)
+        services = await _get_services(uid, session)
 
         if not services:
             logger.debug(f"No services registered for uid: {uid}")
@@ -28,7 +28,7 @@ async def start_user_agents(uid: str, session: AsyncSession):
 
 async def stop_user_agents(uid: str, session: AsyncSession):
     try:
-        services = _get_services(uid, session)
+        services = await _get_services(uid, session)
 
         if not services:
             logger.debug(f"No services registered for uid: {uid}")
