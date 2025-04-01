@@ -28,7 +28,7 @@ class GmailAgent(IAgent):
         pass
 
     def _handle_new_email_messages(self, event):
-        payload = event
+        payload = event.get("payload")
         sender = payload["sender"]
         subject = payload["subject"]
         content = payload["messageText"]
