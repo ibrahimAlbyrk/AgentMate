@@ -1,6 +1,7 @@
 import os
 import json
 import pickle
+from requests import Request
 from DB.database import get_db
 from Core.config import settings
 from Core.logger import LoggerCreator
@@ -84,7 +85,13 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
 
     try:
         await UserSettingsService.set_logged_in(session, uid, service, True)
-        toolset.client.connected_accounts.delete(service_id)
+
+        url = "https://backend.composio.dev/api/v1/connectedAccounts/connectedAccountId"
+        headers = {"x-api-key": settings.COMPOSIO_API_KEY}
+        response = requests.delete(url, headers=headers)
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+
         login_success = True
         info = "Successfully logged out"
     except Exception as e:
