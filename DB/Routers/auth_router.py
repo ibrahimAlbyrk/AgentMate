@@ -2,6 +2,7 @@ import os
 import json
 import pickle
 import requests
+
 from DB.database import get_db
 from Core.config import settings
 from Core.logger import LoggerCreator
@@ -11,6 +12,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Request, HTTPException, Depends
 from DB.Services.user_settings_service import UserSettingsService
 from google.auth.transport.requests import Request as GoogleRequest
+
+from Core.agent_starter import start_user_agents
 
 from composio_openai import ComposioToolSet, App, Action
 
@@ -27,40 +30,36 @@ async def is_logged_in(service: str, uid: str, session: AsyncSession = Depends(g
     if not provider:
         raise HTTPException(status_code=400, detail="Unknown service")
 
-    is_logged_in = await UserSettingsService.is_logged_in(session, uid, service)
+    user_settings = await UserSettingsService.get(session, uid, service)
+
+    if not user_settings:
+        return {"is_logged_in": False}
+
+    service_id = user_settings.service_id
+    is_logged_in = user_settings.is_logged_in
+
     if not is_logged_in:
         return {"is_logged_in": False}
 
-    token_path = settings.TOKEN_PATH.format(uid=uid, service=service)
-    if not os.path.exists(token_path):
+    entity = toolset.get_entity(uid)
+    connection = entity.get_connection(connected_account_id=service_id)
+    if not connection:
         return {"is_logged_in": False}
 
-    try:
-        with open(token_path, "rb") as token_file:
-            credentials = pickle.load(token_file)
-        if credentials and credentials.valid:
-            return {"is_logged_in": True}
-        elif credentials and credentials.expired and credentials.refresh_token:
-            credentials.refresh(GoogleRequest())
-            with open(token_path, "wb") as token_file:
-                pickle.dump(credentials, token_file)
-            return {"is_logged_in": True}
-    except Exception as e:
-        logger.warning(f"[{service}] Login check failed for {uid}: {str(e)}")
-
-    return {"is_logged_in": False}
+    return {"is_logged_in": True}
 
 
 @router.post("/{service}/login-directly")
 async def service_login_directly(uid: str, service: str, credentials: str):
-    if not uid:
-        raise HTTPException(status_code=400, detail="Missing uid")
-
-    provider = settings.AUTH_PROVIDERS.get(service)
-    if not provider:
-        raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
-
-    _save_token(uid, service, credentials)
+    pass
+    # if not uid:
+    #     raise HTTPException(status_code=400, detail="Missing uid")
+    #
+    # provider = settings.AUTH_PROVIDERS.get(service)
+    # if not provider:
+    #     raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
+    #
+    # _save_token(uid, service, credentials)
 
 
 @router.post("/{service}/logout")
@@ -89,7 +88,6 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
         url = f"https://backend.composio.dev/api/v1/connectedAccounts/{service_id}"
         headers = {"x-api-key": settings.COMPOSIO_API_KEY}
         response = requests.delete(url, headers=headers)
-        print(response.status_code)
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=response.text)
 
@@ -148,14 +146,14 @@ async def service_callback(uid: str, service: str, request: Request, session: As
         raise HTTPException(status_code=400, detail="Missing service_id")
 
     has_user = await UserSettingsService.has_any(session, uid)
-    print(has_user)
 
     if has_user:
-        print("has user")
         await UserSettingsService.set_logged_in(session, uid, service, True)
     else:
         default_config = settings.DEFAULT_CONFIGS.get(service, {})
         await UserSettingsService.set_config(session, uid, service_id, service, default_config)
+
+    await start_user_agents(uid, session)
 
     redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
     return RedirectResponse(url=redirect_uri)
