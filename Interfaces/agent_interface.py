@@ -24,7 +24,7 @@ class IAgent(ABC):
 
     def initialize_llm(self, actions = list):
         self.actions = actions
-        self.llm = LLMAgent(self.uid, service_id, actions)
+        self.llm = LLMAgent(self.uid, self.service_id, actions)
 
     def add_listener(self, trigger_name: str, handler: callable, config: Optional[dict] = None):
         config = config or {}
