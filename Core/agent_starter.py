@@ -11,14 +11,7 @@ event_bus = EventBus()
 
 async def start_user_agents(uid: str, session: AsyncSession):
     try:
-        result = await session.execute(
-            select(UserSettings.service_name).where(UserSettings.uid == uid)
-        )
-        services = [row[0] for row in result.all()]
-
-        if not services:
-            logger.debug(f"No services registered for uid: {uid}")
-            return
+        services = _get_services(uid, session)
 
         logger.debug(f"Starting agents for {uid}: {services}")
 
@@ -31,14 +24,7 @@ async def start_user_agents(uid: str, session: AsyncSession):
 
 async def stop_user_agents(uid: str, session: AsyncSession):
     try:
-        result = await session.execute(
-            select(UserSettings.service_name).where(UserSettings.uid == uid)
-        )
-        services = [row[0] for row in result.all()]
-
-        if not services:
-            logger.debug(f"No services registered for uid: {uid}")
-            return
+        services = _get_services(uid, session)
 
         logger.debug(f"Stopping agents for {uid}: {services}")
 
@@ -47,3 +33,16 @@ async def stop_user_agents(uid: str, session: AsyncSession):
 
     except Exception as e:
         logger.error(f"start_user_agents error: {str(e)}")
+
+
+async def _get_services(uid: str, session: AsyncSession) -> list:
+    result = await session.execute(
+        select(UserSettings.service_name).where(UserSettings.uid == uid)
+    )
+    services = [row[0] for row in result.all()]
+
+    if not services:
+        logger.warning(f"No services registered for uid: {uid}")
+        return []
+
+    return services
