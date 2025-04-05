@@ -63,7 +63,10 @@ async def update_settings(uid: str, service: str, request: Request, db: AsyncSes
     else:
         config = config_data
 
-    await UserSettingsService.set_config(db, uid, service, config)
+    user_settings = await UserSettingsService.get(db, uid, service)
+    service_id = user_settings.service_id
+
+    await UserSettingsService.set_config(db, uid, service_id, service, config)
 
     event_message = {"uid": uid, "service": service}
     await event_bus.publish("agent.restart", json.dumps(event_message))
