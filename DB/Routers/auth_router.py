@@ -118,8 +118,6 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
 
     is_logged_in = await UserSettingsService.is_logged_in(session, uid, service)
     if is_logged_in:
-        data = await UserSettingsService.get(session, uid, service)
-        print(data.service_id)
         redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
         return RedirectResponse(url=redirect_uri)
 
@@ -157,12 +155,3 @@ async def service_callback(uid: str, service: str, request: Request, session: As
 
     redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
     return RedirectResponse(url=redirect_uri)
-
-
-def _save_token(uid: str, service, credentials):
-    token_path = settings.TOKEN_PATH.format(uid=uid, service=service)
-    os.makedirs(os.path.dirname(token_path), exist_ok=True)
-    with open(token_path, "wb") as token_file:
-        pickle.dump(credentials, token_file)
-
-    logger.debug(f"[{service}] Credentials stored for UID: {uid}")
