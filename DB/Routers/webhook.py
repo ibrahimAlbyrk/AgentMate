@@ -13,12 +13,17 @@ from DB.Services.user_settings_service import UserSettingsService
 from DB.Services.processed_gmail_service import ProcessedGmailService
 from fastapi import APIRouter, Request, HTTPException, status, Depends
 
+from Agents.gmail_agent import GmailAgent
+from Core.agent_manager import AgentManager
+
 from Core.event_bus import EventBus
 from Core.config import settings
 
 from Subscribers.gmail_subscriber import event_bus
 
 router = APIRouter(tags=["Unified Service Webhook"])
+
+agent_manager = AgentManager()
 
 memory_engine = EmailMemorySummarizerEngine()
 omi = OmiConnector()
@@ -78,6 +83,9 @@ async def update_settings(uid: str, service: str, request: Request, db: AsyncSes
 async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10):
     if not uid:
         raise HTTPException(status_code=400, detail=f"UID not provided")
+
+    agent: GmailAgent = agent_manager.get_agent(uid, "gmail", GmailAgent)
+    agent.get_emails()
 
     service = GmailService(uid)
     subjects = await service.fetch_email_subjects_paginated(offset, limit)
