@@ -13,7 +13,7 @@ llm = ChatOpenAI()
 prompt = hub.pull("hwchase17/openai-functions-agent")
 
 class LLMAgent:
-    def __init__(self, uid: str, service_id: str, actions: list[str]):
+    def __init__(self, uid: str, service_id: str, actions: []):
         self.uid = uid
         self.service_id = service_id
 
