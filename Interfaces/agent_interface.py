@@ -22,7 +22,7 @@ class IAgent(ABC):
         self.listener = toolset.create_trigger_listener()
         self._listener_refs = []
 
-    def initialize_llm(self, actions = list):
+    def initialize_llm(self, actions = []):
         self.actions = actions
         self.llm = LLMAgent(self.uid, self.service_id, actions)
 

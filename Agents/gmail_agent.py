@@ -29,7 +29,7 @@ class GmailAgent(IAgent):
         self.app_name = App.GMAIL
 
         actions = [
-            Action.GMAIL_FETCH_EMAILS
+            'GMAIL_FETCH_EMAILS'
         ]
 
         self.initialize_llm(actions)
