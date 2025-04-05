@@ -26,12 +26,7 @@ toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
 
 @router.get("/{service}/is-logged-in")
 async def is_logged_in(service: str, uid: str, session: AsyncSession = Depends(get_db)):
-    provider = settings.AUTH_PROVIDERS.get(service)
-    if not provider:
-        raise HTTPException(status_code=400, detail="Unknown service")
-
     user_settings = await UserSettingsService.get(session, uid, service)
-
     if not user_settings:
         return {"is_logged_in": False}
 
