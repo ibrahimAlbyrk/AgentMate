@@ -11,7 +11,7 @@ event_bus = EventBus()
 
 async def start_user_agents(uid: str, session: AsyncSession):
     try:
-        services = _get_services(uid, session)
+        services = await _get_services(uid, session)
 
         logger.debug(f"Starting agents for {uid}: {services}")
 
@@ -24,7 +24,7 @@ async def start_user_agents(uid: str, session: AsyncSession):
 
 async def stop_user_agents(uid: str, session: AsyncSession):
     try:
-        services = _get_services(uid, session)
+        services = await _get_services(uid, session)
 
         logger.debug(f"Stopping agents for {uid}: {services}")
 
