@@ -9,17 +9,22 @@ from Agents.LLM.llm_agent import LLMAgent
 toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
 
 class IAgent(ABC):
-    def __init__(self, uid: str, service_id, actions: list[str]):
+    def __init__(self, uid: str, service_id):
         self.uid = uid
         self.service_id = service_id
+
+        self.actions = []
+        self.llm: LLMAgent = None
 
         self.entity = toolset.get_entity(uid)
         self.app_name: App = None
 
-        self.llm = LLMAgent(uid, service_id, actions)
-
         self.listener = toolset.create_trigger_listener()
         self._listener_refs = []
+
+    def initialize_llm(self, actions = list):
+        self.actions = actions
+        self.llm = LLMAgent(uid, service_id, actions)
 
     def add_listener(self, trigger_name: str, handler: callable, config: Optional[dict] = None):
         config = config or {}

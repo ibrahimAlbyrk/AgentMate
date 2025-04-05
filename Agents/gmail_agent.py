@@ -2,6 +2,7 @@ import asyncio
 import json
 from typing import Optional
 
+from composio.client.enums.action import Action
 from composio.client.collections import TriggerEventData
 
 from Core.event_bus import EventBus
@@ -24,9 +25,14 @@ event_bus = EventBus()
 
 class GmailAgent(IAgent):
     def __init__(self, uid: str, service_id):
-        actions = []
-        super().__init__(uid, service_id, actions)
+        super().__init__(uid, service_id)
         self.app_name = App.GMAIL
+
+        actions = [
+            Action.GMAIL_FETCH_EMAILS
+        ]
+
+        self.initialize_llm(actions)
 
     async def _run_impl(self):
         # LISTENERS
