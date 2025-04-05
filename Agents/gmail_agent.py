@@ -39,13 +39,16 @@ class GmailAgent(IAgent):
         self.add_listener("GMAIL_NEW_GMAIL_MESSAGE", _handle_new_email_messages)
 
         # TASKS
-        self.llm.register_task("get_emails", "get last {email_count} emails")
+        self.llm.register_task("get_emails", "Skip the first {offset} emails and fetch the next {limit} emails from Gmail inbox")
 
     async def _stop_impl(self):
         pass
 
-    async def get_emails(self, limit: int = 10):
-        return await self.llm.run_task("get_emails", limit=limit)
+    async def get_emails(self, limit: int):
+        return await self.llm.run_task("get_emails", offset=0, limit=limit)
+
+    async def get_emails_with_offset(self, offset: int, limit: int):
+        return await self.llm.run_task("get_emails", offset=offset, limit=limit)
 
 
 def _handle_new_email_messages(event: TriggerEventData):
