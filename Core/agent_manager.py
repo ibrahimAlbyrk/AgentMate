@@ -1,9 +1,10 @@
+from Agents.gmail_agent import GmailAgent
 from Core.logger import LoggerCreator
 from Core.agent_factory import AgentFactory
 from Interfaces.agent_interface import IAgent
 
 from typing import ClassVar
-
+from typing import TypeVar, Type, cast
 
 
 class AgentManager:
@@ -19,6 +20,14 @@ class AgentManager:
         self.logger = LoggerCreator.create_advanced_console("AgentManager")
         self.running_agents: dict[str, dict[str, IAgent]] = {}
         """ {uid: {service_name: agent}} """
+
+    T = TypeVar('T', bound=IAgent)
+    def get_agent(self, uid: str, agent_name: str, agent_type: Type[T]) -> T:
+        agents = self.running_agents.get(uid, {})
+        agent = agents.get(agent_name, None)
+        if isinstance(agent, agent_type):
+            return cast(T, agent)
+        return None
 
     async def start_agent(self, uid: str, service_id: str, service: str):
         agent = AgentFactory.create(uid, service_id, service)
