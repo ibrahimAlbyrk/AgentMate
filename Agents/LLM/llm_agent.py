@@ -22,37 +22,13 @@ class LLMAgent:
         self.tasks: dict[str, str] = {}
 
         self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
-        try:
-            self.tools = self.toolset.get_tools(actions=actions, processors=processors)
-        except TypeError as e:
-            if "skip_default" in str(e):
-                # logger.warning("Detected 'skip_default' parameter issue, trying workaround...")
-                import inspect
-                from functools import wraps
-                import composio_langchain.toolset
-                
-                original_json_schema_to_model = composio_langchain.toolset.json_schema_to_model
-                
-                @wraps(original_json_schema_to_model)
-                def wrapper(*args, **kwargs):
-                    if "skip_default" in kwargs:
-                        del kwargs["skip_default"]
-                    return original_json_schema_to_model(*args, **kwargs)
-                
-                composio_langchain.toolset.json_schema_to_model = wrapper
-                
-                self.tools = self.toolset.get_tools(actions=actions, processors=processors)
-                
-                composio_langchain.toolset.json_schema_to_model = original_json_schema_to_model
-            else:
-                logger.error(f"Failed to get tools: {e}")
-                raise
+        self.tools = self.toolset.get_tools(actions=actions, processors=processors)
 
         agent = create_openai_functions_agent(llm, self.tools, prompt)
         self.executor = AgentExecutor(
             agent=agent,
             tools=self.tools,
-            verbose=False
+            verbose=True
         )
 
     def register_task(self, name: str, prompt: str):
@@ -62,6 +38,4 @@ class LLMAgent:
         if name not in self.tasks:
             raise ValueError(f"Task {name} not found")
         input_prompt = self.tasks[name].format(**kwargs)
-        output = self.executor.invoke({"input": input_prompt})
-        print(f"OUTPUT: {output}")
-        return output
+        return await self.executor.ainvoke({"input": input_prompt})

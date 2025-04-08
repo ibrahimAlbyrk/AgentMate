@@ -56,7 +56,7 @@ class GmailAgent(IAgent):
             raw_data = event.model_dump_json()
             data = json.loads(raw_data)
             payload = data["payload"]
-            email = self._decode_email(payload)
+            email = self.decode_email(payload)
 
             data = {"uid": self.uid, "emails": [email]}
             event_message = json.dumps(data)
