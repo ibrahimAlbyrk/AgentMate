@@ -26,7 +26,7 @@ class LLMAgent:
             self.tools = self.toolset.get_tools(actions=actions)
         except TypeError as e:
             if "skip_default" in str(e):
-                logger.warning("Detected 'skip_default' parameter issue, trying workaround...")
+                # logger.warning("Detected 'skip_default' parameter issue, trying workaround...")
                 import inspect
                 from functools import wraps
                 import composio_langchain.toolset
@@ -44,7 +44,6 @@ class LLMAgent:
                 self.tools = self.toolset.get_tools(actions=actions)
                 
                 composio_langchain.toolset.json_schema_to_model = original_json_schema_to_model
-                logger.debug("Workaround successful")
             else:
                 logger.error(f"Failed to get tools: {e}")
                 raise
