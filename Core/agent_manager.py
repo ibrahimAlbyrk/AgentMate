@@ -22,7 +22,7 @@ class AgentManager:
         self.running_agents: dict[str, dict[str, IAgent]] = {}
         """ {uid: {service_name: agent}} """
 
-    def get_agent(self, uid: str, agent_name: str, agent_type: Type[T_agent]) -> T:
+    def get_agent(self, uid: str, agent_name: str, agent_type: Type[T_agent]) -> T_agent:
         agents = self.running_agents.get(uid, {})
         agent = agents.get(agent_name, None)
         if isinstance(agent, agent_type):
