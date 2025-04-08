@@ -10,7 +10,7 @@ from composio_langchain import ComposioToolSet, Action, App
 from Core.config import settings
 from Core.logger import LoggerCreator
 
-llm = ChatOpenAI()
+llm = ChatOpenAI(model="gpt-4o-mini")
 prompt = hub.pull("hwchase17/openai-functions-agent")
 logger = LoggerCreator.create_advanced_console("LLMAgent")
 
