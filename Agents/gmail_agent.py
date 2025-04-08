@@ -29,7 +29,7 @@ class GmailAgent(IAgent):
         self.logger = LoggerCreator.create_advanced_console("GmailAgent")
 
         actions = [
-            Action.GMAIL_SEND_EMAIL
+            Action.GMAIL_FETCH_EMAILS
         ]
 
         processors = {
