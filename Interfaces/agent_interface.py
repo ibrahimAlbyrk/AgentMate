@@ -14,6 +14,7 @@ class IAgent(ABC):
         self.service_id = service_id
 
         self.actions = []
+        self.processors = []
         self.llm: LLMAgent = None
 
         self.entity = toolset.get_entity(uid)
@@ -22,9 +23,10 @@ class IAgent(ABC):
         self.listener = toolset.create_trigger_listener()
         self._listener_refs = []
 
-    def initialize_llm(self, actions = []):
+    def initialize_llm(self, actions = [], processors = {}):
         self.actions = actions
-        self.llm = LLMAgent(self.uid, self.service_id, actions)
+        self.processors = processors
+        self.llm = LLMAgent(self.uid, self.service_id, actions, processors)
 
     def add_listener(self, trigger_name: str, handler: callable, config: Optional[dict] = None):
         config = config or {}

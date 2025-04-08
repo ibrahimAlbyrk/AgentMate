@@ -15,7 +15,7 @@ prompt = hub.pull("hwchase17/openai-functions-agent")
 logger = LoggerCreator.create_advanced_console("LLMAgent")
 
 class LLMAgent:
-    def __init__(self, uid: str, service_id: str, actions: []):
+    def __init__(self, uid: str, service_id: str, actions: [], processors: {}):
         self.uid = uid
         self.service_id = service_id
 
@@ -23,7 +23,7 @@ class LLMAgent:
 
         self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
         try:
-            self.tools = self.toolset.get_tools(actions=actions)
+            self.tools = self.toolset.get_tools(actions=actions, processors=processors)
         except TypeError as e:
             if "skip_default" in str(e):
                 # logger.warning("Detected 'skip_default' parameter issue, trying workaround...")
@@ -41,7 +41,7 @@ class LLMAgent:
                 
                 composio_langchain.toolset.json_schema_to_model = wrapper
                 
-                self.tools = self.toolset.get_tools(actions=actions)
+                self.tools = self.toolset.get_tools(actions=actions, processors=processors)
                 
                 composio_langchain.toolset.json_schema_to_model = original_json_schema_to_model
             else:

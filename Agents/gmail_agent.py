@@ -2,7 +2,6 @@ import asyncio
 import json
 from typing import Optional
 
-from composio.client.enums.action import Action
 from composio.client.collections import TriggerEventData
 
 from Core.event_bus import EventBus
@@ -16,7 +15,7 @@ from DB.Services.processed_gmail_service import ProcessedGmailService
 
 from Core.event_bus import EventBus
 
-from composio_openai import App
+from composio_openai import App, Action
 
 from DB.Services.user_settings_service import UserSettingsService
 
@@ -30,10 +29,14 @@ class GmailAgent(IAgent):
         self.logger = LoggerCreator.create_advanced_console("GmailAgent")
 
         actions = [
-            'GMAIL_FETCH_EMAILS'
+            Action.GMAIL_SEND_EMAIL
         ]
 
-        self.initialize_llm(actions)
+        processors = {
+            "pre": {Action.GMAIL_FETCH_EMAILS: self._gmail_postprocessor}
+        }
+
+        self.initialize_llm(actions, processors)
 
     async def _run_impl(self):
         # LISTENERS
@@ -49,7 +52,7 @@ class GmailAgent(IAgent):
         return await self.llm.run_task("get_emails", offset=0, limit=limit)
 
     async def get_emails_with_offset(self, offset: int, limit: int):
-        return await self.llm.run_task("get_emails", offset=0, limit=1)
+        return await self.llm.run_task("get_emails", offset=offset, limit=limit)
 
     def _handle_new_email_messages(self, event: TriggerEventData):
         try:
@@ -79,3 +82,18 @@ class GmailAgent(IAgent):
             'from': sender,
             'body': body
         }
+
+    @staticmethod
+    def _gmail_postprocessor(result: dict) -> dict:
+        processed_result = result.copy()
+        processed_response = []
+        for email in result["data"]["messages"]:
+            processed_response.append(
+                {
+                    "subject": email["subject"],
+                    "sender": email["sender"],
+                    "messageText": email["messageText"],
+                }
+            )
+        processed_result["data"] = processed_response
+        return processed_result
