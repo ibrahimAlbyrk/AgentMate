@@ -15,7 +15,7 @@ prompt = hub.pull("hwchase17/openai-functions-agent")
 logger = LoggerCreator.create_advanced_console("LLMAgent")
 
 class LLMAgent:
-    def __init__(self, app:App, uid: str, service_id: str, actions: [], processors: {}):
+    def __init__(self, app: App, uid: str, service_id: str, actions: [], processors: {}):
         self.uid = uid
         self.service_id = service_id
 
@@ -23,7 +23,31 @@ class LLMAgent:
 
         self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
         self.toolset.initiate_connection(app=app)
-        self.tools = self.toolset.get_tools(actions=actions, processors=processors)
+        try:
+            self.tools = self.toolset.get_tools(actions=actions, processors=processors)
+        except TypeError as e:
+            if "skip_default" in str(e):
+                # logger.warning("Detected 'skip_default' parameter issue, trying workaround...")
+                import inspect
+                from functools import wraps
+                import composio_langchain.toolset
+
+                original_json_schema_to_model = composio_langchain.toolset.json_schema_to_model
+
+                @wraps(original_json_schema_to_model)
+                def wrapper(*args, **kwargs):
+                    if "skip_default" in kwargs:
+                        del kwargs["skip_default"]
+                    return original_json_schema_to_model(*args, **kwargs)
+
+                composio_langchain.toolset.json_schema_to_model = wrapper
+
+                self.tools = self.toolset.get_tools(actions=actions, processors=processors)
+
+                composio_langchain.toolset.json_schema_to_model = original_json_schema_to_model
+            else:
+                logger.error(f"Failed to get tools: {e}")
+                raise
 
         agent = create_openai_functions_agent(llm, self.tools, prompt)
         self.executor = AgentExecutor(
