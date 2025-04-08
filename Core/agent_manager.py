@@ -6,6 +6,7 @@ from Interfaces.agent_interface import IAgent
 from typing import ClassVar
 from typing import TypeVar, Type, cast
 
+T_agent = TypeVar('T_agent', bound=IAgent)
 
 class AgentManager:
     _instance: ClassVar["AgentManager"] = None
@@ -21,12 +22,11 @@ class AgentManager:
         self.running_agents: dict[str, dict[str, IAgent]] = {}
         """ {uid: {service_name: agent}} """
 
-    T = TypeVar('T', bound=IAgent)
-    def get_agent(self, uid: str, agent_name: str, agent_type: Type[T]) -> T:
+    def get_agent(self, uid: str, agent_name: str, agent_type: Type[T_agent]) -> T:
         agents = self.running_agents.get(uid, {})
         agent = agents.get(agent_name, None)
         if isinstance(agent, agent_type):
-            return cast(T, agent)
+            return cast(T_agent, agent)
         return None
 
     async def start_agent(self, uid: str, service_id: str, service: str):
