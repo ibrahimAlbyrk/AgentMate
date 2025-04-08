@@ -25,7 +25,7 @@ class LLMAgent:
         self.toolset.initiate_connection(app=app)
         try:
             self.tools = self.toolset.get_tools(actions=actions, processors=processors)
-            print(self.tools)
+            print(f"Tools: {self.tools}")
         except TypeError as e:
             if "skip_default" in str(e):
                 # logger.warning("Detected 'skip_default' parameter issue, trying workaround...")
