@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 from langchain import hub
@@ -68,4 +69,4 @@ class LLMAgent:
             raise ValueError(f"Task {name} not found")
         input_prompt = self.tasks[name].format(**kwargs)
         result = self.toolset.execute_action(Action.GMAIL_FETCH_EMAILS, {"max_results": 10, "page_token": "5"}, processors=self.processors)
-        return result
+        return json.loads(result)
