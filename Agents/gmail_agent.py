@@ -51,7 +51,7 @@ class GmailAgent(IAgent):
     async def get_emails_with_offset(self, offset: int, limit: int):
         return await self.llm.run_task("get_emails", offset=0, limit=1)
 
-    async def _handle_new_email_messages(self, event: TriggerEventData):
+    def _handle_new_email_messages(self, event: TriggerEventData):
         try:
             raw_data = event.model_dump_json()
             data = json.loads(raw_data)
@@ -60,7 +60,7 @@ class GmailAgent(IAgent):
 
             data = {"uid": self.uid, "emails": [email]}
             event_message = json.dumps(data)
-            await event_bus.publish("gmail.inbox.classify", event_message)
+            event_bus.publish("gmail.inbox.classify", event_message)
         except Exception as e:
             self.logger.error(f"Error handling new email message: {str(e)}")
 
