@@ -62,4 +62,6 @@ class LLMAgent:
         if name not in self.tasks:
             raise ValueError(f"Task {name} not found")
         input_prompt = self.tasks[name].format(**kwargs)
+        print(input_prompt)
+        await asyncio.sleep(2)
         return await self.executor.invoke({"input": input_prompt})
