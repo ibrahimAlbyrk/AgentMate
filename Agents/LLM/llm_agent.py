@@ -62,4 +62,6 @@ class LLMAgent:
         if name not in self.tasks:
             raise ValueError(f"Task {name} not found")
         input_prompt = self.tasks[name].format(**kwargs)
-        return self.executor.invoke({"input": input_prompt})
+        output = self.executor.invoke({"input": input_prompt})
+        print(f"OUTPUT: {output}")
+        return output
