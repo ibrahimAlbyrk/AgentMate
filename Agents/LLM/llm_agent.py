@@ -44,6 +44,7 @@ class LLMAgent:
                 composio_langchain.toolset.json_schema_to_model = wrapper
 
                 self.tools = self.toolset.get_tools(actions=actions, processors=processors)
+                print(f"Tools: {self.tools}")
 
                 composio_langchain.toolset.json_schema_to_model = original_json_schema_to_model
             else:
