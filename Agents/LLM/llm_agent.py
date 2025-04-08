@@ -21,6 +21,8 @@ class LLMAgent:
 
         self.tasks: dict[str, str] = {}
 
+        self.processors = processors
+
         self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
         self.toolset.initiate_connection(app=app)
         try:
@@ -65,4 +67,6 @@ class LLMAgent:
         if name not in self.tasks:
             raise ValueError(f"Task {name} not found")
         input_prompt = self.tasks[name].format(**kwargs)
+        result = self.toolset.execute_action(Action.GMAIL_FETCH_EMAILS, processors=self.processors)
+        logger.debug(f"action result: {result}")
         return await self.executor.ainvoke({"input": input_prompt})
