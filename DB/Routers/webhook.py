@@ -86,12 +86,11 @@ async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10):
         raise HTTPException(status_code=400, detail=f"UID not provided")
 
     agent = agent_manager.get_agent(uid, "gmail", GmailAgent)
-    raw_data = await agent.get_emails_subjects(offset, limit)
-    data: {} = raw_data["data"]
-
+    emails = await agent.get_emails_subjects(offset, limit)
     subjects = []
-    for element in data:
-        subject = element.get("subject")
+    for email in emails:
+        print(email)
+        subject = email.get("subject")
         subjects.append(subject)
 
     return {"subjects": subjects}
