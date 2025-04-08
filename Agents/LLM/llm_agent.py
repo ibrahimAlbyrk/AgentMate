@@ -1,5 +1,7 @@
 from typing import Any
 
+import asyncio
+
 from langchain import hub
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_openai_functions_agent, AgentExecutor
