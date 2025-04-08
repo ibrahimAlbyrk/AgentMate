@@ -67,6 +67,6 @@ class LLMAgent:
         if name not in self.tasks:
             raise ValueError(f"Task {name} not found")
         input_prompt = self.tasks[name].format(**kwargs)
-        result = self.toolset.execute_action(Action.GMAIL_FETCH_EMAILS, {"page_token": 10}, processors=self.processors)
+        result = self.toolset.execute_action(Action.GMAIL_FETCH_EMAILS, {"max_results": 10, "page_token": "5"}, processors=self.processors)
         logger.debug(f"action result: {result}")
         return {}
