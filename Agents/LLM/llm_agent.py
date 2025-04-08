@@ -52,7 +52,7 @@ class LLMAgent:
         self.executor = AgentExecutor(
             agent=agent,
             tools=self.tools,
-            verbose=True
+            verbose=False
         )
 
     def register_task(self, name: str, prompt: str):
