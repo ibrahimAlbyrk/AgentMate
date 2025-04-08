@@ -33,7 +33,7 @@ class GmailAgent(IAgent):
         ]
 
         processors = {
-            "pre": {Action.GMAIL_FETCH_EMAILS: self._gmail_postprocessor}
+            "post": {Action.GMAIL_FETCH_EMAILS: self._gmail_postprocessor}
         }
 
         self.initialize_llm(actions, processors)
