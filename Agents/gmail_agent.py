@@ -27,7 +27,7 @@ class GmailAgent(IAgent):
     def __init__(self, uid: str, service_id):
         super().__init__(uid, service_id)
         self.app_name = App.GMAIL
-        self.logger = LoggerCreator.create_standard("GmailAgent")
+        self.logger = LoggerCreator.create_advanced_console("GmailAgent")
 
         actions = [
             'GMAIL_FETCH_EMAILS'
