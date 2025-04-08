@@ -48,10 +48,7 @@ class GmailAgent(IAgent):
     async def _stop_impl(self):
         pass
 
-    async def get_emails(self, limit: int):
-        return await self.llm.run_task("get_emails", offset=0, limit=limit)
-
-    async def get_emails_with_offset(self, offset: int, limit: int):
+    async def get_emails_subjects(self, offset: int, limit: int):
         return await self.llm.run_task("get_emails", offset=offset, limit=limit)
 
     def _handle_new_email_messages(self, event: TriggerEventData):
@@ -91,8 +88,6 @@ class GmailAgent(IAgent):
             processed_response.append(
                 {
                     "subject": email["subject"],
-                    "sender": email["sender"],
-                    "messageText": email["messageText"],
                 }
             )
         processed_result["data"] = processed_response
