@@ -32,11 +32,11 @@ class GmailAgent(IAgent):
             Action.GMAIL_FETCH_EMAILS
         ]
 
-        # processors = {
-        #     "post": {Action.GMAIL_FETCH_EMAILS: self._gmail_postprocessor}
-        # }
+        processors = {
+            "post": {Action.GMAIL_FETCH_EMAILS: self._gmail_postprocessor}
+        }
 
-        self.initialize_llm(actions)
+        self.initialize_llm(actions, processors)
 
     async def _run_impl(self):
         # LISTENERS
