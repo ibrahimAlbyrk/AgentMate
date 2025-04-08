@@ -65,7 +65,7 @@ class GmailAgent(IAgent):
             self.logger.error(f"Error handling new email message: {str(e)}")
 
     @staticmethod
-    def _decode_email(payload: dict) -> dict:
+    def decode_email(payload: dict) -> dict:
         date = payload.get("messageTimestamp")
         msg_id = payload.get("messageId")
         subject = payload.get("subject")
