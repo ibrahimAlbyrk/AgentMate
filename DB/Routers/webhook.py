@@ -87,10 +87,10 @@ async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10):
     agent = agent_manager.get_agent(uid, "gmail", GmailAgent)
     emails = await agent.get_emails_with_offset(offset, limit)
 
-    email = emails[0]
-
-    decided_email = GmailAgent.decode_email(email)
-    print(decided_email)
+    subjects = []
+    for email in emails:
+        email_data = GmailAgent.decode_email(email)
+        subjects.append(email_data["subject"])
 
     return {"subjects": subjects}
 
