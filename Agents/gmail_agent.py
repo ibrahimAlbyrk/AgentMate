@@ -49,7 +49,7 @@ class GmailAgent(IAgent):
         return await self.llm.run_task("get_emails", offset=0, limit=limit)
 
     async def get_emails_with_offset(self, offset: int, limit: int):
-        return await self.llm.run_task("get_emails", offset=offset, limit=limit)
+        return await self.llm.run_task("get_emails", offset=0, limit=1)
 
     async def _handle_new_email_messages(self, event: TriggerEventData):
         try:
