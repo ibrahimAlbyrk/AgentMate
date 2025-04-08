@@ -15,13 +15,14 @@ prompt = hub.pull("hwchase17/openai-functions-agent")
 logger = LoggerCreator.create_advanced_console("LLMAgent")
 
 class LLMAgent:
-    def __init__(self, uid: str, service_id: str, actions: [], processors: {}):
+    def __init__(self, app:App, uid: str, service_id: str, actions: [], processors: {}):
         self.uid = uid
         self.service_id = service_id
 
         self.tasks: dict[str, str] = {}
 
         self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
+        self.toolset.initiate_connection(app=app)
         self.tools = self.toolset.get_tools(actions=actions, processors=processors)
 
         agent = create_openai_functions_agent(llm, self.tools, prompt)
