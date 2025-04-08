@@ -27,6 +27,7 @@ class GmailAgent(IAgent):
     def __init__(self, uid: str, service_id):
         super().__init__(uid, service_id)
         self.app_name = App.GMAIL
+        self.logger = LoggerCreator.create_standard("GmailAgent")
 
         actions = [
             'GMAIL_FETCH_EMAILS'
@@ -36,7 +37,7 @@ class GmailAgent(IAgent):
 
     async def _run_impl(self):
         # LISTENERS
-        self.add_listener("GMAIL_NEW_GMAIL_MESSAGE", _handle_new_email_messages)
+        self.add_listener("GMAIL_NEW_GMAIL_MESSAGE", self._handle_new_email_messages)
 
         # TASKS
         self.llm.register_task("get_emails", "Skip the first {offset} emails and fetch the next {limit} emails from Gmail inbox")
@@ -50,29 +51,31 @@ class GmailAgent(IAgent):
     async def get_emails_with_offset(self, offset: int, limit: int):
         return await self.llm.run_task("get_emails", offset=offset, limit=limit)
 
+    async def _handle_new_email_messages(self, event: TriggerEventData):
+        try:
+            raw_data = event.model_dump_json()
+            data = json.loads(raw_data)
+            payload = data["payload"]
+            email = self._decode_email(payload)
 
-def _handle_new_email_messages(event: TriggerEventData):
-    raw_data = event.model_dump_json()
-    data = json.loads(raw_data)
-    payload = data["payload"]
-    email = _decode_email(payload)
+            data = {"uid": self.uid, "emails": [email]}
+            event_message = json.dumps(data)
+            await event_bus.publish("gmail.inbox.classify", event_message)
+        except Exception as e:
+            self.logger.error(f"Error handling new email message: {str(e)}")
 
-    data = {"uid": self.uid, "emails": [email]}
-    event_message = json.dumps(data)
-    event_bus.publish("gmail.inbox.classify", event_message)
+    @staticmethod
+    def _decode_email(payload: dict) -> dict:
+        date = payload.get("messageTimestamp")
+        msg_id = payload.get("messageId")
+        subject = payload.get("subject")
+        sender = payload.get("sender")
+        body = payload.get("messageText")
 
-
-def _decode_email(payload: dict) -> dict:
-    date = payload.get("messageTimestamp")
-    msg_id = payload.get("messageId")
-    subject = payload.get("subject")
-    sender = payload.get("sender")
-    body = payload.get("messageText")
-
-    return {
-        'id': msg_id,
-        'date': date,
-        'subject': subject,
-        'from': sender,
-        'body': body
-    }
+        return {
+            'id': msg_id,
+            'date': date,
+            'subject': subject,
+            'from': sender,
+            'body': body
+        }
