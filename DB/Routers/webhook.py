@@ -84,7 +84,8 @@ async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10):
     if not uid:
         raise HTTPException(status_code=400, detail=f"UID not provided")
 
-    agent: GmailAgent = agent_manager.get_agent(uid, "gmail", GmailAgent)
+    agent = agent_manager.get_agent(uid, "gmail", GmailAgent)
+    print(f"agent: {agent}")
     emails = agent.get_emails_with_offset(offset, limit)
     print(type(emails))
     print(emails)

@@ -20,7 +20,7 @@ class LLMAgent:
         self.tasks: dict[str, str] = {}
 
         self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
-        self.tools = self.toolset.get_tools(actions=actions)
+        self.tools = self.toolset.get_tools(actions="GMAIL_FETCH_EMAILS")
 
         agent = create_openai_functions_agent(llm, self.tools, prompt)
         self.executor = AgentExecutor(
