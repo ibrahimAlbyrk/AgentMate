@@ -69,4 +69,4 @@ class LLMAgent:
         input_prompt = self.tasks[name].format(**kwargs)
         result = self.toolset.execute_action(Action.GMAIL_FETCH_EMAILS, {"max_results": 10, "page_token": 5}, processors=self.processors)
         logger.debug(f"action result: {result}")
-        return await self.executor.ainvoke({"input": input_prompt})
+        return {}
