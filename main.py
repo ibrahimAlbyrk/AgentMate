@@ -39,7 +39,6 @@ async def lifespan(app: FastAPI):
     task_runner.executor.shutdown(wait=False)
     logger.info("Shutdown complete.")
 
-
 app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
@@ -50,11 +49,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(user_settings.router)
-app.include_router(agent_status.router)
-app.include_router(auth_router.router)
-app.include_router(webhook.router)
-app.include_router(websocket_router.router)
+def _include_routers(routers: []):
+    for router in routers:
+        app.include_router(router)
+
+_include_routers([
+    user_settings.router,
+    agent_status.router,
+    auth_router.router,
+    webhook.router,
+    websocket_router.router,
+])
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=6000)
