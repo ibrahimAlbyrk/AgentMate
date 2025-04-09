@@ -27,7 +27,6 @@ class GmailAgent(IAgent):
     def __init__(self, uid: str, service_id):
         super().__init__(uid, service_id)
         self.app_name = App.GMAIL
-        self.logger = LoggerCreator.create_advanced_console("GmailAgent")
 
         actions = {
             "get_emails": LLMActionData(Action.GMAIL_FETCH_EMAILS,
@@ -47,6 +46,9 @@ class GmailAgent(IAgent):
 
     async def _stop_impl(self):
         pass
+
+    async def get_emails(self,limit: int):
+        return await self.llm.run_action("get_emails", max_results=limit)
 
     async def get_emails_subjects(self, offset: int, limit: int):
         return await self.llm.run_action("get_emails_subjects", page_token=str(offset), max_results=limit)
