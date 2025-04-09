@@ -22,6 +22,8 @@ class IAgent(ABC):
         self.listener = toolset.create_trigger_listener()
         self._listener_refs = []
 
+        self.logger = LoggerCreator.create_advanced_console(self.__class__.__name__)
+
     def initialize_llm(self, actions: dict[str, LLMActionData] = []):
         self.actions = actions
         self.llm = LLMAgent(self.app_name, self.uid, self.service_id, actions)
