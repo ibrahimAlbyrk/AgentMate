@@ -1,10 +1,10 @@
-from typing import Optional, Coroutine
+from typing import Optional, Coroutine, Any
 from Core.config import settings
 from abc import ABC, abstractmethod
 from composio_openai import ComposioToolSet, App, Action
 from DB.Services.user_settings_service import UserSettingsService
 
-from Agents.LLM.llm_agent import LLMAgent
+from Agents.LLM.llm_agent import LLMAgent, LLMActionData
 
 toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
 
@@ -13,8 +13,7 @@ class IAgent(ABC):
         self.uid = uid
         self.service_id = service_id
 
-        self.actions = []
-        self.processors = []
+        self.actions: dict[str, LLMActionData] = {}
         self.llm: LLMAgent = None
 
         self.entity = toolset.get_entity(uid)
@@ -23,10 +22,9 @@ class IAgent(ABC):
         self.listener = toolset.create_trigger_listener()
         self._listener_refs = []
 
-    def initialize_llm(self, actions = [], processors = {}):
+    def initialize_llm(self, actions: dict[str, LLMActionData] = []):
         self.actions = actions
-        self.processors = processors
-        self.llm = LLMAgent(self.app_name, self.uid, self.service_id, actions, processors)
+        self.llm = LLMAgent(self.app_name, self.uid, self.service_id, actions)
 
     def add_listener(self, trigger_name: str, handler: callable, config: Optional[dict] = None):
         config = config or {}

@@ -4,6 +4,7 @@ from typing import Optional
 
 from composio.client.collections import TriggerEventData
 
+from Agents.LLM.llm_agent import LLMActionData
 from Core.event_bus import EventBus
 from Core.logger import LoggerCreator
 from Gmail.gmail_service import GmailService
@@ -28,28 +29,24 @@ class GmailAgent(IAgent):
         self.app_name = App.GMAIL
         self.logger = LoggerCreator.create_advanced_console("GmailAgent")
 
-        actions = [
-            Action.GMAIL_FETCH_EMAILS
-        ]
-
-        processors = {
-            "post": {Action.GMAIL_FETCH_EMAILS: self._gmail_postprocessor}
+        actions = {
+            "get_emails": LLMActionData(Action.GMAIL_FETCH_EMAILS,
+                                        processors={"post": {Action.GMAIL_FETCH_EMAILS: self._gmail_postprocessor}}),
+            "get_emails_subjects": LLMActionData(Action.GMAIL_FETCH_EMAILS,
+                                                 processors={"post": {Action.GMAIL_FETCH_EMAILS: self._gmail_subject_postprocessor}}),
         }
 
-        self.initialize_llm(actions, processors)
+        self.initialize_llm(actions)
 
     async def _run_impl(self):
         # LISTENERS
         self.add_listener("GMAIL_NEW_GMAIL_MESSAGE", self._handle_new_email_messages)
 
-        # TASKS
-        self.llm.register_task("get_emails", "Skip the first {offset} emails and fetch the next {limit} emails from Gmail inbox")
-
     async def _stop_impl(self):
         pass
 
     async def get_emails_subjects(self, offset: int, limit: int):
-        return await self.llm.run_task("get_emails", offset=offset, limit=limit)
+        return await self.llm.run_action(Action.GMAIL_FETCH_EMAILS, page_token=offset, max_results=limit)
 
     def _handle_new_email_messages(self, event: TriggerEventData):
         try:
@@ -80,15 +77,22 @@ class GmailAgent(IAgent):
             'body': body
         }
 
+    def _gmail_subject_postprocessor(self, result: dict) -> dict:
+        return self._filter_gmail_fields(result, fields=["subject"])
+
+    def _gmail_postprocessor(self, result: dict) -> dict:
+        return self._filter_gmail_fields(result, fields=[
+            "messageTimestamp", "messageId", "subject", "sender", "messageText"
+        ])
+
     @staticmethod
-    def _gmail_postprocessor(result: dict) -> dict:
+    def _filter_gmail_fields(result: dict, fields: list[str]) -> dict:
         processed_result = result.copy()
         processed_response = []
+
         for email in result["data"]["messages"]:
-            processed_response.append(
-                {
-                    "subject": email["subject"],
-                }
-            )
+            filtered_email = {field: email[field] for field in fields if field in email}
+            processed_response.append(filtered_email)
+
         processed_result["data"] = processed_response
         return processed_result
