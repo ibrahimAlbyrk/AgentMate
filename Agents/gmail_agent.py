@@ -34,6 +34,9 @@ class GmailAgent(IAgent):
                                         processors={"post": {Action.GMAIL_FETCH_EMAILS: self._gmail_postprocessor}}),
             "get_emails_subjects": LLMActionData(Action.GMAIL_FETCH_EMAILS,
                                                  processors={"post": {Action.GMAIL_FETCH_EMAILS: self._gmail_subject_postprocessor}}),
+            "get_email_by_message_id": LLMActionData(Action.GMAIL_FETCH_MESSAGE_BY_MESSAGE_ID,
+                                                 processors={"post": {
+                                                     Action.GMAIL_FETCH_MESSAGE_BY_MESSAGE_ID: self._gmail_postprocessor}}),
         }
 
         self.initialize_llm(actions)
@@ -47,6 +50,9 @@ class GmailAgent(IAgent):
 
     async def get_emails_subjects(self, offset: int, limit: int):
         return await self.llm.run_action("get_emails_subjects", page_token=str(offset), max_results=limit)
+
+    async def get_email_by_message_id(self, message_id: str):
+        return await self.llm.run_action("get_email_by_message_id", message_id=message_id)
 
     def _handle_new_email_messages(self, event: TriggerEventData):
         try:
