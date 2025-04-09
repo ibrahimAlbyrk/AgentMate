@@ -78,7 +78,7 @@ class GmailAgent(IAgent):
         }
 
     def _gmail_subject_postprocessor(self, result: dict) -> dict:
-        return self._filter_gmail_fields(result, fields=["subject"])
+        return self._filter_gmail_fields(result, fields=["subject", "messageId"])
 
     def _gmail_postprocessor(self, result: dict) -> dict:
         return self._filter_gmail_fields(result, fields=[
