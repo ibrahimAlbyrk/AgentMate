@@ -46,7 +46,7 @@ class GmailAgent(IAgent):
         pass
 
     async def get_emails_subjects(self, offset: int, limit: int):
-        return await self.llm.run_action("get_emails_subjects", page_token=offset, max_results=limit)
+        return await self.llm.run_action("get_emails_subjects", page_token=offset, max_results=str(limit))
 
     def _handle_new_email_messages(self, event: TriggerEventData):
         try:
