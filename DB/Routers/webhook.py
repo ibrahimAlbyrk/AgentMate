@@ -90,7 +90,6 @@ async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10):
     emails = output["data"]
     subjects = []
     for email in emails:
-        print(email)
         subject = email.get("subject")
         subjects.append(subject)
 
@@ -104,20 +103,28 @@ async def convert_to_memories(uid: str, request: Request):
 
     data = await request.json()
     mode = data.get("mode", "count")
-    service = GmailService(uid)
+    agent = agent_manager.get_agent(uid, "gmail", GmailAgent)
 
+    emails = {}
     if mode == "count":
         count = int(data.get("count", 0))
         if not count:
             raise HTTPException(status_code=400, detail="Missing count")
-        emails = await service.fetch_latest_emails(limit=count)
+        output = await agent.get_emails(limit=count)
+        print(output)
+        return None
+
 
     elif mode == "selection":
         selected = data.get("selectedSubjects", [])
         if not selected:
             raise HTTPException(status_code=400, detail="No emails selected")
         ids = [item["id"] for item in selected]
-        emails = await service.fetch_emails_by_ids(ids)
+        agent = agent_manager.get_agent(uid, "gmail", GmailAgent)
+        for message_id in ids:
+            output = await agent.get_email_by_message_id(message_id)
+            print(output)
+            return None
 
     else:
         raise HTTPException(status_code=400, detail="Invalid mode")
