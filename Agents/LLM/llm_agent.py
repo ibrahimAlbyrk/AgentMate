@@ -45,7 +45,7 @@ class LLMAgent:
 
     async def run_action(self, action_name: str, **params) -> dict[str, LLMActionData]:
         llm_action_data: LLMActionData = None
-        for name, action_data in self.actions:
+        for name, action_data in self.actions.items():
             if name == action_name:
                 llm_action_data = action_data
                 break
