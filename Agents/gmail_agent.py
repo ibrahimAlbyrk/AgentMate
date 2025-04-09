@@ -46,7 +46,7 @@ class GmailAgent(IAgent):
         pass
 
     async def get_emails_subjects(self, offset: int, limit: int):
-        return await self.llm.run_action("get_emails_subjects", page_token=offset, max_results=str(limit))
+        return await self.llm.run_action("get_emails_subjects", page_token=str(offset), max_results=limit)
 
     def _handle_new_email_messages(self, event: TriggerEventData):
         try:
@@ -89,8 +89,6 @@ class GmailAgent(IAgent):
     def _filter_gmail_fields(result: dict, fields: list[str]) -> dict:
         processed_result = result.copy()
         processed_response = []
-
-        print(result)
 
         for email in result["data"]["messages"]:
             filtered_email = {field: email[field] for field in fields if field in email}
