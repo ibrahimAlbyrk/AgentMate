@@ -6,7 +6,6 @@ from composio.client.collections import TriggerEventData
 
 from Agents.LLM.llm_agent import LLMActionData
 from Core.event_bus import EventBus
-from Core.logger import LoggerCreator
 from Gmail.gmail_service import GmailService
 from DB.database import AsyncSessionLocal
 from Interfaces.agent_interface import IAgent
