@@ -22,7 +22,7 @@ async def start_all_subscribers():
                 instance = obj()
                 asyncio.create_task(instance.setup())
 
-async def stop_all_subscribers():
+def stop_all_subscribers():
     if event_bus.redis:
         logger.debug("Shutting down EventBus and task pool...")
-        await event_bus.redis.close()
+        event_bus.redis.close()
