@@ -64,7 +64,7 @@ class GmailAgent(IAgent):
 
             data = {"uid": self.uid, "emails": [email]}
             event_message = json.dumps(data)
-            asyncio.create_task(event_bus.publish("gmail.inbox.classify", event_message))
+            asyncio.ensure_future(event_bus.publish("gmail.inbox.classify", event_message))
         except Exception as e:
             self.logger.error(f"Error handling new email message: {str(e)}")
 
