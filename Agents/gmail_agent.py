@@ -41,7 +41,7 @@ class GmailAgent(IAgent):
 
     async def _run_impl(self):
         # LISTENERS
-        self.add_listener("GMAIL_NEW_GMAIL_MESSAGE", self._handle_new_email_messages)
+        self.add_listener("GMAIL_NEW_GMAIL_MESSAGE", self.async_listener_wrapper(self._handle_new_email_messages))
 
     async def _stop_impl(self):
         pass
@@ -67,6 +67,13 @@ class GmailAgent(IAgent):
             await event_bus.publish("gmail.inbox.classify", event_message)
         except Exception as e:
             self.logger.error(f"Error handling new email message: {str(e)}")
+
+    @staticmethod
+    def async_listener_wrapper(func):
+        def wrapper(event):
+            asyncio.create_task(func(event))
+
+        return wrapper
 
     @staticmethod
     def decode_email(payload: dict) -> dict:
