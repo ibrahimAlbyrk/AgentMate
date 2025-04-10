@@ -288,6 +288,7 @@ class EmailMemorySummarizerEngine(BaseEmailEngine):
         return results
 
 
+import base64
 def extract_message_body(payload, prefer_html=True):
     def decode(data):
         return base64.urlsafe_b64decode(data.encode("ASCII")).decode("utf-8")
