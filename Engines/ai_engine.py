@@ -147,8 +147,10 @@ class EmailClassifierEngine(BaseEmailEngine):
         sender = email.get("sender", "Unknown")
 
         email_body = extract_message_body(email)
+        print(email_body)
 
-        content = email_body[:2000]  # Token trimming for now
+        content = email_body[:2000]
+        print(f"after trim: {print(content)}")
         return f"Title: {subject}\nFrom: {sender}\nContent: {content[:1000]}"
 
     @staticmethod

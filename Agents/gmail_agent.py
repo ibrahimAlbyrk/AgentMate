@@ -70,7 +70,6 @@ class GmailAgent(IAgent):
 
     @staticmethod
     def decode_email(payload: dict) -> dict:
-        print(payload)
         date = payload.get("messageTimestamp")
         msg_id = payload.get("messageId")
         subject = payload.get("subject")
