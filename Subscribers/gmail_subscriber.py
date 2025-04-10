@@ -125,7 +125,7 @@ def _build_conversation(email, classification) -> ConversationData:
 def _compose_email_text(email: dict, classification: dict) -> str:
     subject = email.get('subject', '')
     sender = email.get('from', '')
-    content = extract_message_body(email.get("payload", {}))
+    content = extract_plain_text_content(email.get("payload", {}))
     important = classification.get('important', None)
     sender_importance = classification.get('sender_importance', '')
     priority = classification.get('priority', '')
@@ -160,28 +160,11 @@ def _compose_email_text(email: dict, classification: dict) -> str:
 
 
 import base64
-def extract_message_body(payload: {}, prefer_html=True):
-    def decode(data):
-        return base64.urlsafe_b64decode(data.encode("ASCII")).decode("utf-8")
-
-    def get_part(parts):
-        for part in parts:
-            mime_type = part.get("mimeType", "")
-            data = part.get("body", {}).get("data")
-
-            if part.get("parts"):
-                result = get_part(part["parts"])
-                if result:
-                    return result
-            elif (prefer_html and mime_type == "text/html") or (not prefer_html and mime_type == "text/plain"):
-                if data:
-                    return decode(data)
-        return None
-
-    if payload.get("body", {}).get("data"):
-        return decode(payload["body"]["data"])
-
-    if "parts" in payload:
-        return get_part(payload["parts"])
-
-    return None
+def extract_plain_text_content(payload):
+    for part in payload.get("parts", []):
+        if part.get("mimeType") == "text/plain":
+            encoded_data = part["body"].get("data", "")
+            if encoded_data:
+                decoded_bytes = base64.urlsafe_b64decode(encoded_data)
+                return decoded_bytes.decode("utf-8")
+    return ""
