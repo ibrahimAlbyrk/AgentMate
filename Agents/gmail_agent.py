@@ -70,18 +70,19 @@ class GmailAgent(IAgent):
 
     @staticmethod
     def decode_email(payload: dict) -> dict:
+        print(payload)
         date = payload.get("messageTimestamp")
         msg_id = payload.get("messageId")
         subject = payload.get("subject")
         sender = payload.get("sender")
-        body = payload.get("messageText")
+        body_payload = payload.get("payload")
 
         return {
             'id': msg_id,
             'date': date,
             'subject': subject,
             'from': sender,
-            'body': body
+            'payload': body_payload
         }
 
     def _gmail_subjects_postprocessor(self, result: dict) -> dict:
