@@ -29,7 +29,7 @@ class GmailAgent(IAgent):
 
         actions = {
             "get_emails": LLMActionData(Action.GMAIL_FETCH_EMAILS,
-                                        processors={}),
+                                        processors={"post": {Action.GMAIL_FETCH_EMAILS: self._gmails_postprocessor}}),
             "get_emails_subjects": LLMActionData(Action.GMAIL_FETCH_EMAILS,
                                                  processors={"post": {Action.GMAIL_FETCH_EMAILS: self._gmail_subjects_postprocessor}}),
             "get_email_by_message_id": LLMActionData(Action.GMAIL_FETCH_MESSAGE_BY_MESSAGE_ID,
@@ -88,12 +88,12 @@ class GmailAgent(IAgent):
 
     def _gmails_postprocessor(self, result: dict) -> dict:
         return self._filter_gmail_fields(result, fields=[
-            "messageTimestamp", "messageId", "subject", "sender", "messageText"
+            "messageTimestamp", "messageId", "subject", "sender", "messageText", "body"
         ])
 
     def _gmail_postprocessor(self, result: dict) -> dict:
         return self._filter_gmail_field(result, fields=[
-            "messageTimestamp", "messageId", "subject", "sender", "messageText"
+            "messageTimestamp", "messageId", "subject", "sender", "messageText", "body"
         ])
 
     @staticmethod
