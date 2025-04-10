@@ -39,6 +39,7 @@ async def lifespan(app: FastAPI):
     task_runner.executor.shutdown(wait=False)
     logger.info("Shutdown complete.")
 
+
 app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
@@ -49,9 +50,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def _include_routers(routers: []):
     for router in routers:
         app.include_router(router)
+
 
 _include_routers([
     user_settings.router,
