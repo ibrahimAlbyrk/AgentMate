@@ -124,6 +124,7 @@ async def convert_to_memories(uid: str, request: Request):
         for message_id in ids:
             output = await agent.get_email_by_message_id(message_id)
             email = output["data"]
+            print(email)
             emails.append(email)
 
     else:
