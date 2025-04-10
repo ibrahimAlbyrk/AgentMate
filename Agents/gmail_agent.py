@@ -29,11 +29,11 @@ class GmailAgent(IAgent):
 
         actions = {
             "get_emails": LLMActionData(Action.GMAIL_FETCH_EMAILS,
-                                        processors={"post": {Action.GMAIL_FETCH_EMAILS: self._gmail_postprocessor}}),
+                                        processors={"post": {Action.GMAIL_FETCH_EMAILS: self._gmails_postprocessor}}),
             "get_emails_subjects": LLMActionData(Action.GMAIL_FETCH_EMAILS,
-                                                 processors={"post": {Action.GMAIL_FETCH_EMAILS: self._gmail_subject_postprocessor}}),
+                                                 processors={"post": {Action.GMAIL_FETCH_EMAILS: self._gmail_subjects_postprocessor}}),
             "get_email_by_message_id": LLMActionData(Action.GMAIL_FETCH_MESSAGE_BY_MESSAGE_ID,
-                                                 processors={}),
+                                                 processors={"post": {Action.GMAIL_FETCH_MESSAGE_BY_MESSAGE_ID: self._gmail_postprocessor}}),
         }
 
         self.initialize_llm(actions)
@@ -83,11 +83,16 @@ class GmailAgent(IAgent):
             'body': body
         }
 
-    def _gmail_subject_postprocessor(self, result: dict) -> dict:
+    def _gmail_subjects_postprocessor(self, result: dict) -> dict:
         return self._filter_gmail_fields(result, fields=["subject", "messageId"])
 
-    def _gmail_postprocessor(self, result: dict) -> dict:
+    def _gmails_postprocessor(self, result: dict) -> dict:
         return self._filter_gmail_fields(result, fields=[
+            "messageTimestamp", "messageId", "subject", "sender", "messageText"
+        ])
+
+    def _gmail_postprocessor(self, result: dict) -> dict:
+        return self._filter_gmail_field(result, fields=[
             "messageTimestamp", "messageId", "subject", "sender", "messageText"
         ])
 
@@ -101,4 +106,14 @@ class GmailAgent(IAgent):
             processed_response.append(filtered_email)
 
         processed_result["data"] = processed_response
+        return processed_result
+
+    @staticmethod
+    def _filter_gmail_field(result: dict, fields: list[str]) -> dict:
+        processed_result = result.copy()
+
+        email = result["data"]
+        processed_email = {field: email[field] for field in fields if field in email}
+
+        processed_result["data"] = processed_email
         return processed_result
