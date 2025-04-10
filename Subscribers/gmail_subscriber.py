@@ -123,6 +123,7 @@ def _build_conversation(email, classification) -> ConversationData:
 
 
 def _compose_email_text(email: dict, classification: dict) -> str:
+    print(email)
     subject = email.get('subject', '')
     sender = email.get('from', '')
     content = email.get('body', '')

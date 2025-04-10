@@ -147,11 +147,8 @@ class EmailClassifierEngine(BaseEmailEngine):
         sender = email.get("sender", "Unknown")
 
         email_body = extract_message_body(email)
-        print(email_body)
 
-        content = email_body[:2000]
-        print(f"after trim: {content}")
-        return f"Title: {subject}\nFrom: {sender}\nContent: {content[:1000]}"
+        return f"Title: {subject}\nFrom: {sender}\nContent: {email_body[:1000]}"
 
     @staticmethod
     def _build_classify_tool(important_categories: list[str], ignored_categories: list[str]) -> dict:
