@@ -113,8 +113,7 @@ async def convert_to_memories(uid: str, request: Request):
         if not count:
             raise HTTPException(status_code=400, detail="Missing count")
         output = await agent.get_emails(limit=count)
-        print(output)
-        emails = output["data"]["messages"]
+        emails = output["data"]
 
 
     elif mode == "selection":
