@@ -26,6 +26,7 @@ class GmailAgent(IAgent):
     def __init__(self, uid: str, service_id):
         super().__init__(uid, service_id)
         self.app_name = App.GMAIL
+        self.DEFAULT_EMAIL_FILTER = ["messageTimestamp", "messageId", "subject", "sender", "payload"]
 
         actions = {
             "get_emails": LLMActionData(Action.GMAIL_FETCH_EMAILS,
@@ -87,19 +88,17 @@ class GmailAgent(IAgent):
         return self._filter_gmail_fields(result, fields=["subject", "messageId"])
 
     def _gmails_postprocessor(self, result: dict) -> dict:
-        return self._filter_gmail_fields(result, fields=[
-            "messageTimestamp", "messageId", "subject", "sender", "payload"
-        ])
+        return self._filter_gmail_fields(result, fields=self.DEFAULT_EMAIL_FILTER)
 
     def _gmail_postprocessor(self, result: dict) -> dict:
-        return self._filter_gmail_field(result, fields=[
-            "messageTimestamp", "messageId", "subject", "sender", "payload"
-        ])
+        return self._filter_gmail_field(result, fields=self.DEFAULT_EMAIL_FILTER)
 
     @staticmethod
     def _filter_gmail_fields(result: dict, fields: list[str]) -> dict:
         processed_result = result.copy()
         processed_response = []
+
+        print(result)
 
         for email in result["data"]["messages"]:
             filtered_email = {field: email[field] for field in fields if field in email}
