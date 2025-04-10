@@ -33,8 +33,7 @@ class GmailAgent(IAgent):
             "get_emails_subjects": LLMActionData(Action.GMAIL_FETCH_EMAILS,
                                                  processors={"post": {Action.GMAIL_FETCH_EMAILS: self._gmail_subject_postprocessor}}),
             "get_email_by_message_id": LLMActionData(Action.GMAIL_FETCH_MESSAGE_BY_MESSAGE_ID,
-                                                 processors={"post": {
-                                                     Action.GMAIL_FETCH_MESSAGE_BY_MESSAGE_ID: self._gmail_postprocessor}}),
+                                                 processors={}),
         }
 
         self.initialize_llm(actions)
