@@ -150,7 +150,7 @@ class EmailClassifierEngine(BaseEmailEngine):
         print(email_body)
 
         content = email_body[:2000]
-        print(f"after trim: {print(content)}")
+        print(f"after trim: {content}")
         return f"Title: {subject}\nFrom: {sender}\nContent: {content[:1000]}"
 
     @staticmethod
