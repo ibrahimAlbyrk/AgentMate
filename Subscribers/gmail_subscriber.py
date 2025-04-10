@@ -37,6 +37,8 @@ async def _handle_gmail_summary(raw_data: str):
         payload = json.loads(raw_data)
         uid: str = payload["uid"]
         emails: list[dict] = payload["emails"]
+        for email in emails:
+            print(email)
 
         summaries = await summarizer.summarize_batch(uid, emails)
         for summary in summaries:
