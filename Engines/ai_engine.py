@@ -288,9 +288,28 @@ class EmailMemorySummarizerEngine(BaseEmailEngine):
         return results
 
 
-def extract_message_body(payload):
-    data = payload.get("body", {}).get("data", {})
-    if data:
-        body = base64.urlsafe_b64decode(data).decode("utf-8")
-        print(body)
-        return body
+def extract_message_body(payload, prefer_html=True):
+    def decode(data):
+        return base64.urlsafe_b64decode(data.encode("ASCII")).decode("utf-8")
+
+    def get_part(parts):
+        for part in parts:
+            mime_type = part.get("mimeType", "")
+            data = part.get("body", {}).get("data")
+
+            if part.get("parts"):
+                result = get_part(part["parts"])
+                if result:
+                    return result
+            elif (prefer_html and mime_type == "text/html") or (not prefer_html and mime_type == "text/plain"):
+                if data:
+                    return decode(data)
+        return None
+
+    if payload.get("body", {}).get("data"):
+        return decode(payload["body"]["data"])
+
+    if "parts" in payload:
+        return get_part(payload["parts"])
+
+    return None
