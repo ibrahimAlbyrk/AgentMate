@@ -264,7 +264,7 @@ class EmailMemorySummarizerEngine(BaseEmailEngine):
 
         queue = queue_manager.get_or_create_queue(
             user_id=uid,
-            texts=[e["body"] for e in emails]
+            texts=[e["messageText"] for e in emails]
         )
 
         for index, email in enumerate(emails):
@@ -272,7 +272,7 @@ class EmailMemorySummarizerEngine(BaseEmailEngine):
                 result = await self.summarize(e)
                 results[i] = result
 
-            await queue.enqueue(task, content=email["body"])
+            await queue.enqueue(task, content=email["messageText"])
 
         while any(r is None for r in results):
             await asyncio.sleep(0.2)

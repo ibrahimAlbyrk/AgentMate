@@ -107,14 +107,13 @@ async def convert_to_memories(uid: str, request: Request):
     mode = data.get("mode", "count")
     agent = agent_manager.get_agent(uid, "gmail", GmailAgent)
 
-    emails = {}
+    emails: list[dict] = []
     if mode == "count":
         count = int(data.get("count", 0))
         if not count:
             raise HTTPException(status_code=400, detail="Missing count")
         output = await agent.get_emails(limit=count)
-        print(output)
-        return None
+        emails = output["data"]["messages"]
 
 
     elif mode == "selection":
@@ -123,10 +122,9 @@ async def convert_to_memories(uid: str, request: Request):
             raise HTTPException(status_code=400, detail="No emails selected")
         agent = agent_manager.get_agent(uid, "gmail", GmailAgent)
         for message_id in ids:
-            print(message_id)
             output = await agent.get_email_by_message_id(message_id)
-            print(output)
-            return None
+            email = output["data"]
+            emails.append(email)
 
     else:
         raise HTTPException(status_code=400, detail="Invalid mode")
