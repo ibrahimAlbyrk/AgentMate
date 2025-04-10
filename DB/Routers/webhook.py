@@ -118,7 +118,7 @@ async def convert_to_memories(uid: str, request: Request):
 
 
     elif mode == "selection":
-        ids = data.get("selectedSubjects", [])
+        ids = data.get("selectedIds", [])
         if not selected:
             raise HTTPException(status_code=400, detail="No emails selected")
         agent = agent_manager.get_agent(uid, "gmail", GmailAgent)
