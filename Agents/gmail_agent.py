@@ -88,12 +88,12 @@ class GmailAgent(IAgent):
 
     def _gmails_postprocessor(self, result: dict) -> dict:
         return self._filter_gmail_fields(result, fields=[
-            "messageTimestamp", "messageId", "subject", "sender", "messageText", "body"
+            "messageTimestamp", "messageId", "subject", "sender", "body"
         ])
 
     def _gmail_postprocessor(self, result: dict) -> dict:
         return self._filter_gmail_field(result, fields=[
-            "messageTimestamp", "messageId", "subject", "sender", "messageText", "body"
+            "messageTimestamp", "messageId", "subject", "sender", "body"
         ])
 
     @staticmethod
