@@ -307,9 +307,13 @@ def extract_message_body(payload, prefer_html=True):
         return None
 
     if payload.get("body", {}).get("data"):
-        return decode(payload["body"]["data"])
+        body = decode(payload["body"]["data"])
+        print(body)
+        return body
 
     if "parts" in payload:
-        return get_part(payload["parts"])
+        body = get_part(payload["parts"])
+        print(body)
+        return body
 
     return None
