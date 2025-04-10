@@ -291,4 +291,6 @@ class EmailMemorySummarizerEngine(BaseEmailEngine):
 def extract_message_body(payload):
     data = payload.get("body", {}).get("data", {})
     if data:
-        return base64.urlsafe_b64decode(data).decode("utf-8")
+        body = base64.urlsafe_b64decode(data).decode("utf-8")
+        print(body)
+        return body
