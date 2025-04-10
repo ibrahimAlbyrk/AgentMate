@@ -307,6 +307,7 @@ def extract_message_body(email: {}, prefer_html=True):
                     return decode(data)
         return None
 
+    print(email)
     payload = email["payload"]
 
     if payload.get("body", {}).get("data"):
