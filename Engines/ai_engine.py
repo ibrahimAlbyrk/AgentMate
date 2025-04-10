@@ -124,7 +124,7 @@ class EmailClassifierEngine(BaseEmailEngine):
         results = [None] * len(emails)
         queue = queue_manager.get_or_create_queue(
             user_id=uid,
-            texts=[e["body"] for e in emails]
+            texts=[e["messageText"] for e in emails]
         )
 
         for index, email in enumerate(emails):
@@ -132,7 +132,7 @@ class EmailClassifierEngine(BaseEmailEngine):
                 result = await self.classify(e, important_categories, ignored_categories)
                 results[i] = result
 
-            await queue.enqueue(task, content=email["body"])
+            await queue.enqueue(task, content=email["messageText"])
 
         while any(r is None for r in results):
             await asyncio.sleep(0.2)
@@ -142,8 +142,8 @@ class EmailClassifierEngine(BaseEmailEngine):
     @staticmethod
     def _build_classification_prompt(email: dict) -> str:
         subject = email.get("subject", "")
-        sender = email.get("from", "Unknown")
-        content = email.get("body", "")[:2000]  # Token trimming for now
+        sender = email.get("sender", "Unknown")
+        content = email.get("messageText", "")[:2000]  # Token trimming for now
         return f"Title: {subject}\nFrom: {sender}\nContent: {content[:1000]}"
 
     @staticmethod
@@ -229,7 +229,7 @@ class EmailMemorySummarizerEngine(BaseEmailEngine):
 
     async def summarize(self, email: dict) -> str:
         subject = email.get("subject", None)
-        content = email.get("body", None)
+        content = email.get("messageText", None)
         if not subject or not content:
             return ""
 
