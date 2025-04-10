@@ -122,6 +122,7 @@ async def convert_to_memories(uid: str, request: Request):
         ids = [item["id"] for item in selected]
         agent = agent_manager.get_agent(uid, "gmail", GmailAgent)
         for message_id in ids:
+            print(message_id)
             output = await agent.get_email_by_message_id(message_id)
             print(output)
             return None
