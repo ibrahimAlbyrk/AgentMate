@@ -39,6 +39,8 @@ async def _handle_gmail_summary(raw_data: str):
         emails: list[dict] = payload["emails"]
 
         summaries = await summarizer.summarize_batch(uid, emails)
+        for summary in summaries:
+            logger.debug(summary)
 
         event_message = {"uid": uid, "memories": summaries}
         await event_bus.publish("websocket.gmail.memory",json.dumps(event_message))
