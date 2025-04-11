@@ -68,8 +68,6 @@ async def _handle_gmail_classification(raw_data: str):
         uid = payload["uid"]
         emails = payload["emails"]
 
-        print(f"_handle_gmail_classification: {emails[0]}")
-
         async with AsyncSessionLocal() as session:
             unprocessed_emails = []
             for email in emails:

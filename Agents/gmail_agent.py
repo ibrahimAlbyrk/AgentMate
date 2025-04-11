@@ -2,6 +2,8 @@ import json
 import base64
 import asyncio
 
+from bs4 import BeautifulSoup
+
 from typing import Optional
 
 from composio.client.collections import TriggerEventData
@@ -76,7 +78,8 @@ class GmailAgent(IAgent):
         subject = payload.get("subject")
         sender = payload.get("sender")
         payload = payload.get("payload")
-        body = self._extract_message_body(payload)
+        raw_body = self._extract_message_body(payload)
+        body = self.strip_html_tags(raw_body)
 
         return {
             'id': msg_id,
@@ -143,3 +146,7 @@ class GmailAgent(IAgent):
             return get_part(payload["parts"])
 
         return None
+
+    @staticmethod
+    def strip_html_tags(html: str) -> str:
+        return BeautifulSoup(html, "html.parser").get_text()

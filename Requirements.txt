@@ -18,3 +18,5 @@ composio_openai~=0.7.12
 langchain~=0.3.22
 langchain-openai~=0.3.11
 composio_langchain~=0.7.12
+bs4~=0.0.2
+beautifulsoup4~=4.13.3
