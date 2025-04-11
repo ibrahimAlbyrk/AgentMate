@@ -126,7 +126,6 @@ def _compose_email_text(email: dict, classification: dict) -> str:
     subject = email.get('subject', '')
     sender = email.get('sender', '')
     content = email.get('body', '')
-    print(f"_compose_email_text: {content}")
     important = classification.get('important', None)
     sender_importance = classification.get('sender_importance', '')
     priority = classification.get('priority', '')
