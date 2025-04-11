@@ -1,5 +1,7 @@
-import asyncio
 import json
+import base64
+import asyncio
+
 from typing import Optional
 
 from composio.client.collections import TriggerEventData
@@ -68,20 +70,20 @@ class GmailAgent(IAgent):
         except Exception as e:
             self.logger.error(f"Error handling new email message: {str(e)}")
 
-    @staticmethod
-    def decode_email(payload: dict) -> dict:
+    def decode_email(self, payload: dict) -> dict:
         date = payload.get("messageTimestamp")
         msg_id = payload.get("messageId")
         subject = payload.get("subject")
         sender = payload.get("sender")
-        body_payload = payload.get("payload")
+        payload = payload.get("payload")
+        body = self._extract_message_body(payload)
 
         return {
             'id': msg_id,
             'date': date,
             'subject': subject,
-            'from': sender,
-            'payload': body_payload
+            'sender': sender,
+            'body': body
         }
 
     def _gmail_subjects_postprocessor(self, result: dict) -> dict:
@@ -114,3 +116,32 @@ class GmailAgent(IAgent):
 
         processed_result["data"] = processed_email
         return processed_result
+
+    @staticmethod
+    def _extract_message_body(email: {}, prefer_html=True):
+        def decode(data):
+            return base64.urlsafe_b64decode(data.encode("ASCII")).decode("utf-8")
+
+        def get_part(parts):
+            for part in parts:
+                mime_type = part.get("mimeType", "")
+                data = part.get("body", {}).get("data")
+
+                if part.get("parts"):
+                    result = get_part(part["parts"])
+                    if result:
+                        return result
+                elif (prefer_html and mime_type == "text/html") or (not prefer_html and mime_type == "text/plain"):
+                    if data:
+                        return decode(data)
+            return None
+
+        payload = email["payload"]
+
+        if payload.get("body", {}).get("data"):
+            return decode(payload["body"]["data"])
+
+        if "parts" in payload:
+            return get_part(payload["parts"])
+
+        return None

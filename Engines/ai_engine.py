@@ -124,7 +124,7 @@ class EmailClassifierEngine(BaseEmailEngine):
         results = [None] * len(emails)
         queue = queue_manager.get_or_create_queue(
             user_id=uid,
-            texts=[extract_message_body(e) for e in emails]
+            texts=[e["body"] for e in emails]
         )
 
         for index, email in enumerate(emails):
@@ -132,7 +132,7 @@ class EmailClassifierEngine(BaseEmailEngine):
                 result = await self.classify(e, important_categories, ignored_categories)
                 results[i] = result
 
-            email_body = extract_message_body(email)
+            email_body = email["body"]
 
             await queue.enqueue(task, content=email_body)
 
@@ -146,7 +146,7 @@ class EmailClassifierEngine(BaseEmailEngine):
         subject = email.get("subject", "")
         sender = email.get("sender", "Unknown")
 
-        email_body = extract_message_body(email)
+        email_body = email["body"]
 
         return f"Title: {subject}\nFrom: {sender}\nContent: {email_body[:1000]}"
 
@@ -233,7 +233,7 @@ class EmailMemorySummarizerEngine(BaseEmailEngine):
 
     async def summarize(self, email: dict) -> str:
         subject = email.get("subject", None)
-        email_body = extract_message_body(email)
+        email_body = email["body"]
         content = email_body
         if not subject or not content:
             return ""
@@ -269,7 +269,7 @@ class EmailMemorySummarizerEngine(BaseEmailEngine):
 
         queue = queue_manager.get_or_create_queue(
             user_id=uid,
-            texts=[extract_message_body(e) for e in emails]
+            texts=[e["body"] for e in emails]
         )
 
         for index, email in enumerate(emails):
@@ -277,7 +277,7 @@ class EmailMemorySummarizerEngine(BaseEmailEngine):
                 result = await self.summarize(e)
                 results[i] = result
 
-            email_body = extract_message_body(email)
+            email_body = email["body"]
 
             await queue.enqueue(task, content=email_body)
 
@@ -285,33 +285,3 @@ class EmailMemorySummarizerEngine(BaseEmailEngine):
             await asyncio.sleep(0.2)
 
         return results
-
-
-import base64
-def extract_message_body(email: {}, prefer_html=True):
-    def decode(data):
-        return base64.urlsafe_b64decode(data.encode("ASCII")).decode("utf-8")
-
-    def get_part(parts):
-        for part in parts:
-            mime_type = part.get("mimeType", "")
-            data = part.get("body", {}).get("data")
-
-            if part.get("parts"):
-                result = get_part(part["parts"])
-                if result:
-                    return result
-            elif (prefer_html and mime_type == "text/html") or (not prefer_html and mime_type == "text/plain"):
-                if data:
-                    return decode(data)
-        return None
-
-    payload = email["payload"]
-
-    if payload.get("body", {}).get("data"):
-        return decode(payload["body"]["data"])
-
-    if "parts" in payload:
-        return get_part(payload["parts"])
-
-    return None

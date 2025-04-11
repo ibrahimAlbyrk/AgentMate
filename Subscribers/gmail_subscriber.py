@@ -124,8 +124,8 @@ def _build_conversation(email, classification) -> ConversationData:
 
 def _compose_email_text(email: dict, classification: dict) -> str:
     subject = email.get('subject', '')
-    sender = email.get('from', '')
-    content = extract_plain_text_content(email.get("payload", {}))
+    sender = email.get('sender', '')
+    content = email.get("body", "")
     important = classification.get('important', None)
     sender_importance = classification.get('sender_importance', '')
     priority = classification.get('priority', '')
