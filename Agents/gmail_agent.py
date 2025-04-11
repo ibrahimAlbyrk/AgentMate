@@ -52,8 +52,8 @@ class GmailAgent(IAgent):
     async def get_emails(self, limit: int):
         return await self.llm.run_action("get_emails", max_results=limit)
 
-    async def get_emails_subjects(self, offset: int, limit: int):
-        return await self.llm.run_action("get_emails_subjects", page_token=str(offset), max_results=limit)
+    async def get_emails_subjects(self, limit: int):
+        return await self.llm.run_action("get_emails_subjects", max_results=limit)
 
     async def get_email_by_message_id(self, message_id: str):
         return await self.llm.run_action("get_email_by_message_id", message_id=message_id)

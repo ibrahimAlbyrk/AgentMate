@@ -85,7 +85,7 @@ async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10):
         raise HTTPException(status_code=400, detail=f"UID not provided")
 
     agent = agent_manager.get_agent(uid, "gmail", GmailAgent)
-    output = await agent.get_emails_subjects(offset, limit)
+    output = await agent.get_emails_subjects(limit)
     emails = output["data"]
     subjects: list[dict[str, str]] = []
     for email in emails:
@@ -95,7 +95,7 @@ async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10):
         data = {"id": email_id, "subject": email_subject}
         subjects.append(data)
 
-    return {"subjects": subjects}
+    return {"subjects": subjects[offset:]}
 
 
 @router.post("/gmail/convert-to-memory")
