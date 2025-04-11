@@ -4,7 +4,7 @@ import asyncio
 
 from bs4 import BeautifulSoup
 
-from typing import Optional
+from typing import Optional, Any
 
 from composio.client.collections import TriggerEventData
 
@@ -49,14 +49,20 @@ class GmailAgent(IAgent):
     async def _stop_impl(self):
         pass
 
-    async def get_emails(self, limit: int):
-        return await self.llm.run_action("get_emails", max_results=limit)
+    async def get_emails(self, limit: int) -> dict[str, Any]:
+        output = await self.llm.run_action("get_emails", max_results=limit)
+        emails = output['data']
+        return emails
 
-    async def get_emails_subjects(self, limit: int):
-        return await self.llm.run_action("get_emails_subjects", max_results=limit)
+    async def get_emails_subjects(self, limit: int) -> dict[str, Any]:
+        output = await self.llm.run_action("get_emails_subjects", max_results=limit)
+        subjects = output['data']
+        return
 
-    async def get_email_by_message_id(self, message_id: str):
-        return await self.llm.run_action("get_email_by_message_id", message_id=message_id)
+    async def get_email_by_message_id(self, message_id: str) -> dict[str, Any]:
+        output = await self.llm.run_action("get_email_by_message_id", message_id=message_id)
+        email = output['data']
+        return email
 
     def _handle_new_email_messages(self, event: TriggerEventData):
         try:
@@ -92,10 +98,36 @@ class GmailAgent(IAgent):
         return self._filter_gmail_fields(result, fields=["subject", "messageId"])
 
     def _gmails_postprocessor(self, result: dict) -> dict:
-        return self._filter_gmail_fields(result, fields=self.DEFAULT_EMAIL_FILTER)
+        processed_result = result.copy()
+        processed_response = []
+
+        for email in result["data"]["messages"]:
+            processed_response.append(
+                self._filter_and_process_email(email, fields=self.DEFAULT_EMAIL_FILTER)
+            )
+
+        processed_result["data"] = processed_response
+        return processed_result
 
     def _gmail_postprocessor(self, result: dict) -> dict:
-        return self._filter_gmail_field(result, fields=self.DEFAULT_EMAIL_FILTER)
+        processed_result = result.copy()
+
+        email = result["data"]
+        processed_result["data"] = self._filter_and_process_email(email, fields=self.DEFAULT_EMAIL_FILTER)
+
+        return processed_result
+
+    def _filter_and_process_email(self, email: dict, fields: list[str]) -> dict:
+        filtered_email = {field: email[field] for field in fields if field in email}
+
+        payload = filtered_email.get("payload")
+        if payload:
+            raw_body = self._extract_message_body(payload)
+            body = self.strip_html_tags(raw_body or "")
+            filtered_email["body"] = body
+            del filtered_email["payload"]
+
+        return filtered_email
 
     @staticmethod
     def _filter_gmail_fields(result: dict, fields: list[str]) -> dict:
@@ -107,16 +139,6 @@ class GmailAgent(IAgent):
             processed_response.append(filtered_email)
 
         processed_result["data"] = processed_response
-        return processed_result
-
-    @staticmethod
-    def _filter_gmail_field(result: dict, fields: list[str]) -> dict:
-        processed_result = result.copy()
-
-        email = result["data"]
-        processed_email = {field: email[field] for field in fields if field in email}
-
-        processed_result["data"] = processed_email
         return processed_result
 
     @staticmethod
