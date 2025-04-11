@@ -77,7 +77,6 @@ class GmailAgent(IAgent):
         sender = payload.get("sender")
         payload = payload.get("payload")
         body = self._extract_message_body(payload)
-        print(body)
 
         return {
             'id': msg_id,

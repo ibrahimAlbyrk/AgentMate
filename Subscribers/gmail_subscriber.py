@@ -68,6 +68,8 @@ async def _handle_gmail_classification(raw_data: str):
         uid = payload["uid"]
         emails = payload["emails"]
 
+        print(f"_handle_gmail_classification: {emails[0]}")
+
         async with AsyncSessionLocal() as session:
             unprocessed_emails = []
             for email in emails:
@@ -125,7 +127,8 @@ def _build_conversation(email, classification) -> ConversationData:
 def _compose_email_text(email: dict, classification: dict) -> str:
     subject = email.get('subject', '')
     sender = email.get('sender', '')
-    content = email.get("body", "")
+    content = email.get('body', '')
+    print(f"_compose_email_text: {content}")
     important = classification.get('important', None)
     sender_importance = classification.get('sender_importance', '')
     priority = classification.get('priority', '')
