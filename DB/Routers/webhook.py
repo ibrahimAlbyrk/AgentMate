@@ -5,7 +5,6 @@ from pydantic import ValidationError
 
 from DB.database import get_db
 from fastapi.responses import JSONResponse
-from Gmail.gmail_service import GmailService
 from sqlalchemy.ext.asyncio import AsyncSession
 from DB.Schemas.gmail_config import GmailConfig
 from Engines.ai_engine import EmailMemorySummarizerEngine
