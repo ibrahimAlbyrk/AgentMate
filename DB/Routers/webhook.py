@@ -95,7 +95,7 @@ async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10):
         data = {"id": email_id, "subject": email_subject}
         subjects.append(data)
 
-    return {"subjects": subjects[offset:]}
+    return {"subjects": subjects[offset: offset + limit]}
 
 
 @router.post("/gmail/convert-to-memory")
