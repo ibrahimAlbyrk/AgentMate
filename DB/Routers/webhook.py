@@ -76,7 +76,10 @@ async def update_settings(uid: str, service: str, request: Request, db: AsyncSes
     event_message = {"uid": uid, "service": service}
     await event_bus.publish("agent.restart", json.dumps(event_message))
 
-    return {"status": f"{service} agent restarted with new config"}
+    return {
+        "success": True,
+        "status": f"{service} agent restarted with new config"
+    }
 
 
 @router.get("/gmail/get-email-subjects")
