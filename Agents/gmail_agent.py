@@ -10,7 +10,6 @@ from composio.client.collections import TriggerEventData
 
 from Agents.LLM.llm_agent import LLMActionData
 from Core.event_bus import EventBus
-from Gmail.gmail_service import GmailService
 from DB.database import AsyncSessionLocal
 from Interfaces.agent_interface import IAgent
 from DB.Services.user_settings_service import UserSettingsService
