@@ -118,7 +118,7 @@ class GmailAgent(IAgent):
         return processed_result
 
     @staticmethod
-    def _extract_message_body(email: {}, prefer_html=True):
+    def _extract_message_body(payload, prefer_html=True):
         def decode(data):
             return base64.urlsafe_b64decode(data.encode("ASCII")).decode("utf-8")
 
@@ -135,8 +135,6 @@ class GmailAgent(IAgent):
                     if data:
                         return decode(data)
             return None
-
-        payload = email["payload"]
 
         if payload.get("body", {}).get("data"):
             return decode(payload["body"]["data"])
