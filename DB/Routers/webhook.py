@@ -95,7 +95,6 @@ async def get_email_subjects(uid: str, offset: int = 0, limit: int = 10):
     for email in emails:
         email_id = email.get("messageId")
         email_subject = email.get("subject")
-        print(email_subject)
         data = {"id": email_id, "subject": email_subject}
         subjects.append(data)
 
