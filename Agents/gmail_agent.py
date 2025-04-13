@@ -57,7 +57,7 @@ class GmailAgent(IAgent):
     async def get_emails_subjects(self, limit: int) -> dict[str, Any]:
         output = await self.llm.run_action("get_emails_subjects", max_results=limit)
         subjects = output['data']
-        return
+        return subjects
 
     async def get_email_by_message_id(self, message_id: str) -> dict[str, Any]:
         output = await self.llm.run_action("get_email_by_message_id", message_id=message_id)
