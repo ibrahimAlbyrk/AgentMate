@@ -25,13 +25,13 @@ class RetryManager:
 
         while attempt < self.policy.max_retries:
             try:
-                logger.debug(f"Attempt {attempt + 1} for {func.__name__}")
+                # logger.debug(f"Attempt {attempt + 1} for {func.__name__}")
                 if inspect.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
                 return func(*args, **kwargs)
             except self.retry_exceptions as e:
                 last_exception = e
-                logger.warning(f"[Retry {attempt + 1}]/{self.policy.max_retries} Exception in {func.__name__}: {str(e)}")
+                # logger.warning(f"[Retry {attempt + 1}]/{self.policy.max_retries} Exception in {func.__name__}: {str(e)}")
                 traceback.print_exc()
 
                 attempt += 1
@@ -42,10 +42,10 @@ class RetryManager:
                 else:
                     break
 
-        logger.error(f"{func.__name__} failed after {self.policy.max_retries} attempts")
+        # logger.error(f"{func.__name__} failed after {self.policy.max_retries} attempts")
 
         if self.policy.fallback:
-            logger.debug(f"Executing fallback for {func.__name__}")
+            # logger.debug(f"Executing fallback for {func.__name__}")
             try:
                 if inspect.iscoroutinefunction(self.policy.fallback):
                     return await self.policy.fallback(*args, **kwargs)

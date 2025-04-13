@@ -34,5 +34,8 @@ class EventBus:
                 data = message["data"]
                 # self.logger.debug(f"Received message on {channel}: {data}")
                 if channel in self.subscribers:
-                    await self.subscribers[channel](data)
+                    try:
+                        await self.subscribers[channel](data)
+                    except Exception as e:
+                        self.logger.error(f"Error while processing message on {channel}: {str(e)}")
             await asyncio.sleep(0.01)

@@ -93,6 +93,7 @@ def _try_get_all_services(raw_data: str) -> dict:
         logger.error(f"Error handling agent services data: {str(e)}")
         return None
 
+
 def _try_get_data(raw_data: str) -> AgentEventData:
     try:
         payload = json.loads(raw_data)
