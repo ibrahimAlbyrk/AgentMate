@@ -124,9 +124,8 @@ async def convert_to_memories(uid: str, request: Request):
         if not ids:
             raise HTTPException(status_code=400, detail="No emails selected")
         agent = agent_manager.get_agent(uid, "gmail", GmailAgent)
-        for message_id in ids:
-            email = await agent.get_email_by_message_id(message_id)
-            emails.append(email)
+        tasks = [agent.get_email_by_message_id(m_id) for m_id in ids]
+        emails = await asyncio.gather(*tasks)
 
     else:
         raise HTTPException(status_code=400, detail="Invalid mode")
