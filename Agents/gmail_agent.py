@@ -61,7 +61,7 @@ class GmailAgent(IAgent):
         return subjects
 
     async def get_email_by_message_id(self, message_id: str) -> dict[str, Any]:
-        output = await self.llm.run_action("get_email_by_message_id", message_id=message_id, label_ids=self.include_labels)
+        output = await self.llm.run_action("get_email_by_message_id", message_id=message_id)
         email = output['data']
         return email
 
