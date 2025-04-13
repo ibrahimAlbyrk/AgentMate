@@ -20,97 +20,101 @@ class AgentEventData:
 
 
 class AgentSubscriber(BaseSubscriber):
-    async def register(self):
-        self.event_bus.subscribe("agent.start", _handle_agent_start)
-        self.event_bus.subscribe("agent.start_all", _handle_agent_start_all)
+    def __init__(self):
+        self.event_bus = None
+        self.logger = None
+        self.agent_manager = None
 
-        self.event_bus.subscribe("agent.stop", _handle_agent_stop)
-        self.event_bus.subscribe("agent.stop_all", _handle_agent_stop_all)
+    async def setup(self, **services):
+        self.event_bus = services["event_bus"]
+        self.logger = services["logger"]
+        self.agent_manager = services["agent_manager"]
 
-        self.event_bus.subscribe("agent.restart", _handle_agent_restart)
+        self.event_bus.subscribe("agent.start", self._handle_agent_start)
+        self.event_bus.subscribe("agent.start_all", self._handle_agent_start_all)
 
+        self.event_bus.subscribe("agent.stop", self._handle_agent_stop)
+        self.event_bus.subscribe("agent.stop_all", self._handle_agent_stop_all)
 
-async def _handle_agent_start_all(raw_data: str):
-    data = _try_get_all_services(raw_data)
-    if not data:
-        return
+        self.event_bus.subscribe("agent.restart", self._handle_agent_restart)
 
-    uid = data.get("uid")
-    service_id = data.get("service_id")
-    services = data.get("services")
+    async def _handle_agent_start_all(self, raw_data: str):
+        try:
+            payload = json.loads(raw_data)
+            uid = payload.get("uid")
+            service_id = payload.get("service_id")
+            services = payload.get("services")
 
-    await agent_manager.start_all_for_user(uid, service_id, services)
+            await self.agent_manager.start_all_for_user(uid, service_id, services)
+        except Exception as e:
+            self.logger.error(f"Start all agents error: {str(e)}")
 
+    async def _handle_agent_stop_all(self, raw_data: str):
+        try:
+            payload = json.loads(raw_data)
+            uid = payload.get("uid")
+            await self.agent_manager.stop_all_for_user(uid)
+        except Exception as e:
+            self.logger.error(f"Stop all agents error: {str(e)}")
 
-async def _handle_agent_stop_all(raw_data: str):
-    uid = _try_get_uid(raw_data)
-    if not uid:
-        return
+    async def _handle_agent_start(self, raw_data: str):
+        await self._handle_agent_restart(raw_data)
 
-    await agent_manager.stop_all_for_user(uid)
+    async def _handle_agent_stop(self, raw_data: str):
+        try:
+            payload = json.loads(raw_data)
+            uid = payload["uid"]
+            service = payload["service"]
 
+            if self.agent_manager.is_running(uid, service):
+                await self.agent_manager.stop_agent(uid, service)
+        except Exception as e:
+            self.logger.error(f"Stop agent error: {str(e)}")
 
-async def _handle_agent_start(raw_data: str):
-    await _handle_agent_restart(raw_data)
+    async def _handle_agent_restart(self, raw_data: str):
+        try:
+            payload = json.loads(raw_data)
+            uid = payload["uid"]
+            service_id = payload.get("service_id", "")
+            service = payload["service"]
 
+            if self.agent_manager.is_running(uid, service):
+                await self.agent_manager.restart_agent(uid, service_id, service)
+            else:
+                await self.agent_manager.start_agent(uid, service_id, service)
 
-async def _handle_agent_stop(raw_data: str):
-    data = _try_get_data(raw_data)
-    if not data:
-        return
+        except Exception as e:
+            self.logger.error(f"Restart agent error: {str(e)}")
 
-    uid = data.uid
-    service = data.service
+    @staticmethod
+    def _try_get_all_services(raw_data: str) -> dict:
+        try:
+            payload = json.loads(raw_data)
+            uid = payload["uid"]
+            services = payload["services"]
+            return {"uid": uid, "services": services}
+        except Exception as e:
+            logger.error(f"Error handling agent services data: {str(e)}")
+            return None
 
-    is_running = agent_manager.is_running(uid, service)
-    if is_running:
-        await agent_manager.stop_agent(uid, service)
+    @staticmethod
+    def _try_get_data(raw_data: str) -> AgentEventData:
+        try:
+            payload = json.loads(raw_data)
+            uid = payload["uid"]
+            service_id = payload.get("service_id", "")
+            service = payload["service"]
+            return AgentEventData(uid, service_id, service)
+        except Exception as e:
+            logger.error(f"Error handling agent data: {str(e)}")
+            return None
 
-
-async def _handle_agent_restart(raw_data: str):
-    data = _try_get_data(raw_data)
-    if not data:
-        return
-
-    uid = data.uid
-    service_id = data.service_id
-    service = data.service
-
-    is_running = agent_manager.is_running(uid, service)
-    if is_running:
-        await agent_manager.restart_agent(uid, service_id, service)
-    else:
-        await agent_manager.start_agent(uid, service_id, service)
-
-
-def _try_get_all_services(raw_data: str) -> dict:
-    try:
-        payload = json.loads(raw_data)
-        uid = payload["uid"]
-        services = payload["services"]
-        return {"uid": uid, "services": services}
-    except Exception as e:
-        logger.error(f"Error handling agent services data: {str(e)}")
-        return None
-
-
-def _try_get_data(raw_data: str) -> AgentEventData:
-    try:
-        payload = json.loads(raw_data)
-        uid = payload["uid"]
-        service_id = payload.get("service_id", "")
-        service = payload["service"]
-        return AgentEventData(uid, service_id, service)
-    except Exception as e:
-        logger.error(f"Error handling agent data: {str(e)}")
-        return None
-
-
-def _try_get_uid(raw_data: str) -> str:
-    try:
-        payload = json.loads(raw_data)
-        uid = payload["uid"]
-        return uid
-    except Exception as e:
-        logger.error(f"Error handling agent uid data: {str(e)}")
-        return None
+    @staticmethod
+    def _try_get_uid(raw_data: str) -> str:
+        try:
+            payload = json.loads(raw_data)
+            uid = payload["uid"]
+            return uid
+        except Exception as e:
+            logger.error(f"Error handling agent uid data: {str(e)}")
+            return None

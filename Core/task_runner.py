@@ -7,7 +7,8 @@ class TaskRunner:
         max_workers = settings.MAX_TASK_WORKER
         self.executor = ThreadPoolExecutor(max_workers)
 
-    async def run_async_tasks(self, tasks):
+    @staticmethod
+    async def run_async_tasks(tasks):
         return await asyncio.gather(*tasks)
 
     async def run_in_thread(self, func, *args):
