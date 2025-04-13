@@ -30,8 +30,12 @@ class TaskQueue:
 
     async def _start(self):
         self.running = True
-        while not self.queue.empty():
-            task_func, content = await self.queue.get()
+        while True:
+            task = await self.queue.get()
+            if task is None:
+                break
+            task_func, content = task
+
             await self.semaphore.acquire()
             asyncio.create_task(self._run_task(task_func, content))
         self.running = False
