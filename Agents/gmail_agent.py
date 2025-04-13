@@ -30,6 +30,7 @@ class GmailAgent(IAgent):
         super().__init__(uid, service_id)
         self.app_name = App.GMAIL
         self.DEFAULT_EMAIL_FILTER = ["messageTimestamp", "messageId", "subject", "sender", "payload"]
+        self.include_labels = ['INBOX']
 
         actions = {
             "get_emails": LLMActionData(Action.GMAIL_FETCH_EMAILS,
@@ -50,17 +51,17 @@ class GmailAgent(IAgent):
         pass
 
     async def get_emails(self, limit: int) -> dict[str, Any]:
-        output = await self.llm.run_action("get_emails", max_results=limit)
+        output = await self.llm.run_action("get_emails", max_results=limit, label_ids=self.include_labels)
         emails = output['data']
         return emails
 
     async def get_emails_subjects(self, limit: int) -> dict[str, Any]:
-        output = await self.llm.run_action("get_emails_subjects", max_results=limit)
+        output = await self.llm.run_action("get_emails_subjects", max_results=limit, label_ids=self.include_labels)
         subjects = output['data']
         return subjects
 
     async def get_email_by_message_id(self, message_id: str) -> dict[str, Any]:
-        output = await self.llm.run_action("get_email_by_message_id", message_id=message_id)
+        output = await self.llm.run_action("get_email_by_message_id", message_id=message_id, label_ids=self.include_labels)
         email = output['data']
         return email
 
