@@ -16,11 +16,11 @@ from Subscribers.base_subscriber import BaseSubscriber
 logger = LoggerCreator.create_advanced_console("SubscriberManager")
 
 event_bus = EventBus()
-event_bus.connect()
-
 
 async def start_all_subscribers():
     logger.debug("Starting EventBus subscribers...")
+
+    await event_bus.connect()
 
     shared_services = {
         'omi': OmiConnector(),
