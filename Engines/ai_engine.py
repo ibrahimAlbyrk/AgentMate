@@ -34,6 +34,7 @@ class BaseAIEngine:
         self.logger = LoggerCreator.create_advanced_console(name)
         self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
         self.cache = {}
+        self.cache_lock = asyncio.Lock()
 
     @staticmethod
     def _has_prompt(messages: list[dict]) -> str:
@@ -54,8 +55,10 @@ class BaseAIEngine:
     async def run(self, request: AIRequest) -> str:
         try:
             prompt_hash = self._has_prompt(request.messages)
-            if prompt_hash in self.cache:
-                return self.cache[prompt_hash]
+
+            async with self.cache_lock:
+                if prompt_hash in self.cache:
+                    return self.cache[prompt_hash]
 
             params = {
                 "model": request.model,
@@ -76,10 +79,13 @@ class BaseAIEngine:
                 raise e
 
             choice = response.choices[0].message
+            result = choice.tool_calls[0].function.arguments if choice.tool_calls else (choice.content.strip() if choice.content else "")
 
-            if choice.tool_calls:
-                return choice.tool_calls[0].function.arguments
-            return choice.content.strip() if choice.content else ""
+            async with self.cache_lock:
+                self.cache[prompt_hash] = result
+
+            return result
+
         except Exception as e:
             self.logger.error(f"AI run error: {str(e)}")
             return ""
