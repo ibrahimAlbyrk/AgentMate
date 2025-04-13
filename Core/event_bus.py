@@ -24,6 +24,9 @@ class EventBus:
         self.subscribers[channel] = callback
 
     async def listen(self):
+        if self.redis is None:
+            await self.connect()
+
         pubsub = self.redis.pubsub()
         await pubsub.subscribe(*self.subscribers.keys())
         self.logger.debug(f"Subscribed to: {self.subscribers.keys()}")
