@@ -22,12 +22,10 @@ class AgentEventData:
 class AgentSubscriber(BaseSubscriber):
     def __init__(self):
         self.event_bus = None
-        self.logger = None
         self.agent_manager = None
 
     async def setup(self, **services):
         self.event_bus = services["event_bus"]
-        self.logger = services["logger"]
         self.agent_manager = services["agent_manager"]
 
         self.event_bus.subscribe("agent.start", self._handle_agent_start)
@@ -47,7 +45,7 @@ class AgentSubscriber(BaseSubscriber):
 
             await self.agent_manager.start_all_for_user(uid, service_id, services)
         except Exception as e:
-            self.logger.error(f"Start all agents error: {str(e)}")
+            logger.error(f"Start all agents error: {str(e)}")
 
     async def _handle_agent_stop_all(self, raw_data: str):
         try:
@@ -55,7 +53,7 @@ class AgentSubscriber(BaseSubscriber):
             uid = payload.get("uid")
             await self.agent_manager.stop_all_for_user(uid)
         except Exception as e:
-            self.logger.error(f"Stop all agents error: {str(e)}")
+            logger.error(f"Stop all agents error: {str(e)}")
 
     async def _handle_agent_start(self, raw_data: str):
         await self._handle_agent_restart(raw_data)
@@ -69,7 +67,7 @@ class AgentSubscriber(BaseSubscriber):
             if self.agent_manager.is_running(uid, service):
                 await self.agent_manager.stop_agent(uid, service)
         except Exception as e:
-            self.logger.error(f"Stop agent error: {str(e)}")
+            logger.error(f"Stop agent error: {str(e)}")
 
     async def _handle_agent_restart(self, raw_data: str):
         try:
@@ -84,7 +82,7 @@ class AgentSubscriber(BaseSubscriber):
                 await self.agent_manager.start_agent(uid, service_id, service)
 
         except Exception as e:
-            self.logger.error(f"Restart agent error: {str(e)}")
+            logger.error(f"Restart agent error: {str(e)}")
 
     @staticmethod
     def _try_get_all_services(raw_data: str) -> dict:
