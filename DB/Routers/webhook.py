@@ -30,6 +30,7 @@ omi = OmiConnector()
 
 EventBus = EventBus()
 
+
 @router.get("/{service}/get-settings")
 async def get_settings(uid: str, service: str, session: AsyncSession = Depends(get_db)):
     if not uid:
