@@ -5,7 +5,7 @@ class GlobalTokenOrchestrator:
     _instance = None
     _lock = asyncio.Lock()
 
-    def __init__(self, model: str = "gpt-4o-mini", max_token_budget: int = 90000):
+    def __init__(self, model: str = "gpt-4.1-nano", max_token_budget: int = 90000):
         self.model = model
         self.max_token_budget = max_token_budget
         self.token_estimator = TokenEstimator(model)

@@ -16,7 +16,7 @@ from Core.Retry.decorator import retryable
 class AIRequest:
     def __init__(self, *,
                  messages: list[dict],
-                 model: Optional[str] = "gpt-4o-mini",
+                 model: Optional[str] = "gpt-4.1-nano",
                  temperature: Optional[float] = 0.5,
                  tools: Optional[list[dict]] = None,
                  tool_choice: Optional[dict] = None,
@@ -44,7 +44,7 @@ class BaseAIEngine:
     @staticmethod
     def estimate_total_tokens(messages: list[dict], estimated_response_tokens: int) -> int:
         try:
-            enc = encoding_for_model("gpt-4o-mini")
+            enc = encoding_for_model("gpt-4.1-nano")
             prompt_text = json.dumps(messages, sort_keys=True)
             prompt_tokens = len(enc.encode(prompt_text))
             return prompt_tokens + estimated_response_tokens

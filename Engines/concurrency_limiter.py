@@ -1,7 +1,7 @@
 from Engines.token_estimator import TokenEstimator
 
 class ConcurrencyLimiter:
-    def __init__(self, token_limit_per_minute: int = 90000, model: str = "gpt-4o-mini"):
+    def __init__(self, token_limit_per_minute: int = 90000, model: str = "gpt-4.1-nano"):
         self.token_limit_per_minute = token_limit_per_minute
         self.estimator = TokenEstimator(model)
 
