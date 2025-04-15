@@ -111,13 +111,12 @@ class GmailSubscriber(BaseSubscriber):
                 unprocessed.append(email)
         return unprocessed
 
-    @staticmethod
-    def _build_conversation(email, classification) -> ConversationData:
+    def _build_conversation(self, email, classification) -> ConversationData:
         date = email.get("date", None)
         language = classification.get("language", 'en')
         important = classification.get("important", None)
 
-        text = _compose_email_text(email, classification)
+        text = self._compose_email_text(email, classification)
 
         return ConversationData(
             started_at=date,
