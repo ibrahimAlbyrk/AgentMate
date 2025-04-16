@@ -1,3 +1,4 @@
+from DB.Services.user_settings_service import UserSettingsService
 from DB.database import get_db
 from sqlalchemy.future import select
 from Core.agent_factory import AgentFactory
@@ -16,9 +17,11 @@ async def get_active_agents(uid: str = Query(...), db: AsyncSession = Depends(ge
     status_report = []
     for service in user_services:
         is_supported = service in all_known_services
+        is_logged_in = await UserSettingsService.is_logged_in(db, uid, service)
+        is_agent_available = is_supported and is_logged_in
         status_report.append({
             "service": service,
-            "agent_available": is_supported
+            "agent_available": is_agent_available
         })
 
     return {
