@@ -78,13 +78,11 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
         }
 
     try:
-        await UserSettingsService.set_logged_in(session, uid, service, True)
-
-        url = f"https://backend.composio.dev/api/v1/connectedAccounts/{service_id}"
-        headers = {"x-api-key": settings.COMPOSIO_API_KEY}
-        response = requests.delete(url, headers=headers)
-        if response.status_code != 200:
-            raise HTTPException(status_code=response.status_code, detail=response.text)
+        # url = f"https://backend.composio.dev/api/v1/connectedAccounts/{service_id}"
+        # headers = {"x-api-key": settings.COMPOSIO_API_KEY}
+        # response = requests.delete(url, headers=headers)
+        # if response.status_code != 200:
+        #     raise HTTPException(status_code=response.status_code, detail=response.text)
 
         logout_success = True
         info = "Successfully logged out"
