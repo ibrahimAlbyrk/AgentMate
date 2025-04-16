@@ -78,7 +78,6 @@ class GmailAgent(IAgent):
                 ),
             }
 
-            # Initialize LLM
             self.initialize_llm(self.actions)
 
             # Initialize components

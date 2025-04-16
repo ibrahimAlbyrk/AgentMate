@@ -11,7 +11,7 @@ from typing import Dict, List, Optional, Any, Type, ClassVar, TypeVar
 from enum import Enum
 from pathlib import Path
 
-from pydantic import BaseModel, Field, validator, root_validator
+from pydantic import BaseModel, Field, validator, root_validator, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import load_dotenv
 
@@ -130,7 +130,7 @@ class ApiSettings(BaseModel):
     omi_api_key: str = Field(default_factory=lambda: os.getenv("OMI_API_KEY", ""))
     omi_app_id: str = Field(default_factory=lambda: os.getenv("OMI_APP_ID", ""))
 
-    @validator('openai_api_key', 'composio_api_key', 'omi_api_key', 'omi_app_id')
+    @field_validator('openai_api_key', 'composio_api_key', 'omi_api_key', 'omi_app_id')
     def validate_api_keys(cls, v, values, **kwargs):
         if not v:
             field_name = kwargs['field'].name
