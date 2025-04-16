@@ -118,7 +118,7 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
 
     service_name = settings.SERVICES.get(service)
     entity = toolset.get_entity(uid)
-    conn_req = entity.initiate_connection(entity, redirect_url=f"{settings.BASE_URI}/api/{service}/callback?uid={uid}")
+    conn_req = entity.initiate_connection(service_name, redirect_url=f"{settings.BASE_URI}/api/{service}/callback?uid={uid}")
     redirect_uri = conn_req.redirectUrl
 
     logger.debug(f"[{service}] Redirecting UID {uid} to OAuth flow")
