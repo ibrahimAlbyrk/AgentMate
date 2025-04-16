@@ -2,27 +2,63 @@
 
 Welcome to the **Agent Mate** — a fully modular, intelligent, and scalable framework designed to connect real-world data sources with your AI assistant.
 
+AgentMate is a flexible, extensible framework for building AI-powered agents that can automate tasks and interact with various services.
+
 In a world where digital information is scattered across emails, notes, calendars, and chat platforms, this system acts as a **unified brain**, continuously feeding Omi with **summarized insights**, **classified signals**, and **personal context**.
 
 ---
 
-### 🎯 What Problem Does It Solve?
+## Overview
 
-Most users have valuable information trapped inside:
+AgentMate provides a robust foundation for creating intelligent agents that can:
 
-- 📩 Emails (important discussions, decisions, deadlines)
-- 📆 Calendar events (meetings, milestones)
-- 🗒️ Notes (ideas, plans, knowledge)
-- 💬 Messages (feedback, announcements, insights)
+- Process emails and other communications
+- Interact with external services (Gmail, Calendar, etc.)
+- Execute tasks based on natural language instructions
+- Maintain context and memory across interactions
+- Scale to handle multiple users and services
 
-But these are **raw** — not useful to an AI out of the box.
+The framework is designed to be modular, allowing you to easily add new agents, subscribers, and integrations.
 
-This system:
+## Architecture
 
-- 🧠 Understands and filters your raw digital content
-- ✂️ Summarizes, classifies, tags, and ranks it
-- 🤖 Sends it to Omi as **Memory** or **Conversation**
-- ⚡ Runs in the background, continuously and intelligently
+AgentMate is built with a clean, modular architecture:
+
+### Core Components
+
+- **Dependency Injection System**: A flexible DI system that manages service dependencies
+- **Configuration Management**: A unified configuration system with validation
+- **Event Bus**: A message broker system supporting multiple backends
+- **Plugin System**: A dynamic plugin architecture for agents and subscribers
+- **Error Handling**: Standardized error handling and reporting
+
+### Agents
+
+Agents are the core entities that perform tasks for users. Each agent:
+
+- Has a specific purpose (e.g., email processing, calendar management)
+- Can be configured with user-specific settings
+- Maintains its own state and lifecycle
+- Can interact with external services
+- Can communicate with other agents
+
+### Subscribers
+
+Subscribers listen for events and perform actions in response. They:
+
+- Subscribe to specific event types
+- Process events asynchronously
+- Can have dependencies on other subscribers
+- Can be prioritized for execution order
+
+### AI Engines
+
+AI engines provide natural language processing capabilities:
+
+- Support for multiple LLM providers
+- Batching and rate limiting
+- Caching for efficiency
+- Error handling and retries
 
 ---
 
@@ -175,30 +211,133 @@ flowchart TD
 | `GET`  | `/gmail/get-email-subjects`       | List recent email subjects (paginated)   |
 | `POST` | `/gmail/convert-to-memory`        | Convert selected emails to Omi memories  |
 
----
 
 > 💡 **Note:** All `{service}` parameters support dynamic values such as `gmail`, `notion`, `calendar`, etc.  
 > The system automatically resolves the correct agent & handler for each.
 
 ---
 
-## 🧠 How to Add a New Agent
+## Getting Started
 
-1. Create a class implementing `IAgent` interface
-2. Register it: `AgentFactory.register("myagent", MyAgent)`
-3. Optionally: Add `Subscriber` to listen for events
-4. Add UI support if needed
+### Prerequisites
 
-That’s it — plug-and-play!
+- Python 3.9+
+- Redis (for event bus)
+- PostgreSQL (for data storage)
 
----
+### Installation
 
-## 📦 Summary
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/AgentMate.git
+   cd AgentMate
+   ```
 
-✅ Directly integrates with **Omi API**  
-✅ Fully **async**, **modular**, and **event-driven**  
-✅ AI-powered insights from Gmail (and more!)  
-✅ Real-time user feedback via **WebSocket**  
-✅ Easy to expand for new services
+2. Create a virtual environment:
+   ```
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
 
-> 💬 “Not just email parsing. This is memory engineering for your personal AI.”
+3. Install dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+
+4. Copy the environment template:
+   ```
+   cp .env.template .env
+   ```
+
+5. Edit the `.env` file with your configuration settings.
+
+### Running the Application
+
+Start the application:
+
+```
+python main.py
+```
+
+## Development
+
+### Project Structure
+
+```
+AgentMate/
+├── Agents/                # Agent implementations
+├── Core/                  # Core framework components
+│   ├── EventBus/          # Event bus implementation
+│   ├── Models/            # Domain models and DTOs
+│   └── ...
+├── DB/                    # Database models and services
+├── Engines/               # AI engines and processing
+├── Interfaces/            # Interface definitions
+├── Subscribers/           # Event subscribers
+└── ...
+```
+
+### Creating a New Agent
+
+1. Create a new class that inherits from `IAgent`
+2. Implement the required methods
+3. Register the agent with the plugin system
+
+Example:
+
+```python
+from Interfaces.agent_interface import IAgent, AgentLifecycleState
+
+class MyAgent(IAgent):
+    # Define agent version and dependencies
+    VERSION = AgentVersion(1, 0, 0)
+    DEPENDENCIES = ["some_other_agent"]
+    
+    # Define configuration schema
+    CONFIG_SCHEMA = {
+        "setting1": {"type": "string", "required": True},
+        "setting2": {"type": "integer", "default": 42}
+    }
+    
+    async def _initialize_impl(self) -> bool:
+        # Initialize agent-specific components
+        return True
+        
+    async def _run_impl(self) -> bool:
+        # Implement agent-specific processing
+        return True
+        
+    async def _stop_impl(self) -> bool:
+        # Clean up agent-specific resources
+        return True
+```
+
+### Creating a New Subscriber
+
+1. Create a new class that inherits from `BaseSubscriber`
+2. Implement the required methods
+3. Register the subscriber with the plugin system
+
+Example:
+
+```python
+from Subscribers.base_subscriber import BaseSubscriber
+from Core.EventBus import EventBus
+
+class MySubscriber(BaseSubscriber):
+    async def setup(self, event_bus: EventBus, **services):
+        # Subscribe to events
+        event_bus.subscribe("some_event", self.handle_event)
+        
+    async def handle_event(self, data):
+        # Process the event
+        pass
+        
+    async def stop(self):
+        # Clean up resources
+        pass
+```
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
