@@ -116,9 +116,11 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
         redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
         return RedirectResponse(url=redirect_uri)
 
+    google_integration_id = 'ac_qmAy5MZ7Mhep'
+
     service_name = settings.SERVICES.get(service)
     entity = toolset.get_entity(uid)
-    conn_req = entity.initiate_connection(service_name, redirect_url=f"{settings.BASE_URI}/api/{service}/callback?uid={uid}")
+    conn_req = toolset.initiate_connection(app=service_name, integration_id=google_integration_id, entity_id=uid, redirect_url=f"{settings.BASE_URI}/api/{service}/callback?uid={uid}")
     redirect_uri = conn_req.redirectUrl
 
     logger.debug(f"[{service}] Redirecting UID {uid} to OAuth flow")
