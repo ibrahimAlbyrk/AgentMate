@@ -118,7 +118,7 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
 
     service_name = settings.SERVICES.get(service)
     entity = toolset.get_entity(uid)
-    print(service_name)
+    print(App.GMAIL)
     conn_req = entity.initiate_connection(App.GMAIL, redirect_url=f"{settings.BASE_URI}/api/{service}/callback?uid={uid}")
     redirect_uri = conn_req.redirectUrl
 
