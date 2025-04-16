@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
-from Core.event_bus import EventBus
+from Core.EventBus import EventBus
 from Core.logger import LoggerCreator
 from Core.task_runner import TaskRunner
 from Core.startup import start_all_user_agents, stop_all_user_agents
@@ -32,7 +32,7 @@ async def lifespan(app: FastAPI):
         await start_all_user_agents(session)
 
     yield
-    stop_all_subscribers()
+    await stop_all_subscribers()
     async with AsyncSessionLocal() as session:
         await stop_all_user_agents(session)
 

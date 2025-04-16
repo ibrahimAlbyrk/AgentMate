@@ -111,7 +111,6 @@ async def convert_to_memories(uid: str, request: Request):
     mode = data.get("mode", "count")
     agent = agent_manager.get_agent(uid, "gmail", GmailAgent)
 
-    emails: list[dict] = []
     if mode == "count":
         count = int(data.get("count", 0))
         if not count:
