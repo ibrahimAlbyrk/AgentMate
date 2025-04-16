@@ -52,7 +52,7 @@ class IAgent(ABC):
        pass
 
     async def stop(self):
-        self.listener.stop()
+        # self.listener.stop()
         del self._listener_refs
         await self._stop_impl()
 
