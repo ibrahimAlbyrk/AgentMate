@@ -59,11 +59,6 @@ async def service_login_directly(uid: str, service: str, credentials: str):
 
 @router.post("/{service}/logout")
 async def service_logout(uid: str, service: str, session: AsyncSession = Depends(get_db)):
-    """
-    Return:
-        - Success
-        - Info
-    """
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
@@ -78,8 +73,7 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
         }
 
     try:
-        logger.debug(service_id)
-        url = f"https://backend.composio.dev/api/v3/connected_accounts/{service_id}"
+        url = f"https://backend.composio.dev/api/v1/connected_accounts/{service_id}"
         headers = {"x-api-key": settings.COMPOSIO_API_KEY}
         response = requests.delete(url, headers=headers)
         if response.status_code != 200:
@@ -116,7 +110,7 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
         return RedirectResponse(url=redirect_uri)
 
     service_name = settings.SERVICES.get(service)
-    conn_req = toolset.initiate_connection(integration_id="ac_qmAy5MZ7Mhep", entity_id=uid, redirect_url=f"{settings.BASE_URI}/api/{service}/callback?uid={uid}")
+    conn_req = toolset.initiate_connection(app=service_name, entity_id=uid, redirect_url=f"{settings.BASE_URI}/api/{service}/callback?uid={uid}")
     redirect_uri = conn_req.redirectUrl
 
     logger.debug(f"[{service}] Redirecting UID {uid} to OAuth flow")
