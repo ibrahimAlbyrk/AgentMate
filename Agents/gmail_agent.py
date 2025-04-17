@@ -64,15 +64,16 @@ class GmailAgent(IAgent):
         email = output['data']
         return email
 
-    def _handle_new_email_messages(self, event: TriggerEventData):
-        try:
-            raw_data = json.loads(event.model_dump_json())['payload']
-            email = EmailUtils.decode_email(raw_data)
-
-            data = {"uid": self.uid, "emails": [email]}
-            asyncio.run(event_bus.publish("gmail.inbox.classify", json.dumps(data)))
-        except Exception as e:
-            self.logger.error(f"Error handling new email message: {str(e)}")
+    def _handle_new_email_messages(self, event):
+        print(event)
+        # try:
+        #     raw_data = json.loads(event.model_dump_json())['payload']
+        #     email = EmailUtils.decode_email(raw_data)
+        #
+        #     data = {"uid": self.uid, "emails": [email]}
+        #     asyncio.run(event_bus.publish("gmail.inbox.classify", json.dumps(data)))
+        # except Exception as e:
+        #     self.logger.error(f"Error handling new email message: {str(e)}")
 
     def _gmail_subjects_postprocessor(self, result: dict) -> dict:
         return self._filter_gmail_fields(result, fields=["subject", "messageId"])
