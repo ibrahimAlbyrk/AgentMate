@@ -31,7 +31,7 @@ class IAgent(ABC):
     def initialize(self, actions: dict[str, LLMActionData] = []):
         self.toolset.initiate_connection(app=self.app_name, entity_id=self.uid)
         self.actions = actions
-        self.llm = LLMAgent(self.app_name, self.uid, self.service_id, actions, self.toolset)
+        self.llm = LLMAgent(self.app_name, self.uid, self.service_id, self.toolset, actions)
 
     def add_listener(self, trigger_name: str, handler: callable, config: Optional[dict] = None):
         config = config or {}
