@@ -64,8 +64,7 @@ class GmailAgent(IAgent):
         email = output['data']
         return email
 
-    def _handle_new_email_messages(self, event):
-        print(type(event))
+    def _handle_new_email_messages(self, event: TriggerEventData):
         try:
             raw_data = json.loads(event.model_dump_json())['payload']
             email = EmailUtils.decode_email(raw_data)

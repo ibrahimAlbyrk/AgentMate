@@ -20,7 +20,7 @@ class IAgent(ABC):
         self.actions: dict[str, LLMActionData] = {}
         self.llm: LLMAgent = None
 
-        self.entity = toolset.get_entity(uid)
+        self.entity = None
         self.app_name: App = None
 
         self.listener = toolset.create_trigger_listener()
