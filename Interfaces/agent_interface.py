@@ -40,8 +40,8 @@ class IAgent(ABC):
             trigger_name=trigger_name,
             config=config
         )
-        #
-        # decorated = self.listener.callback(filters={"trigger_name": trigger_name})(handler)
+
+        decorated = self.listener.callback(filters={"trigger_name": trigger_name})(handler)
         # self._listener_refs.append(decorated)
 
     async def run(self):
