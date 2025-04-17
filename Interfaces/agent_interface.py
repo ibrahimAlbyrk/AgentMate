@@ -23,7 +23,7 @@ class IAgent(ABC):
         self.entity = toolset.get_entity(uid)
         self.app_name: App = None
 
-        # self.listener = toolset.create_trigger_listener()
+        self.listener = toolset.create_trigger_listener()
         self._listener_refs = []
 
         self.logger = LoggerCreator.create_advanced_console(self.__class__.__name__)
