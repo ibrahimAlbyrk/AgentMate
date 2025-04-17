@@ -21,6 +21,7 @@ class IAgent(ABC):
         self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
 
         self.entity = self.toolset.get_entity(uid)
+        print(f"Entity ID: {self.entity.id}")
         self.app_name: App = None
 
         self.listener = self.toolset.create_trigger_listener()
@@ -29,7 +30,8 @@ class IAgent(ABC):
         self.logger = LoggerCreator.create_advanced_console(self.__class__.__name__)
 
     def initialize(self, actions: dict[str, LLMActionData] = []):
-        self.toolset.initiate_connection(app=self.app_name, entity_id=self.uid)
+        connection_request = self.toolset.initiate_connection(app=self.app_name, entity_id=self.uid)
+        print(f"Connection request: {connection_request}")
         self.actions = actions
         self.llm = LLMAgent(self.app_name, self.uid, self.service_id, self.toolset, actions)
 
