@@ -10,8 +10,6 @@ from Agents.LLM.llm_agent import LLMAgent, LLMActionData
 
 from DB.Services.user_settings_service import UserSettingsService
 
-toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
-
 class IAgent(ABC):
     def __init__(self, uid: str, service_id):
         self.uid = uid
@@ -19,6 +17,9 @@ class IAgent(ABC):
 
         self.actions: dict[str, LLMActionData] = {}
         self.llm: LLMAgent = None
+
+        self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
+        self.toolset.initiate_connection(app=app, entity_id=uid)
 
         self.entity = toolset.get_entity(uid)
         self.app_name: App = None
@@ -30,7 +31,7 @@ class IAgent(ABC):
 
     def initialize_llm(self, actions: dict[str, LLMActionData] = []):
         self.actions = actions
-        self.llm = LLMAgent(self.app_name, self.uid, self.service_id, actions)
+        self.llm = LLMAgent(self.app_name, self.uid, self.service_id, actions, self.toolset)
 
     def add_listener(self, trigger_name: str, handler: callable, config: Optional[dict] = None):
         config = config or {}

@@ -27,6 +27,7 @@ class LLMAgent:
                  app: App,
                  uid: str,
                  service_id: str,
+                 toolset: ComposioToolSet,
                  actions: dict[str, LLMActionData]):
         """
         - Actions: { Action Name: action data }
@@ -40,8 +41,7 @@ class LLMAgent:
 
         self.tasks: dict[str, str] = {}
 
-        self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
-        self.toolset.initiate_connection(app=app, entity_id=uid)
+        self.toolset = toolset
 
     async def run_action(self, action_name: str, **params) -> dict[str, LLMActionData]:
         llm_action_data: LLMActionData = None
