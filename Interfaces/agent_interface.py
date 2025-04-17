@@ -19,7 +19,6 @@ class IAgent(ABC):
         self.llm: LLMAgent = None
 
         self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
-        self.toolset.initiate_connection(app=app, entity_id=uid)
 
         self.entity = toolset.get_entity(uid)
         self.app_name: App = None
@@ -29,7 +28,8 @@ class IAgent(ABC):
 
         self.logger = LoggerCreator.create_advanced_console(self.__class__.__name__)
 
-    def initialize_llm(self, actions: dict[str, LLMActionData] = []):
+    def initialize(self, actions: dict[str, LLMActionData] = []):
+        self.toolset.initiate_connection(app=app, entity_id=uid)
         self.actions = actions
         self.llm = LLMAgent(self.app_name, self.uid, self.service_id, actions, self.toolset)
 
