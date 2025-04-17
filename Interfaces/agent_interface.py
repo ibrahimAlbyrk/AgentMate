@@ -30,8 +30,8 @@ class IAgent(ABC):
         self.logger = LoggerCreator.create_advanced_console(self.__class__.__name__)
 
     def initialize(self, actions: dict[str, LLMActionData] = []):
-        connection_request = self.toolset.initiate_connection(app=self.app_name, entity_id=self.uid)
-        print(f"Connection request: {connection_request}")
+        connection_request = self.entity.initiate_connection(app_name=self.app_name)
+        print(f"Connection request: {connection_request.connectedAccountId}")
         self.actions = actions
         self.llm = LLMAgent(self.app_name, self.uid, self.service_id, self.toolset, actions)
 
