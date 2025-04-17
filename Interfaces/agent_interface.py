@@ -21,8 +21,6 @@ class IAgent(ABC):
         self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
 
         self.entity = self.toolset.get_entity(uid)
-        for conn in self.entity.get_connections():
-            print(conn)
         self.app_name: App = None
 
         self.listener = self.toolset.create_trigger_listener()
