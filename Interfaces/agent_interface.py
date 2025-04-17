@@ -23,7 +23,7 @@ class IAgent(ABC):
         self.entity = toolset.get_entity(uid)
         self.app_name: App = None
 
-        self.listener = toolset.create_trigger_listener()
+        # self.listener = toolset.create_trigger_listener()
         self._listener_refs = []
 
         self.logger = LoggerCreator.create_advanced_console(self.__class__.__name__)
@@ -35,14 +35,14 @@ class IAgent(ABC):
     def add_listener(self, trigger_name: str, handler: callable, config: Optional[dict] = None):
         config = config or {}
 
-        self.entity.enable_trigger(
-            app=self.app_name,
-            trigger_name=trigger_name,
-            config=config
-        )
-
-        decorated = self.listener.callback(filters={"trigger_name": trigger_name})(handler)
-        self._listener_refs.append(decorated)
+        # self.entity.enable_trigger(
+        #     app=self.app_name,
+        #     trigger_name=trigger_name,
+        #     config=config
+        # )
+        #
+        # decorated = self.listener.callback(filters={"trigger_name": trigger_name})(handler)
+        # self._listener_refs.append(decorated)
 
     async def run(self):
         await self._run_impl()
