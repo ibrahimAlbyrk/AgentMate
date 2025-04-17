@@ -32,6 +32,7 @@ class LLMAgent:
         - Actions: { Action Name: action data }
         - Processors: { Processor Name: {param name: param value} }
         """
+        print("LLMAgent")
         self.uid = uid
         self.service_id = service_id
 

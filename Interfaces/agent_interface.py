@@ -14,13 +14,14 @@ toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
 
 class IAgent(ABC):
     def __init__(self, uid: str, service_id):
+        print("IAgent")
         self.uid = uid
         self.service_id = service_id
 
         self.actions: dict[str, LLMActionData] = {}
         self.llm: LLMAgent = None
 
-        self.entity = None
+        self.entity = toolset.get_entity(uid)
         self.app_name: App = None
 
         self.listener = toolset.create_trigger_listener()
