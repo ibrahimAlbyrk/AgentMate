@@ -73,7 +73,7 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
         }
 
     try:
-        url = f"https://backend.composio.dev/api/v1/connected_accounts/{service_id}"
+        url = f"https://backend.composio.dev/api/v1/connectedAccounts/{service_id}"
         headers = {"x-api-key": settings.COMPOSIO_API_KEY}
         response = requests.delete(url, headers=headers)
         if response.status_code != 200:
