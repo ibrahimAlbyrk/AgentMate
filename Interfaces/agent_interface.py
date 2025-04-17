@@ -20,10 +20,10 @@ class IAgent(ABC):
 
         self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
 
-        self.entity = toolset.get_entity(uid)
+        self.entity = self.toolset.get_entity(uid)
         self.app_name: App = None
 
-        self.listener = toolset.create_trigger_listener()
+        self.listener = self.toolset.create_trigger_listener()
         self._listener_refs = []
 
         self.logger = LoggerCreator.create_advanced_console(self.__class__.__name__)
