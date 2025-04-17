@@ -120,9 +120,6 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
 
 @router.get("/{service}/callback")
 async def service_callback(uid: str, service: str, request: Request, session: AsyncSession = Depends(get_db)):
-    for key, param in request.query_params.items():
-        print(f"{key}: {param}")
-
     status = request.query_params.get("status")
     if status != "success":
        return RedirectResponse(settings.BASE_URI)
