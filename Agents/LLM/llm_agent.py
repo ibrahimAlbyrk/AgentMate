@@ -32,7 +32,6 @@ class LLMAgent:
         - Actions: { Action Name: action data }
         - Processors: { Processor Name: {param name: param value} }
         """
-        print("LLMAgent")
         self.uid = uid
         self.service_id = service_id
 
@@ -42,7 +41,7 @@ class LLMAgent:
         self.tasks: dict[str, str] = {}
 
         self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
-        self.toolset.initiate_connection(app=app)
+        self.toolset.initiate_connection(app=app, entity_id=uid)
 
     async def run_action(self, action_name: str, **params) -> dict[str, LLMActionData]:
         llm_action_data: LLMActionData = None
