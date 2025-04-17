@@ -56,5 +56,5 @@ class LLMAgent:
         action = llm_action_data.action
         processors = llm_action_data.processors
 
-        result = self.toolset.execute_action(action, params, processors=processors)
+        result = self.toolset.execute_action(action, params, processors=processors, entity_id=self.uid)
         return result
