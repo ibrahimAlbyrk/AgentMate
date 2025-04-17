@@ -139,7 +139,7 @@ async def service_callback(uid: str, service: str, request: Request, session: As
         default_config = settings.DEFAULT_CONFIGS.get(service, {})
         await UserSettingsService.set_config(session, uid, service_id, service, default_config)
 
-    await start_user_agents(uid, session)
+    # await start_user_agents(uid, session)
 
     redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
     return RedirectResponse(url=redirect_uri)
