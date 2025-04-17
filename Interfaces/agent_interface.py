@@ -35,11 +35,11 @@ class IAgent(ABC):
     def add_listener(self, trigger_name: str, handler: callable, config: Optional[dict] = None):
         config = config or {}
 
-        # self.entity.enable_trigger(
-        #     app=self.app_name,
-        #     trigger_name=trigger_name,
-        #     config=config
-        # )
+        self.entity.enable_trigger(
+            app=self.app_name,
+            trigger_name=trigger_name,
+            config=config
+        )
         #
         # decorated = self.listener.callback(filters={"trigger_name": trigger_name})(handler)
         # self._listener_refs.append(decorated)
