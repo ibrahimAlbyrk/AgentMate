@@ -135,6 +135,7 @@ async def service_callback(uid: str, service: str, request: Request, session: As
 
     if has_user:
         await UserSettingsService.set_logged_in(session, uid, service, True)
+        await UserSettingsService.change_service_id(session, uid, service, service_id)
     else:
         default_config = settings.DEFAULT_CONFIGS.get(service, {})
         await UserSettingsService.set_config(session, uid, service_id, service, default_config)

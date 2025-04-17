@@ -1,5 +1,5 @@
 from typing import Optional
-from sqlalchemy import select, distinct
+from sqlalchemy import select, distinct, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from DB.Schemas.gmail_config import GmailConfig
 from DB.Models.user_settings import UserSettings
@@ -25,6 +25,20 @@ class UserSettingsService:
             select(UserSettings.uid).where(UserSettings.uid == uid)
         )
         return result.first() is not None
+
+    @staticmethod
+    async def change_service_id(session: AsyncSession, uid: str, service_name: str, new_service_id: str) -> bool:
+        try:
+            stmt = (
+                update(UserSettings)
+                .where(UserSettings.uid == uid, UserSettings.service_name == service_name)
+                .values(service_id=new_service_id)
+            )
+            await session.execute(stmt)
+            await session.commit()
+            return True
+        except Exception:
+            return False
 
     @staticmethod
     async def get_config(session: AsyncSession, uid: str, service_name: str) -> Optional[dict]:
