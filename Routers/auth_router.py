@@ -105,8 +105,6 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
         return RedirectResponse(url=redirect_uri)
 
     service_name = settings.SERVICES.get(service)
-    print(service_name)
-    print(uid)
     conn_req = toolset.initiate_connection(app=service_name, entity_id=uid, redirect_url=f"{settings.BASE_URI}/api/{service}/callback?uid={uid}")
     redirect_uri = conn_req.redirectUrl
 

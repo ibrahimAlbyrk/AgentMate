@@ -1,6 +1,6 @@
 from typing import Any
 
-from composio_langchain import ComposioToolSet, Action, App
+from composio_openai import ComposioToolSet, Action, App
 
 from Core.config import settings
 from Core.logger import LoggerCreator
@@ -24,7 +24,6 @@ class LLMAgent:
                  actions: dict[str, LLMActionData]):
         """
         - Actions: { Action Name: action data }
-        - Processors: { Processor Name: {param name: param value} }
         """
         self.uid = uid
 
