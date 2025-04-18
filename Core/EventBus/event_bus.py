@@ -94,7 +94,7 @@ class EventBus:
         # Create a wrapper that extracts the payload
         async def wrapper(message: Message) -> None:
             try:
-                if isinstance(message.payload, dict) and "type" in message.payload and "source" in message.payload:
+                if isinstance(message.payload, dict) and "data" in message.payload and "source" in message.payload:
                     event_obj = Event(**message.payload)
                     await callback(event_obj)
                 else:
@@ -104,7 +104,6 @@ class EventBus:
 
         # Subscribe with the wrapper
         asyncio.create_task(self.broker.subscribe(topic, wrapper))
-        self.logger.debug(f"Subscribed to {topic}")
 
     async def unsubscribe(self, topic: str) -> None:
         """
@@ -113,7 +112,6 @@ class EventBus:
         """
         await self.broker.unsubscribe(topic)
         self._callbacks.pop(topic, None)
-        self.logger.debug(f"Unsubscribed from {topic}")
 
     async def listen(self) -> None:
         await self.broker.start_listening()
