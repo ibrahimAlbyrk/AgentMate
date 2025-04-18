@@ -1,3 +1,5 @@
+import asyncio
+
 from abc import ABC, abstractmethod
 from typing import Optional, Coroutine, Any
 
@@ -52,9 +54,15 @@ class IAgent(ABC):
        pass
 
     async def stop(self):
-        # self.listener.stop()
+        asyncio.create_task(self._async_stop_listener())
         del self._listener_refs
         await self._stop_impl()
+
+    async def _async_stop_listener(self):
+        try:
+            self.listener.stop()
+        except Exception as e:
+            self.logger.error(f"Error while stopping listener: {e}")
 
     @abstractmethod
     async def _stop_impl(self):
