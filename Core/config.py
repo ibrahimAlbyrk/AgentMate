@@ -25,13 +25,6 @@ class Settings:
     OMI_API_KEY: str = os.getenv("OMI_API_KEY")
     OMI_APP_ID: str = os.getenv("OMI_APP_ID")
 
-    # GOOGLE
-    GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET")
-    GOOGLE_REDIRECT_URI: str = "https://omi-wroom.org/api/gmail/callback"
-    GOOGLE_GMAIL_SCOPES = [
-        "https://www.googleapis.com/auth/gmail.readonly",
-    ]
-
     # COMPOSIO
     COMPOSIO_API_KEY: str = os.getenv("COMPOSIO_API_KEY")
 
@@ -41,29 +34,6 @@ class Settings:
     SERVICES: dict[str, App] = {
         "gmail": App.GMAIL
     }
-
-    AUTH_PROVIDERS: dict[str, dict] = {
-        "gmail": {
-            "client_secret": GOOGLE_CLIENT_SECRET,
-            "scopes": GOOGLE_GMAIL_SCOPES,
-            "redirect_uri": GOOGLE_REDIRECT_URI
-        }
-    }
-    """
-    PROVIDERS:
-        - GMAIL:
-            - Client Secret
-            - Scopes
-            - Redirect URI
-        - CALENDER:
-        - NOTION:
-        - FACEBOOK:
-        - INSTAGRAM:
-        - YOUTUBE:
-        - DISCORD:
-        - SLACK:
-        - WHATSAPP:
-    """
 
     # ASYNC
     USE_ASYNC: bool = True

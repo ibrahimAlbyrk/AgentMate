@@ -94,10 +94,6 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
-    provider = settings.AUTH_PROVIDERS.get(service)
-    if not provider:
-        raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
-
     is_logged_in = await UserSettingsService.is_logged_in(session, uid, service)
     if is_logged_in:
         redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
