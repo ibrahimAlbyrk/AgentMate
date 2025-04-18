@@ -56,6 +56,12 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
         raise HTTPException(status_code=400, detail="Missing uid")
 
     user_settings = await UserSettingsService.get(session, uid, service)
+    if not user_settings:
+        return {
+            "success": False,
+            "info": f"There is no user settings for this user or service",
+        }
+
     is_logged_in = user_settings.is_logged_in
     service_id = user_settings.service_id
 
