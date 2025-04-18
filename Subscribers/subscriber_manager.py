@@ -4,7 +4,11 @@ import inspect
 import importlib
 import Subscribers
 
-from Core.event_bus import EventBus
+from Core.EventBus import EventBus
+from Core.EventBus.broker import BrokerFactory
+from Core.EventBus.redis_broker import RedisBroker
+
+from Core.Models import Event
 from Core.logger import LoggerCreator
 from Core.task_runner import TaskRunner
 from Core.agent_manager import AgentManager
@@ -12,6 +16,8 @@ from Core.agent_manager import AgentManager
 from Connectors.omi_connector import OmiConnector
 
 from Subscribers.base_subscriber import BaseSubscriber
+
+BrokerFactory.register("redis", RedisBroker)
 
 logger = LoggerCreator.create_advanced_console("SubscriberManager")
 
@@ -38,8 +44,5 @@ async def start_all_subscribers():
 
     asyncio.create_task(event_bus.listen())
 
-
-def stop_all_subscribers():
-    if event_bus.redis:
-        logger.debug("Shutting down EventBus and task pool...")
-        event_bus.redis.close()
+async def stop_all_subscribers():
+    await event_bus.stop()
