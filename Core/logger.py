@@ -61,6 +61,7 @@ class ILogger(ABC):
 class BaseLogger(ILogger):
     def __init__(self, name: str):
         self.logger = logging.getLogger(name)
+        self.logger.propagate = False
 
     def log(self, level: int, message: str):
         self.logger.log(level, message)
