@@ -45,16 +45,9 @@ async def is_logged_in(service: str, uid: str, session: AsyncSession = Depends(g
 
 
 @router.post("/{service}/login-directly")
-async def service_login_directly(uid: str, service: str, credentials: str):
-    pass
-    # if not uid:
-    #     raise HTTPException(status_code=400, detail="Missing uid")
-    #
-    # provider = settings.AUTH_PROVIDERS.get(service)
-    # if not provider:
-    #     raise HTTPException(status_code=400, detail=f"Unknown service: {service}")
-    #
-    # _save_token(uid, service, credentials)
+async def service_login_directly(uid: str, service: str, service_id: str, session: AsyncSession = Depends(get_db)):
+    redirect_url = await _service_login_handler(uid, service, service_id, session)
+    return RedirectResponse(url=redirect_url)
 
 
 @router.post("/{service}/logout")
@@ -124,10 +117,16 @@ async def service_callback(uid: str, service: str, request: Request, session: As
     if status != "success":
        return RedirectResponse(settings.BASE_URI)
 
+    service_id = request.query_params.get("connectedAccountId")
+
+    redirect_url = await _service_login_handler(uid, service, service_id, session)
+
+    return RedirectResponse(url=redirect_url)
+
+async def _service_login_handler(uid: str, service: str, service_id: str, session: AsyncSession = Depends(get_db)) -> str:
     if not uid:
         raise HTTPException(status_code=400, detail="Missing uid")
 
-    service_id = request.query_params.get("connectedAccountId")
     if not service_id:
         raise HTTPException(status_code=400, detail="Missing service_id")
 
@@ -143,4 +142,4 @@ async def service_callback(uid: str, service: str, request: Request, session: As
     await start_user_agents(uid, session)
 
     redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
-    return RedirectResponse(url=redirect_uri)
+    return redirect_uri
