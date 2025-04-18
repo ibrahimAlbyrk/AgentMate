@@ -33,6 +33,11 @@ class SubscriberHealth(str, Enum):
 
 
 class EventType(str, Enum):
+    START_AGENT = "start_agent"
+    START_ALL_AGENT = "start_all_agent"
+    STOP_AGENT = "stop_agent"
+    STOP_ALL_AGENT = "stop_all_agent"
+    RESTART_AGENT = "restart_agent"
     AGENT_STARTED = "agent_started"
     AGENT_STOPPED = "agent_stopped"
     AGENT_ERROR = "agent_error"
