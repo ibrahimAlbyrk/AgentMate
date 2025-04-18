@@ -3,7 +3,7 @@ import json
 from Core.event_bus import EventBus
 from Core.logger import LoggerCreator
 
-from DB.Routers.websocket_router import send_message_to_active_connection
+from Routers.websocket_router import send_message_to_active_connection
 
 from Subscribers.base_subscriber import BaseSubscriber
 

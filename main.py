@@ -1,21 +1,22 @@
-import asyncio
 import uvicorn
 
 from fastapi import FastAPI
-from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
+
+from contextlib import asynccontextmanager
 
 from Core.event_bus import EventBus
 from Core.logger import LoggerCreator
 from Core.task_runner import TaskRunner
 from Core.startup import start_all_user_agents, stop_all_user_agents
 
-from Engines.task_queue_manager import queue_manager
-
-from DB.Routers import user_settings, agent_status, webhook, auth_router, websocket_router
 from DB.database import AsyncSessionLocal
 
+from Engines.task_queue_manager import queue_manager
+
 from Subscribers.subscriber_manager import start_all_subscribers, stop_all_subscribers
+
+from Routers import user_settings, websocket_router, webhook, auth_router, agent_status
 
 logger = LoggerCreator.create_advanced_console("Main")
 event_bus = EventBus()
