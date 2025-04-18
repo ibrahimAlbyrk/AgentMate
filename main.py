@@ -1,3 +1,7 @@
+from Core.EventBus.broker import BrokerFactory
+from Core.EventBus.redis_broker import RedisBroker
+BrokerFactory.register('redis', RedisBroker)
+
 import uvicorn
 import asyncio
 
@@ -20,7 +24,6 @@ from Routers import user_settings_router, websocket_router, webhook_router, auth
 
 logger = LoggerCreator.create_advanced_console("Main")
 task_runner = TaskRunner()
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
