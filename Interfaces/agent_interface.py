@@ -24,7 +24,7 @@ class IAgent(ABC):
         self.entity = self.toolset.get_entity(uid)
         self.app_name: App = None
 
-        self.listener = self.toolset.create_trigger_listener()
+        self.listener = self.toolset.create_trigger_listener(timeout=30)
         self._listener_refs = []
 
         self.logger = LoggerCreator.create_advanced_console(self.__class__.__name__)
