@@ -1,16 +1,10 @@
 from typing import Any
 
-from langchain import hub
-from langchain_openai import ChatOpenAI
-from langchain.agents import create_openai_functions_agent, AgentExecutor
-
 from composio_langchain import ComposioToolSet, Action, App
 
 from Core.config import settings
 from Core.logger import LoggerCreator
 
-llm = ChatOpenAI(model="gpt-4.1-nano")
-prompt = hub.pull("hwchase17/openai-functions-agent")
 logger = LoggerCreator.create_advanced_console("LLMAgent")
 
 VERBOSE_DEBUG = True
