@@ -13,9 +13,8 @@ from Agents.LLM.llm_agent import LLMAgent, LLMActionData
 from DB.Services.user_settings_service import UserSettingsService
 
 class IAgent(ABC):
-    def __init__(self, uid: str, service_id):
+    def __init__(self, uid: str):
         self.uid = uid
-        self.service_id = service_id
 
         self.actions: dict[str, LLMActionData] = {}
         self.llm: LLMAgent = None
@@ -32,7 +31,7 @@ class IAgent(ABC):
 
     def initialize(self, actions: dict[str, LLMActionData] = []):
         self.actions = actions
-        self.llm = LLMAgent(self.app_name, self.uid, self.service_id, self.toolset, actions)
+        self.llm = LLMAgent(self.app_name, self.uid, self.toolset, actions)
 
     def add_listener(self, trigger_name: str, handler, config: Optional[dict] = None):
         config = config or {}

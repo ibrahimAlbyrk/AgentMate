@@ -20,7 +20,6 @@ class LLMAgent:
     def __init__(self,
                  app: App,
                  uid: str,
-                 service_id: str,
                  toolset: ComposioToolSet,
                  actions: dict[str, LLMActionData]):
         """
@@ -28,7 +27,6 @@ class LLMAgent:
         - Processors: { Processor Name: {param name: param value} }
         """
         self.uid = uid
-        self.service_id = service_id
 
         self.actions = actions
         self.action_names = [action_data.action for action_data in self.actions.values()]

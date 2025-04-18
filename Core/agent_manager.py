@@ -31,8 +31,8 @@ class AgentManager:
             return cast(T_agent, agent)
         return None
 
-    async def start_agent(self, uid: str, service_id: str, service: str):
-        agent = AgentFactory.create(uid, service_id, service)
+    async def start_agent(self, uid: str, service: str):
+        agent = AgentFactory.create(uid, service)
         if not agent:
             self.logger.warning(f"No agent registered for {service} service")
             return
@@ -65,14 +65,14 @@ class AgentManager:
         if not self.running_agents[uid]:
             self.running_agents.pop(uid, None)
 
-    async def restart_agent(self, uid: str, service_id: str, service: str):
+    async def restart_agent(self, uid: str, service: str):
         self.logger.debug(f"Restarting {service} agent for {uid}")
         await self.stop_agent(uid, service)
-        await self.start_agent(uid, service_id, service)
+        await self.start_agent(uid, service)
 
-    async def start_all_for_user(self, uid: str, service_id: str, services: list[str]):
+    async def start_all_for_user(self, uid: str, services: list[str]):
         for service in services:
-            await self.start_agent(uid, service_id, service)
+            await self.start_agent(uid, service)
 
     async def stop_all_for_user(self, uid: str):
         services = list(self.running_agents.get(uid, {}).keys())

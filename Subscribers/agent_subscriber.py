@@ -9,14 +9,13 @@ from Subscribers.base_subscriber import BaseSubscriber
 
 logger = LoggerCreator.create_advanced_console("AgentSubscriber")
 
-event_bus = EventBus()
 agent_manager = AgentManager()
 
 
 class AgentSubscriber(BaseSubscriber):
     def __init__(self):
         self.event_bus = None
-        self.agent_manager = None
+        self.agent_manager: AgentManager = None
 
     async def setup(self, **services):
         self.event_bus = services["event_bus"]
@@ -34,10 +33,9 @@ class AgentSubscriber(BaseSubscriber):
         try:
             data = event.data
             uid = data["uid"]
-            service_id = data["service_id"]
             services = data["services"]
 
-            await self.agent_manager.start_all_for_user(uid, service_id, services)
+            await self.agent_manager.start_all_for_user(uid, services)
         except Exception as e:
             logger.error(f"Start all agents error: {str(e)}")
 
@@ -50,7 +48,7 @@ class AgentSubscriber(BaseSubscriber):
             logger.error(f"Stop all agents error: {str(e)}")
 
     async def _handle_agent_start(self, event: Event):
-        await self._handle_agent_restart(raw_data)
+        await self._handle_agent_restart(event)
 
     async def _handle_agent_stop(self, event: Event):
         try:
@@ -63,17 +61,16 @@ class AgentSubscriber(BaseSubscriber):
         except Exception as e:
             logger.error(f"Stop agent error: {str(e)}")
 
-    async def _handle_agent_restart(self, raw_data: str):
+    async def _handle_agent_restart(self, event: Event):
         try:
             data = event.data
             uid = data["uid"]
-            service_id = data["service_id"]
             service = data["service"]
 
             if self.agent_manager.is_running(uid, service):
-                await self.agent_manager.restart_agent(uid, service_id, service)
+                await self.agent_manager.restart_agent(uid, service)
             else:
-                await self.agent_manager.start_agent(uid, service_id, service)
+                await self.agent_manager.start_agent(uid, service)
 
         except Exception as e:
             logger.error(f"Restart agent error: {str(e)}")

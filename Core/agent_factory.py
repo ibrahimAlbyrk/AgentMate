@@ -14,11 +14,10 @@ class AgentFactory:
     }
 
     @classmethod
-    def create(cls, uid: str, service_id: str, service_name: str) -> IAgent | None:
+    def create(cls, uid: str, service_name: str) -> IAgent | None:
         agent_class = cls.registry.get(service_name)
-        return agent_class(uid, service_id) if agent_class else None
+        return agent_class(uid) if agent_class else None
 
     @classmethod
-    def create_all(cls, uid: str, services: list[(str, str)]) -> list[IAgent]:
-        """services: list [ (service_id, service_name) ]"""
-        return [cls.create(uid, service[0], service[1]) for service in services if cls.create(uid, service[0], service[1]) is not None]
+    def create_all(cls, uid: str, services: list[str]) -> list[IAgent]:
+        return [cls.create(uid, service) for service in services if cls.create(uid, service) is not None]

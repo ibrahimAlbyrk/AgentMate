@@ -24,8 +24,8 @@ event_bus = EventBus()
 
 
 class GmailAgent(IAgent):
-    def __init__(self, uid: str, service_id):
-        super().__init__(uid, service_id)
+    def __init__(self, uid: str):
+        super().__init__(uid)
 
         self.app_name = App.GMAIL
         self.DEFAULT_EMAIL_FILTER = ["messageTimestamp", "messageId", "subject", "sender", "payload"]
