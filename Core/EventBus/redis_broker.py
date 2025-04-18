@@ -92,7 +92,6 @@ class RedisBroker(MessageBroker):
 
         # Subscribe to all topics
         await self.pubsub.subscribe(*self.subscribers.keys())
-        self.logger.debug(f"Subscribed to: {list(self.subscribers.keys())}")
 
         # Start listening to the task
         self.listening_task = asyncio.create_task(self._listen())
