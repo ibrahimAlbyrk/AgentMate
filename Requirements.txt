@@ -15,4 +15,5 @@ tiktoken>=0.9.0
 requests~=2.32.3
 bs4~=0.0.2
 beautifulsoup4~=4.13.3
-composio_openai~=0.7.15
+composio-core==0.7.15
+composio-openai~=0.7.15
