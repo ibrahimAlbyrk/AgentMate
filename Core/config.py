@@ -28,7 +28,6 @@ class Settings:
     # COMPOSIO
     COMPOSIO_API_KEY: str = os.getenv("COMPOSIO_API_KEY")
 
-    TOKEN_PATH = "tokens/{service}/{uid}.pickle"
     POST_LOGIN_REDIRECT = "https://omi-wroom.org/{service}/settings?uid={uid}"
 
     SERVICES: dict[str, App] = {
