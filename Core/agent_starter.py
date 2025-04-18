@@ -1,10 +1,14 @@
 import json
+
 from sqlalchemy.future import select
-from Core.logger import LoggerCreator
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from Core.logger import LoggerCreator
+from Core.EventBus import EventBus
+from Core.Models.domain import Event, EventType
+
 from DB.Models.user_settings import UserSettings
 
-from Core.event_bus import EventBus
 
 logger = LoggerCreator.create_advanced_console("AgentStarter")
 event_bus = EventBus()
@@ -15,8 +19,10 @@ async def start_user_agents(uid: str, session: AsyncSession):
 
         logger.debug(f"Starting agents for {uid}: {services}")
 
-        event_message = {"uid": uid, "services": services}
-        await event_bus.publish("agent.start_all", json.dumps(event_message))
+        await event_bus.publish_event(Event(
+            type=EventType.START_ALL_AGENT,
+            data={"uid": uid, "services": services}
+        ))
 
     except Exception as e:
         logger.error(f"start_user_agents error: {str(e)}")
@@ -28,8 +34,10 @@ async def stop_user_agents(uid: str, session: AsyncSession):
 
         logger.debug(f"Stopping agents for {uid}: {services}")
 
-        event_message = {"uid": uid, "services": services}
-        await event_bus.publish("agent.stop_all", json.dumps(event_message))
+        await event_bus.publish_event(Event(
+            type=EventType.STOP_ALL_AGENT,
+            data={"uid": uid, "services": services}
+        ))
 
     except Exception as e:
         logger.error(f"start_user_agents error: {str(e)}")

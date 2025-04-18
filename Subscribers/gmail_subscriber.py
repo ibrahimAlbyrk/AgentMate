@@ -2,9 +2,10 @@ import json
 import base64
 import traceback
 
-from Core.event_bus import EventBus
+from Core.EventBus import EventBus
 from Core.logger import LoggerCreator
 from Core.task_runner import TaskRunner
+from Core.Models.domain import Event, EventType
 
 
 from Connectors.omi_connector import OmiConnector, MemoryData, ConversationData
@@ -38,22 +39,22 @@ class GmailSubscriber(BaseSubscriber):
         self.event_bus = services["event_bus"]
         self.task_runner = services["task_runner"]
 
-        self.event_bus.subscribe("gmail.inbox.summary", self._handle_summary)
-        self.event_bus.subscribe("gmail.inbox.classify", self._handle_classification)
+        self.event_bus.subscribe(EventType.GMAIL_SUMMARY, self._handle_summary)
+        self.event_bus.subscribe(EventType.GMAIL_CLASSIFY, self._handle_classification)
 
 
-    async def _handle_summary(self, raw_data: str):
+    async def _handle_summary(self, event: Event):
         try:
-            payload = json.loads(raw_data)
-            uid: str = payload["uid"]
-            emails: list[dict] = payload["emails"]
+            data = event.data
+            uid: str = data["uid"]
+            emails: list[dict] = data["emails"]
 
             summaries = await summarizer.summarize_batch(uid, emails)
 
-            await self.event_bus.publish("websocket.gmail.memory", json.dumps({
-                "uid": uid,
-                "memories": summaries
-            }))
+            await event_bus.publish_event(Event(
+                type=EventType.WEBSOCKET_GMAIL_MEMORY,
+                data={"uid": uid, "memories": summaries}
+            ))
 
             tasks = [
                 self.omi.create_memory(uid, MemoryData(
@@ -69,11 +70,11 @@ class GmailSubscriber(BaseSubscriber):
             logger.error(f"Error in _handle_summary: {str(e)}\n{traceback.format_exc()}")
 
 
-    async def _handle_classification(self, raw_data: str):
+    async def _handle_classification(self, event: Event):
         try:
-            payload = json.loads(raw_data)
-            uid = payload["uid"]
-            emails = payload["emails"]
+            data = event.data
+            uid = data["uid"]
+            emails = data["emails"]
 
             async with AsyncSessionLocal() as session:
                 unprocessed = await self._filter_unprocessed_emails(session, uid, emails)

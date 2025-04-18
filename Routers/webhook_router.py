@@ -16,10 +16,9 @@ from fastapi import APIRouter, Request, HTTPException, status, Depends
 from Agents.gmail_agent import GmailAgent
 from Core.agent_manager import AgentManager
 
-from Core.event_bus import EventBus
 from Core.config import settings
-
-from Subscribers.gmail_subscriber import event_bus
+from Core.EventBus import EventBus
+from Core.Models.domain import Event, EventType
 
 router = APIRouter(tags=["Unified Service Webhook"])
 
@@ -28,7 +27,7 @@ agent_manager = AgentManager()
 memory_engine = EmailMemorySummarizerEngine()
 omi = OmiConnector()
 
-EventBus = EventBus()
+event_bus = EventBus()
 
 
 @router.get("/{service}/get-settings")
@@ -74,8 +73,10 @@ async def update_settings(uid: str, service: str, request: Request, db: AsyncSes
 
     await UserSettingsService.set_config(db, uid, service_id, service, config)
 
-    event_message = {"uid": uid, "service": service}
-    await event_bus.publish("agent.restart", json.dumps(event_message))
+    await event_bus.publish_event(Event(
+        type=EventType.RESTART_AGENT,
+        data={"uid": uid, "service": service}
+    ))
 
     return {
         "success": True,
@@ -130,8 +131,10 @@ async def convert_to_memories(uid: str, request: Request):
     else:
         raise HTTPException(status_code=400, detail="Invalid mode")
 
-    event_message = {"uid": uid, "emails": emails}
-    await event_bus.publish("gmail.inbox.summary", json.dumps(event_message))
+    await event_bus.publish_event(Event(
+        type=EventType.GMAIL_SUMMARY,
+        data={"uid": uid, "emails": emails}
+    ))
 
     return {"status": "done", "memories": len(emails)}
 

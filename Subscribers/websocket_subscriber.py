@@ -1,7 +1,8 @@
 import json
 
-from Core.event_bus import EventBus
+from Core.EventBus import EventBus
 from Core.logger import LoggerCreator
+from Core.Models.domain import Event, EventType
 
 from Routers.websocket_router import send_message_to_active_connection
 
@@ -17,24 +18,12 @@ class WebSocketSubscriber(BaseSubscriber):
     async def setup(self, **services):
         self.event_bus = services['event_bus']
 
-        self.event_bus.subscribe("websocket.gmail.memory", self._handle_memory_send)
+        self.event_bus.subscribe(EventType.WEBSOCKET_GMAIL_MEMORY, self._handle_memory_send)
 
-    async def _handle_memory_send(self, raw_data: str):
-        data = self._get_data(raw_data)
-        if not data:
-            return
+    async def _handle_memory_send(self, event: Event):
+        data = event.data
 
         uid = data.get("uid", "")
         memories = data.get("memories", [])
 
         await send_message_to_active_connection(uid, message_type="gmail.memory", message={"memories": memories})
-
-    @staticmethod
-    def _get_data(raw_data: str) -> dict:
-        try:
-            payload = json.loads(raw_data)
-            uid = payload["uid"]
-            memories = payload["memories"]
-            return {"uid": uid, "memories": memories}
-        except Exception as e:
-            logger.error(f"Error handling memory data: {str(e)}")

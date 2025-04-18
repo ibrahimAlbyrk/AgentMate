@@ -6,14 +6,14 @@ from typing import Optional, Any
 from composio.client.collections import TriggerEventData
 
 from Agents.LLM.llm_agent import LLMActionData
-from Core.event_bus import EventBus
+from Core.EventBus import EventBus
+from Core.Models.domain import Event, EventType
 from DB.database import AsyncSessionLocal
 from Interfaces.agent_interface import IAgent
 from DB.Services.user_settings_service import UserSettingsService
 from Connectors.omi_connector import OmiConnector, ConversationData
 from DB.Services.processed_gmail_service import ProcessedGmailService
 
-from Core.event_bus import EventBus
 from Core.Utils.email_utils import EmailUtils
 
 from composio_openai import App, Action
@@ -69,8 +69,10 @@ class GmailAgent(IAgent):
             raw_data = json.loads(event.model_dump_json())['payload']
             email = EmailUtils.decode_email(raw_data)
 
-            data = {"uid": self.uid, "emails": [email]}
-            asyncio.run(event_bus.publish("gmail.inbox.classify", json.dumps(data)))
+            asyncio.run(event_bus.publish_event(Event(
+                type=EventType.GMAIL_CLASSIFY,
+                data={"uid": self.uid, "emails": [email]}
+            )))
         except Exception as e:
             self.logger.error(f"Error handling new email message: {str(e)}")
 
