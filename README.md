@@ -45,6 +45,7 @@ AgentMate/
 ├── Engines/          # Summarizer, Classifier, etc.
 ├── Interfaces/       # Contracts for agents, engines
 ├── Subscribers/      # Event-driven consumers
+├── Routers/          # Includes routers Auth, user, webhook etc.
 └── main.py           # Entrypoint
 ```
 
