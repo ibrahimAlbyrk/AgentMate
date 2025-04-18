@@ -1,7 +1,9 @@
+from typing import Optional
 import logging
 from enum import Enum
-from Core.config import settings
 from abc import ABC, abstractmethod
+
+from Core.config import settings
 
 FILE_PATH = ""
 """Example Usage: C:/Project/AgentMate/"""
@@ -33,7 +35,7 @@ class SimpleFormatter(IFormatter):
 
 class AdvancedFormatter(IFormatter):
     def get_formatter(self) -> logging.Formatter:
-        return logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] => %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+        return logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] => %(message)s - %(details)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
 class FormatterFactory:
@@ -54,7 +56,7 @@ class FormatterFactory:
 #region Logger
 class ILogger(ABC):
     @abstractmethod
-    def log(self, level: int, message: str):
+    def log(self, level: int, message: str, extra: Optional[dict] = None):
         pass
 
 
@@ -63,8 +65,8 @@ class BaseLogger(ILogger):
         self.logger = logging.getLogger(name)
         self.logger.propagate = False
 
-    def log(self, level: int, message: str):
-        self.logger.log(level, message)
+    def log(self, level: int, message: str, extra: Optional[dict] = None):
+        self.logger.log(level, message, extra=extra)
 
 
 class ConsoleLogger(BaseLogger):
@@ -111,25 +113,25 @@ class Manager:
         formatter = FormatterFactory.create_formatter(formatter_type)
         self.logger = LoggerFactory.create_logger(logger_type, name, formatter)
 
-    def debug(self, message: str) -> None:
+    def debug(self, message: str, extra: Optional[dict] = None) -> None:
         if settings.LOG_STATES["debug"]:
-            self.logger.log(logging.DEBUG, message)
+            self.logger.log(logging.DEBUG, message, extra=extra)
 
-    def info(self, message: str) -> None:
+    def info(self, message: str, extra: Optional[dict] = None) -> None:
         if settings.LOG_STATES["info"]:
-            self.logger.log(logging.INFO, message)
+            self.logger.log(logging.INFO, message, extra=extra)
 
-    def warning(self, message: str) -> None:
+    def warning(self, message: str, extra: Optional[dict] = None) -> None:
         if settings.LOG_STATES["warning"]:
-            self.logger.log(logging.WARNING, message)
+            self.logger.log(logging.WARNING, message, extra=extra)
 
-    def error(self, message: str) -> None:
+    def error(self, message: str, extra: Optional[dict] = None) -> None:
         if settings.LOG_STATES["error"]:
-            self.logger.log(logging.ERROR, message)
+            self.logger.log(logging.ERROR, message, extra=extra)
 
-    def fatal(self, message: str) -> None:
+    def fatal(self, message: str, extra: Optional[dict] = None) -> None:
         if settings.LOG_STATES["fatal"]:
-            self.logger.log(logging.FATAL, message)
+            self.logger.log(logging.FATAL, message, extra=extra)
 
 class LoggerCreator:
     @staticmethod
@@ -147,3 +149,13 @@ class LoggerCreator:
     @staticmethod
     def create_simple_file(name: str) -> Manager:
         return Manager(name, formatter_type=FormatterType.SIMPLE, logger_type=LoggerType.FILE)
+
+old_factory = logging.getLogRecordFactory()
+
+def record_factory(*args, **kwargs):
+    record = old_factory(*args, **kwargs)
+    if not hasattr(record, "details"):
+        record.details = ""
+    return record
+
+logging.setLogRecordFactory(record_factory)
