@@ -1,4 +1,5 @@
 import uvicorn
+import asyncio
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -58,10 +59,10 @@ def _include_routers(routers: []):
 
 
 _include_routers([
-    user_settings.router,
-    agent_status.router,
+    user_settings_router.router,
+    agent_status_router.router,
     auth_router.router,
-    webhook.router,
+    webhook_router.router,
     websocket_router.router,
 ])
 
