@@ -16,7 +16,7 @@ from Engines.task_queue_manager import queue_manager
 
 from Subscribers.subscriber_manager import start_all_subscribers, stop_all_subscribers
 
-from Routers import user_settings, websocket_router, webhook, auth_router, agent_status
+from Routers import user_settings_router, websocket_router, webhook_router, auth_router, agent_status_router
 
 logger = LoggerCreator.create_advanced_console("Main")
 event_bus = EventBus()
