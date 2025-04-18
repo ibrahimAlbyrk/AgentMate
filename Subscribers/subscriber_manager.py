@@ -5,8 +5,6 @@ import importlib
 import Subscribers
 
 from Core.EventBus import EventBus
-from Core.EventBus.broker import BrokerFactory
-from Core.EventBus.redis_broker import RedisBroker
 
 from Core.Models import Event
 from Core.logger import LoggerCreator
@@ -16,8 +14,6 @@ from Core.agent_manager import AgentManager
 from Connectors.omi_connector import OmiConnector
 
 from Subscribers.base_subscriber import BaseSubscriber
-
-BrokerFactory.register("redis", RedisBroker)
 
 logger = LoggerCreator.create_advanced_console("SubscriberManager")
 
