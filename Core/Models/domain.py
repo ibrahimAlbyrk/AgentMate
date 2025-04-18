@@ -38,17 +38,27 @@ class EventType(str, Enum):
     STOP_AGENT = "stop_agent"
     STOP_ALL_AGENT = "stop_all_agent"
     RESTART_AGENT = "restart_agent"
+
+    GMAIL_CLASSIFY = "gmail_classify"
+    GMAIL_SUMMARY = "gmail_summary"
+
+    WEBSOCKET_GMAIL_MEMORY = "websocket_gmail_memory"
+
     AGENT_STARTED = "agent_started"
     AGENT_STOPPED = "agent_stopped"
     AGENT_ERROR = "agent_error"
+
     SUBSCRIBER_STARTED = "subscriber_started"
     SUBSCRIBER_STOPPED = "subscriber_stopped"
     SUBSCRIBER_ERROR = "subscriber_error"
+
     MESSAGE_RECEIVED = "message_received"
     MESSAGE_PROCESSED = "message_processed"
+
     TASK_CREATED = "task_created"
     TASK_COMPLETED = "task_completed"
     TASK_FAILED = "task_failed"
+
     USER_ACTION = "user_action"
     SYSTEM_EVENT = "system_event"
 
@@ -108,9 +118,8 @@ class Event:
 
     Events are used for communication between components.
     """
-    id: str
     type: EventType
-    source: str
+    source: str = field(default_factory=str)
     timestamp: datetime = field(default_factory=datetime.now)
     data: Dict[str, Any] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
