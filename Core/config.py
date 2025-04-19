@@ -122,12 +122,10 @@ class AppSettings(BaseSettings):
     services: ServiceSettings = Field(default_factory=ServiceSettings)
     api: ApiSettings = Field(default_factory=ApiSettings)
 
-    # Service mappings
     _service_apps: Dict[str, App] = PrivateAttr(
         default_factory=lambda: {"gmail": App.GMAIL}
     )
 
-    # Configuration models for services
     config_models: Dict[str, Type[BaseModel]] = {
         "gmail": GmailConfig,
         # "notion": NotionConfig
@@ -159,9 +157,7 @@ class AppSettings(BaseSettings):
             return {
                 "redirect_uri": self.services.gmail.redirect_uri
             }
-        # Add other services as needed
         raise ValueError(f"No auth provider configuration found for service: {service_name}")
 
 
-# Create a global settings instance
 settings = AppSettings()
