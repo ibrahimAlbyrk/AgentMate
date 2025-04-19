@@ -14,6 +14,8 @@ from DB.Services.user_settings_service import UserSettingsService
 
 class IAgent(ABC):
     def __init__(self, uid: str):
+        self.logger = LoggerCreator.create_advanced_console(self.__class__.__name__)
+
         self.uid = uid
 
         self.actions: dict[str, LLMActionData] = {}
@@ -24,16 +26,21 @@ class IAgent(ABC):
         self.entity = self.toolset.get_entity(uid)
         self.app_name: App = None
 
-        self.listener = self.toolset.create_trigger_listener(timeout=5)
-        self._listener_refs = []
+        try:
+            self.listener = self.toolset.create_trigger_listener(timeout=5)
+        except TimeoutError as e:
+            self.logger.warning(f"Couldn't create trigger listener for {uid}: {e}")
 
-        self.logger = LoggerCreator.create_advanced_console(self.__class__.__name__)
+        self._listener_refs = []
 
     def initialize(self, actions: dict[str, LLMActionData] = []):
         self.actions = actions
         self.llm = LLMAgent(self.app_name, self.uid, self.toolset, actions)
 
     def add_listener(self, trigger_name: str, handler, config: Optional[dict] = None):
+        if not self.listener:
+            return
+
         config = config or {}
 
         self.entity.enable_trigger(
@@ -58,6 +65,9 @@ class IAgent(ABC):
         await self._stop_impl()
 
     async def _async_stop_listener(self):
+        if not self.listener:
+            return
+
         try:
             self.listener.stop()
         except Exception as e:
