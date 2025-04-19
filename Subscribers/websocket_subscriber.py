@@ -18,7 +18,7 @@ class WebSocketSubscriber(BaseSubscriber):
     async def setup(self, **services):
         self.event_bus = services['event_bus']
 
-        self.event_bus.subscribe(EventType.WEBSOCKET_GMAIL_MEMORY, self._handle_memory_send)
+        await self.event_bus.subscribe(EventType.WEBSOCKET_GMAIL_MEMORY, self._handle_memory_send)
 
     async def _handle_memory_send(self, event: Event):
         data = event.data

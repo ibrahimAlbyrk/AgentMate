@@ -82,7 +82,7 @@ class EventBus:
         """
         await self.publish(topic=event.type, payload=event)
 
-    def subscribe(self, topic: str, callback: Callable[[Any], Awaitable[None]]) -> None:
+    async def subscribe(self, topic: str, callback: Callable[[Any], Awaitable[None]]) -> None:
         """
         Args:
             topic: The topic to subscribe to
@@ -103,7 +103,7 @@ class EventBus:
                 self.logger.error(f"Error in callback for {topic}: {str(e)}")
 
         # Subscribe with the wrapper
-        self.broker.subscribe(topic, wrapper)
+        await self.broker.subscribe(topic, wrapper)
 
     async def unsubscribe(self, topic: str) -> None:
         """

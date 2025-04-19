@@ -39,8 +39,8 @@ class GmailSubscriber(BaseSubscriber):
         self.event_bus = services["event_bus"]
         self.task_runner = services["task_runner"]
 
-        self.event_bus.subscribe(EventType.GMAIL_SUMMARY, self._handle_summary)
-        self.event_bus.subscribe(EventType.GMAIL_CLASSIFY, self._handle_classification)
+        await self.event_bus.subscribe(EventType.GMAIL_SUMMARY, self._handle_summary)
+        await self.event_bus.subscribe(EventType.GMAIL_CLASSIFY, self._handle_classification)
 
 
     async def _handle_summary(self, event: Event):

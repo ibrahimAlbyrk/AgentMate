@@ -21,13 +21,13 @@ class AgentSubscriber(BaseSubscriber):
         self.event_bus = services["event_bus"]
         self.agent_manager = services["agent_manager"]
 
-        self.event_bus.subscribe(EventType.START_AGENT, self._handle_agent_start)
-        self.event_bus.subscribe(EventType.START_ALL_AGENT, self._handle_agent_start_all)
+        await self.event_bus.subscribe(EventType.START_AGENT, self._handle_agent_start)
+        await self.event_bus.subscribe(EventType.START_ALL_AGENT, self._handle_agent_start_all)
 
-        self.event_bus.subscribe(EventType.STOP_AGENT, self._handle_agent_stop)
-        self.event_bus.subscribe(EventType.STOP_ALL_AGENT, self._handle_agent_stop_all)
+        await self.event_bus.subscribe(EventType.STOP_AGENT, self._handle_agent_stop)
+        await self.event_bus.subscribe(EventType.STOP_ALL_AGENT, self._handle_agent_stop_all)
 
-        self.event_bus.subscribe(EventType.RESTART_AGENT, self._handle_agent_restart)
+        await self.event_bus.subscribe(EventType.RESTART_AGENT, self._handle_agent_restart)
 
     async def _handle_agent_start_all(self, event: Event):
         try:
