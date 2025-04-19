@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from Core.config import settings
 
 FILE_PATH = ""
-"""Example Usage: C:/Project/AgentMate/"""
+"""Example Usage: C:/Project/AgentMate/Logs/"""
 
 " -------------- ENUMS -------------- "
 #region Enums
@@ -30,12 +30,12 @@ class IFormatter(ABC):
 
 class SimpleFormatter(IFormatter):
     def get_formatter(self) -> logging.Formatter:
-        return logging.Formatter('%(asctime)s - %(message)s')
+        return logging.Formatter('[%(asctime)s] => %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
 class AdvancedFormatter(IFormatter):
     def get_formatter(self) -> logging.Formatter:
-        return logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] => %(message)s - %(details)s', datefmt='%Y-%m-%d %H:%M:%S')
+        return logging.Formatter('[%(asctime)s] [%(name)s] [%(levelname)s] => %(message)s %(details)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
 class FormatterFactory:
@@ -66,7 +66,8 @@ class BaseLogger(ILogger):
         self.logger.propagate = False
 
     def log(self, level: int, message: str, extra: Optional[dict] = None):
-        self.logger.log(level, message, extra=extra)
+        if settings.logging.enabled_levels[level]:
+            self.logger.log(level, message, extra=extra)
 
 
 class ConsoleLogger(BaseLogger):
@@ -114,24 +115,19 @@ class Manager:
         self.logger = LoggerFactory.create_logger(logger_type, name, formatter)
 
     def debug(self, message: str, extra: Optional[dict] = None) -> None:
-        if settings.LOG_STATES["debug"]:
-            self.logger.log(logging.DEBUG, message, extra=extra)
+        self.logger.log(logging.DEBUG, message, extra=extra)
 
     def info(self, message: str, extra: Optional[dict] = None) -> None:
-        if settings.LOG_STATES["info"]:
-            self.logger.log(logging.INFO, message, extra=extra)
+        self.logger.log(logging.INFO, message, extra=extra)
 
     def warning(self, message: str, extra: Optional[dict] = None) -> None:
-        if settings.LOG_STATES["warning"]:
-            self.logger.log(logging.WARNING, message, extra=extra)
+        self.logger.log(logging.WARNING, message, extra=extra)
 
     def error(self, message: str, extra: Optional[dict] = None) -> None:
-        if settings.LOG_STATES["error"]:
-            self.logger.log(logging.ERROR, message, extra=extra)
+        self.logger.log(logging.ERROR, message, extra=extra)
 
     def fatal(self, message: str, extra: Optional[dict] = None) -> None:
-        if settings.LOG_STATES["fatal"]:
-            self.logger.log(logging.FATAL, message, extra=extra)
+        self.logger.log(logging.FATAL, message, extra=extra)
 
 class LoggerCreator:
     @staticmethod
