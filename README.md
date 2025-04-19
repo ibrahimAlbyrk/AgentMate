@@ -154,7 +154,7 @@ flowchart TD
 ### 🛠️ Setup
 
 ```bash
-git clone https://github.com/yourusername/AgentMate.git
+git clone https://github.com/ibrahimAlbyrk/AgentMate.git
 cd AgentMate
 
 python -m venv .venv
