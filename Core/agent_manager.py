@@ -32,6 +32,7 @@ class AgentManager:
         return None
 
     async def start_agent(self, uid: str, service: str):
+        print("start_agent")
         agent = AgentFactory.create(uid, service)
         print(f"Created agent: {type(agent)}")
         if not agent:
