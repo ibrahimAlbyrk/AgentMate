@@ -43,9 +43,8 @@ class GmailAgent(IAgent):
         self.initialize(actions)
 
     async def _run_impl(self):
-        pass
         # LISTENERS
-        # self.add_listener("GMAIL_NEW_GMAIL_MESSAGE", self._handle_new_email_messages)
+        self.add_listener("GMAIL_NEW_GMAIL_MESSAGE", self._handle_new_email_messages)
 
     async def _stop_impl(self):
         pass

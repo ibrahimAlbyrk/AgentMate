@@ -30,10 +30,12 @@ class AgentSubscriber(BaseSubscriber):
         await self.event_bus.subscribe(EventType.RESTART_AGENT, self._handle_agent_restart)
 
     async def _handle_agent_start_all(self, event: Event):
+        print("_handle_agent_start_all")
         try:
             data = event.data
             uid = data["uid"]
             services = data["services"]
+            print(uid, services)
 
             await self.agent_manager.start_all_for_user(uid, services)
         except Exception as e:
