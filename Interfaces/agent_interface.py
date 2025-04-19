@@ -29,6 +29,7 @@ class IAgent(ABC):
         try:
             self.listener = self.toolset.create_trigger_listener(timeout=5)
         except TimeoutError as e:
+            self.listener = None
             self.logger.warning(f"Couldn't create trigger listener for {uid}: {e}")
 
         self._listener_refs = []
