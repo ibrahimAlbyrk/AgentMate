@@ -32,9 +32,7 @@ class AgentManager:
         return None
 
     async def start_agent(self, uid: str, service: str):
-        print("start_agent")
         agent = AgentFactory.create(uid, service)
-        print(f"Created agent: {type(agent)}")
         if not agent:
             self.logger.warning(f"No agent registered for {service} service")
             return
@@ -45,7 +43,6 @@ class AgentManager:
             return
 
         await agent.run()
-        print("Agent started")
         self.running_agents[uid][service] = agent
         self.logger.debug(f"Started {service} agent for {uid}")
 
