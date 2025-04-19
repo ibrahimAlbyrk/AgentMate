@@ -19,21 +19,13 @@ class IAgent(ABC):
         self.actions: dict[str, LLMActionData] = {}
         self.llm: LLMAgent = None
 
-        print(1)
-
         self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
-
-        print(2)
 
         self.entity = self.toolset.get_entity(uid)
         self.app_name: App = None
 
-        print(3)
-
-        self.listener = self.toolset.create_trigger_listener(timeout=30)
+        self.listener = self.toolset.create_trigger_listener(timeout=5)
         self._listener_refs = []
-
-        print(4)
 
         self.logger = LoggerCreator.create_advanced_console(self.__class__.__name__)
 
