@@ -103,7 +103,7 @@ class EventBus:
                 self.logger.error(f"Error in callback for {topic}: {str(e)}")
 
         # Subscribe with the wrapper
-        asyncio.create_task(self.broker.subscribe(topic, wrapper))
+        self.broker.subscribe(topic, wrapper)
 
     async def unsubscribe(self, topic: str) -> None:
         """
