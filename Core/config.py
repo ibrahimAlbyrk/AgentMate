@@ -122,10 +122,12 @@ class AppSettings(BaseSettings):
     services: ServiceSettings = Field(default_factory=ServiceSettings)
     api: ApiSettings = Field(default_factory=ApiSettings)
 
+    # Service mappings
     _service_apps: Dict[str, App] = PrivateAttr(
         default_factory=lambda: {"gmail": App.GMAIL}
     )
 
+    # Configuration models for services
     config_models: Dict[str, Type[BaseModel]] = {
         "gmail": GmailConfig,
         # "notion": NotionConfig
