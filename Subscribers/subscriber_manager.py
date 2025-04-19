@@ -1,44 +1,47 @@
 import asyncio
-import pkgutil
-import inspect
-import importlib
-import Subscribers
-
 from Core.EventBus import EventBus
-
-from Core.Models import Event
 from Core.logger import LoggerCreator
 from Core.task_runner import TaskRunner
 from Core.agent_manager import AgentManager
-
 from Connectors.omi_connector import OmiConnector
 
-from Subscribers.base_subscriber import BaseSubscriber
+from Subscribers.subscriber_plugin import (
+    discover_subscriber_plugins,
+    get_available_subscribers,
+    create_subscriber,
+    get_subscriber_dependencies,
+)
 
 logger = LoggerCreator.create_advanced_console("SubscriberManager")
-
 event_bus = EventBus()
 
 async def start_all_subscribers():
-    logger.debug("Starting EventBus subscribers...")
+    logger.debug("Starting plugin-based EventBus subscribers...")
 
     await event_bus.connect()
 
     shared_services = {
-        'omi': OmiConnector(),
-        'event_bus': event_bus,
-        'task_runner': TaskRunner(),
+        "omi": OmiConnector(),
+        "event_bus": event_bus,
+        "task_runner": TaskRunner(),
         "agent_manager": AgentManager()
     }
 
-    for _, module_name, _ in pkgutil.iter_modules(Subscribers.__path__):
-        module = importlib.import_module(f"Subscribers.{module_name}")
-        for name, obj in inspect.getmembers(module):
-            if inspect.isclass(obj) and issubclass(obj, BaseSubscriber) and obj is not BaseSubscriber:
-                instance = obj()
-                await instance.setup(**shared_services)
+    discover_subscriber_plugins()
+
+    for name in get_available_subscribers():
+        deps = get_subscriber_dependencies(name)
+        services = {k: v for k, v in shared_services.items() if k in deps}
+
+        subscriber = create_subscriber(name)
+        if subscriber is not None:
+            await subscriber.setup(**services)
+            logger.debug(f"Started subscriber: {name}")
+        else:
+            logger.warning(f"Failed to start subscriber: {name}")
 
     await event_bus.listen()
+
 
 async def stop_all_subscribers():
     await event_bus.stop()

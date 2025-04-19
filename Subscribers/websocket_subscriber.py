@@ -7,11 +7,17 @@ from Core.Models.domain import Event, EventType
 from Routers.websocket_router import send_message_to_active_connection
 
 from Subscribers.base_subscriber import BaseSubscriber
+from Subscribers.subscriber_plugin import SubscriberPlugin, register_subscriber_plugin
 
 logger = LoggerCreator.create_advanced_console("WebSocketSubscriber")
 
 
-class WebSocketSubscriber(BaseSubscriber):
+class WebSocketSubscriber(BaseSubscriber, SubscriberPlugin):
+    subscriber_name = "websocket"
+    priority = 80
+    dependencies = ["event_bus"]
+    enabled_by_default = True
+
     def __init__(self):
         self.event_bus = None
 
@@ -27,3 +33,10 @@ class WebSocketSubscriber(BaseSubscriber):
         memories = data.get("memories", [])
 
         await send_message_to_active_connection(uid, message_type="gmail.memory", message={"memories": memories})
+
+    @classmethod
+    def create_subscriber(cls, **kwargs) -> BaseSubscriber:
+        return cls()
+
+
+register_subscriber_plugin("websocket", WebSocketSubscriber)

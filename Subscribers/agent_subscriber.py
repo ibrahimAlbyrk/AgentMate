@@ -6,13 +6,17 @@ from Core.agent_manager import AgentManager
 from Core.Models.domain import EventType, Event
 
 from Subscribers.base_subscriber import BaseSubscriber
+from Subscribers.subscriber_plugin import SubscriberPlugin, register_subscriber_plugin
 
 logger = LoggerCreator.create_advanced_console("AgentSubscriber")
 
-agent_manager = AgentManager()
 
+class AgentSubscriber(BaseSubscriber, SubscriberPlugin):
+    subscriber_name = "agent"
+    priority = 100
+    dependencies = ["event_bus", "agent_manager"]
+    enabled_by_default = True
 
-class AgentSubscriber(BaseSubscriber):
     def __init__(self):
         self.event_bus = None
         self.agent_manager: AgentManager = None
@@ -74,3 +78,10 @@ class AgentSubscriber(BaseSubscriber):
 
         except Exception as e:
             logger.error(f"Restart agent error: {str(e)}")
+
+    @classmethod
+    def create_subscriber(cls, **kwargs) -> BaseSubscriber:
+        return cls()
+
+
+register_subscriber_plugin("agent", AgentSubscriber)
