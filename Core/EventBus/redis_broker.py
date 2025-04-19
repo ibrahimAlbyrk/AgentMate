@@ -111,9 +111,11 @@ class RedisBroker(MessageBroker):
         """
         Listen for messages on subscribed channels.
         """
+        print('listening')
         try:
             while True:
                 message = await self.pubsub.get_message(ignore_subscribe_messages=True)
+                print(message)
                 if message:
                     channel = message["channel"]
                     data = message["data"]
