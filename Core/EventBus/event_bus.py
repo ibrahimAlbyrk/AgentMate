@@ -49,7 +49,7 @@ class EventBus:
         # Create broker instance
         if broker_type == "redis" and not broker_kwargs:
             # Use Redis URL from settings if not provided
-            broker_kwargs = {"redis_url": settings.REDIS_URL}
+            broker_kwargs = {"redis_url": settings.redis.url}
 
         self.broker: MessageBroker = BrokerFactory.create(broker_type, **broker_kwargs)
         self.logger.debug(f"Initialized EventBus with {broker_type} broker")

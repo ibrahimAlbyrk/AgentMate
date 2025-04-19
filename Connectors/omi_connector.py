@@ -42,8 +42,8 @@ class ConversationData:
 class OmiConnector:
     def __init__(self):
         self.base_url = "https://api.omi.me"
-        self.api_key = settings.OMI_API_KEY
-        self.app_id = settings.OMI_APP_ID
+        self.api_key = settings.api.omi_api_key
+        self.app_id = settings.api.omi_app_id
         self.logger = LoggerCreator.create_advanced_console("OmiConnector")
 
     @retryable(max_retries=5, delay=1, backoff=True, retry_exceptions=(Exception,))

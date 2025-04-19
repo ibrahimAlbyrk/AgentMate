@@ -8,7 +8,7 @@ class EventBus:
     def __init__(self):
         self.redis: Redis = None
         self.logger = LoggerCreator.create_advanced_console("EventBus")
-        self.redis_url = settings.REDIS_URL
+        self.redis_url = settings.redis.url
         self.subscribers: Dict[str, Callable[[str], Awaitable[None]]] = {}
 
     async def connect(self):

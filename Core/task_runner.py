@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 class TaskRunner:
     def __init__(self):
-        max_workers = settings.MAX_TASK_WORKER
+        max_workers = settings.async_settings.max_workers
         self.executor = ThreadPoolExecutor(max_workers)
 
     @staticmethod

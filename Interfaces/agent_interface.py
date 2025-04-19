@@ -21,7 +21,7 @@ class IAgent(ABC):
         self.actions: dict[str, LLMActionData] = {}
         self.llm: LLMAgent = None
 
-        self.toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
+        self.toolset = ComposioToolSet(api_key=settings.api.composio_api_key)
 
         self.entity = self.toolset.get_entity(uid)
         self.app_name: App = None

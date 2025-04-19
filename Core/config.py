@@ -139,6 +139,16 @@ class AppSettings(BaseSettings):
         extra="ignore"
     )
 
+    def get_config_model(self, config_name: str) -> dict[str, Any]:
+        config_cls = self.config_models.get(config_name, None)
+        if not config_cls:
+            return {}
+
+        return config_cls().model_dump()
+
+    def get_app(self, service_name: str) -> Optional[App]:
+        return self._service_apps.get(service_name, "")
+
     def get_service_config(self, service_name: str) -> Any:
         if hasattr(self.services, service_name):
             return getattr(self.services, service_name)

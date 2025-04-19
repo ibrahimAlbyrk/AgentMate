@@ -22,7 +22,7 @@ logger = LoggerCreator.create_advanced_console("AuthRouter")
 
 OAUTH_FLOW_CACHE: dict[str, dict] = {}
 
-toolset = ComposioToolSet(api_key=settings.COMPOSIO_API_KEY)
+toolset = ComposioToolSet(api_key=settings.api.composio_api_key)
 
 @router.get("/{service}/is-logged-in")
 async def is_logged_in(service: str, uid: str, session: AsyncSession = Depends(get_db)):
@@ -73,7 +73,7 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
 
     try:
         url = f"https://backend.composio.dev/api/v1/connectedAccounts/{service_id}"
-        headers = {"x-api-key": settings.COMPOSIO_API_KEY}
+        headers = {"x-api-key": settings.api.composio_api_key}
         response = requests.delete(url, headers=headers)
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=response.text)
@@ -101,11 +101,12 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
 
     is_logged_in = await UserSettingsService.is_logged_in(session, uid, service)
     if is_logged_in:
-        redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
+        redirect_uri = settings.post_login_redirect.format(uid=uid, service=service)
         return RedirectResponse(url=redirect_uri)
 
-    service_name = settings.SERVICES.get(service)
-    conn_req = toolset.initiate_connection(app=service_name, entity_id=uid, redirect_url=f"{settings.BASE_URI}/api/{service}/callback?uid={uid}")
+
+    app = settings.get_app(service)
+    conn_req = toolset.initiate_connection(app=app, entity_id=uid, redirect_url=f"{settings.BASE_URI}/api/{service}/callback?uid={uid}")
     redirect_uri = conn_req.redirectUrl
 
     logger.debug(f"[{service}] Redirecting UID {uid} to OAuth flow")
@@ -116,7 +117,7 @@ async def service_login(uid: str, service: str, session: AsyncSession = Depends(
 async def service_callback(uid: str, service: str, request: Request, session: AsyncSession = Depends(get_db)):
     status = request.query_params.get("status")
     if status != "success":
-       return RedirectResponse(settings.BASE_URI)
+       return RedirectResponse(settings.base_uri)
 
     service_id = request.query_params.get("connectedAccountId")
 
@@ -137,10 +138,13 @@ async def _service_login_handler(uid: str, service: str, service_id: str, sessio
         await UserSettingsService.set_logged_in(session, uid, service, True)
         await UserSettingsService.change_service_id(session, uid, service, service_id)
     else:
-        default_config = settings.DEFAULT_CONFIGS.get(service, {})
-        await UserSettingsService.set_config(session, uid, service_id, service, default_config)
+        default_config = settings.get_config_model(service)
+        if default_config:
+            await UserSettingsService.set_config(session, uid, service_id, service, default_config)
+        else:
+            logger.debug(f"No configuration found for service: {service}")
 
     await start_user_agents(uid, session)
 
-    redirect_uri = settings.POST_LOGIN_REDIRECT.format(uid=uid, service=service)
+    redirect_uri = settings.post_login_redirect.format(uid=uid, service=service)
     return redirect_uri

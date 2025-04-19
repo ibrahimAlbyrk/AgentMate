@@ -32,7 +32,7 @@ class AIRequest:
 class BaseAIEngine:
     def __init__(self, name: str):
         self.logger = LoggerCreator.create_advanced_console(name)
-        self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+        self.client = AsyncOpenAI(api_key=settings.api.openai_api_key)
         self.cache = {}
         self.cache_lock = asyncio.Lock()
 

@@ -36,7 +36,7 @@ async def get_settings(uid: str, service: str, session: AsyncSession = Depends(g
         raise HTTPException(status_code=400, detail=f"UID not provided")
 
     config = await UserSettingsService.get_config(session, uid, service)
-    default = settings.DEFAULT_CONFIGS.get(service, {})
+    default = settings.get_config_model(service)
 
     if not config:
         return default
@@ -59,7 +59,7 @@ async def update_settings(uid: str, service: str, request: Request, db: AsyncSes
 
     config_data = data.get("config")
 
-    config_model = settings.CONFIG_MODELS.get(service)
+    config_model = settings.get_config_model(service)
     if config_model:
         try:
             config = config_model(**config_data).model_dump()
