@@ -111,11 +111,9 @@ class RedisBroker(MessageBroker):
         """
         Listen for messages on subscribed channels.
         """
-        print('listening')
         try:
             while True:
                 message = await self.pubsub.get_message(ignore_subscribe_messages=True)
-                print(message)
                 if message:
                     channel = message["channel"]
                     data = message["data"]
@@ -124,8 +122,6 @@ class RedisBroker(MessageBroker):
                         try:
                             # Convert the Redis message to the Message object
                             event_message = Message.from_json(data)
-                            print(event_message.topic)
-                            print(event_message.payload)
                             await self.subscribers[channel](event_message)
                         except Exception as e:
                             self.logger.error(f"Error processing message on {channel}: {str(e)}")
