@@ -83,6 +83,8 @@ class GmailAgent(IAgent):
         processed_result = result.copy()
         processed_response = []
 
+        print(result["data"])
+
         for email in result["data"]["messages"]:
             processed_response.append(
                 self._filter_and_process_email(email, fields=self.DEFAULT_EMAIL_FILTER)
