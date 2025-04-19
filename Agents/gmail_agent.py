@@ -83,7 +83,7 @@ class GmailAgent(IAgent):
         processed_result = result.copy()
         processed_response = []
 
-        print(result["data"])
+        print(f'Data: {result["data"]}')
 
         for email in result["data"]["messages"]:
             processed_response.append(
