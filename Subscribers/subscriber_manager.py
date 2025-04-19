@@ -37,8 +37,7 @@ async def start_all_subscribers():
             if inspect.isclass(obj) and issubclass(obj, BaseSubscriber) and obj is not BaseSubscriber:
                 instance = obj()
                 await instance.setup(**shared_services)
-
-    await event_bus.listen()
+                await event_bus.listen()
 
 async def stop_all_subscribers():
     await event_bus.stop()
