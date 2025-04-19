@@ -38,7 +38,7 @@ async def start_all_subscribers():
                 instance = obj()
                 await instance.setup(**shared_services)
 
-    asyncio.create_task(event_bus.listen())
+    await event_bus.listen()
 
 async def stop_all_subscribers():
     await event_bus.stop()
