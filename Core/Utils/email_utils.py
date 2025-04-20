@@ -34,12 +34,12 @@ class EmailUtils:
         return BeautifulSoup(html, "html.parser").get_text()
 
     @staticmethod
-    def decode_email(payload: dict) -> dict:
-        date = payload.get("messageTimestamp")
-        msg_id = payload.get("messageId")
-        subject = payload.get("subject")
-        sender = payload.get("sender")
-        payload = payload.get("payload")
+    def decode_email(data: dict) -> dict:
+        date = data.get("message_timestamp")
+        msg_id = data.get("message_id")
+        subject = data.get("subject")
+        sender = data.get("sender")
+        payload = data.get("payload")
 
         raw_body = EmailUtils.extract_message_body(payload)
         body = EmailUtils.strip_html_tags(raw_body or "")

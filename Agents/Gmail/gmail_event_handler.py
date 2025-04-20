@@ -13,9 +13,8 @@ class GmailEventHandler:
         self.event_bus = event_bus or EventBus()
         self.logger = LoggerCreator.create_advanced_console("GmailEventHandler")
 
-    def handle_new_email_messages(self, data: Dict[str, Any]) -> None:
+    def handle_new_email_messages(self, raw_data: Dict[str, Any]) -> None:
         try:
-            raw_data =data['payload']
             email = EmailUtils.decode_email(raw_data)
 
             data = {"uid": self.uid, "emails": [email]}
