@@ -42,8 +42,6 @@ class PluginRegistry(Generic[T]):
 
     def create(self, name: str, *args, **kwargs) -> T:
         """
-        Create an instance of a plugin.
-
         Args:
             name: The name of the plugin
             *args: Positional arguments to pass to the plugin constructor
@@ -63,8 +61,6 @@ class PluginRegistry(Generic[T]):
 
     def discover(self) -> None:
         """
-        Discover plugins in the plugin directories.
-
         This method searches for plugins in the specified directories
         and registers them.
         """
@@ -80,7 +76,6 @@ class PluginRegistry(Generic[T]):
 
         for _, module_name, is_pkg in pkgutil.iter_modules(package.__path__, package.__name__ + "."):
             if is_pkg:
-                # Recursively discover plugins in subpackages
                 self._discover_in_package(module_name)
             else:
                 try:
@@ -95,7 +90,6 @@ class PluginRegistry(Generic[T]):
                     issubclass(obj, self.plugin_type) and
                     obj is not self.plugin_type and
                     not inspect.isabstract(obj)):
-                # Use the class name as the plugin name if not explicitly specified
                 plugin_name = getattr(obj, "plugin_name", name)
                 self.register(plugin_name, obj)
 

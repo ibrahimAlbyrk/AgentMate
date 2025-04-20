@@ -1,21 +1,17 @@
-import json
-import base64
 import traceback
 
-from Core.EventBus import EventBus
 from Core.logger import LoggerCreator
-from Core.task_runner import TaskRunner
 from Core.Models.domain import Event, EventType
 
-from Connectors.omi_connector import OmiConnector, MemoryData, ConversationData
+from Connectors.omi_connector import MemoryData, ConversationData
 from Engines.ai_engine import EmailMemorySummarizerEngine, EmailClassifierEngine
 
 from DB.database import AsyncSessionLocal
 from DB.Services.user_settings_service import UserSettingsService
 from DB.Services.processed_gmail_service import ProcessedGmailService
 
-from Subscribers.base_subscriber import BaseSubscriber
-from Subscribers.subscriber_plugin import SubscriberPlugin, register_subscriber_plugin
+from Plugins.plugin_interface import IPlugin
+from Plugins.subscriber_plugin import SubscriberPlugin
 
 logger = LoggerCreator.create_advanced_console("GmailSubscriber")
 
@@ -23,8 +19,8 @@ summarizer = EmailMemorySummarizerEngine()
 classifier = EmailClassifierEngine()
 
 
-class GmailSubscriber(BaseSubscriber, SubscriberPlugin):
-    subscriber_name = "gmail"
+class GmailSubscriber(SubscriberPlugin):
+    name = "gmail"
     priority = 90
     dependencies = ["omi", "event_bus", "task_runner"]
     enabled_by_default = True
@@ -34,13 +30,18 @@ class GmailSubscriber(BaseSubscriber, SubscriberPlugin):
         self.event_bus = None
         self.task_runner = None
 
-    async def setup(self, **services):
-        self.omi = services["omi"]
-        self.event_bus = services["event_bus"]
-        self.task_runner = services["task_runner"]
+    @classmethod
+    async def create(cls, **kwargs) -> IPlugin:
+        instance = cls()
 
-        await self.event_bus.subscribe(EventType.GMAIL_SUMMARY, self._handle_summary)
-        await self.event_bus.subscribe(EventType.GMAIL_CLASSIFY, self._handle_classification)
+        instance.omi = kwargs["omi"]
+        instance.event_bus = kwargs["event_bus"]
+        instance.task_runner = kwargs["task_runner"]
+
+        await instance.event_bus.subscribe(EventType.GMAIL_SUMMARY, instance._handle_summary)
+        await instance.event_bus.subscribe(EventType.GMAIL_CLASSIFY, instance._handle_classification)
+
+        return instance
 
     async def _handle_summary(self, event: Event):
         try:
@@ -120,7 +121,8 @@ class GmailSubscriber(BaseSubscriber, SubscriberPlugin):
             started_at=date,
             text=text,
             text_source="other_text",
-            text_source_spec=f"email about {classification.get(important)}" if classification.get(important) else "email",
+            text_source_spec=f"email about {classification.get(important)}" if classification.get(
+                important) else "email",
             language=language
         )
 
@@ -160,10 +162,3 @@ class GmailSubscriber(BaseSubscriber, SubscriberPlugin):
         ]
 
         return "\n\n".join(part for part in parts if part.strip() != "")
-
-    @classmethod
-    def create_subscriber(cls, **kwargs) -> BaseSubscriber:
-        return cls()
-
-
-register_subscriber_plugin("gmail", GmailSubscriber)

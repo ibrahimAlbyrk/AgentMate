@@ -1,16 +1,13 @@
-import asyncio
 from Core.EventBus import EventBus
 from Core.logger import LoggerCreator
 from Core.task_runner import TaskRunner
 from Core.agent_manager import AgentManager
 from Connectors.omi_connector import OmiConnector
 
-from Subscribers.subscriber_plugin import (
-    discover_subscriber_plugins,
-    get_available_subscribers,
-    create_subscriber,
-    get_subscriber_dependencies,
-)
+from Plugins import plugin_utils
+from Plugins.plugin_interface import IPlugin
+from Plugins.subscriber_plugin import subscriber_registry
+
 
 logger = LoggerCreator.create_advanced_console("SubscriberManager")
 event_bus = EventBus()
@@ -27,18 +24,19 @@ async def start_all_subscribers():
         "agent_manager": AgentManager()
     }
 
-    discover_subscriber_plugins()
+    plugin_utils.discover_plugins(subscriber_registry, "Subscribers")
 
-    for name in get_available_subscribers():
-        deps = get_subscriber_dependencies(name)
+    subscribers = plugin_utils.get_all_plugins(subscriber_registry)
+
+    for name in subscribers:
+        deps = plugin_utils.get_plugin_dependencies(name, subscriber_registry)
         services = {k: v for k, v in shared_services.items() if k in deps}
 
-        subscriber = create_subscriber(name)
-        if subscriber is not None:
-            await subscriber.setup(**services)
+        try:
+            await plugin_utils.create_plugin(name, subscriber_registry, **services)
             logger.debug(f"Started subscriber: {name}")
-        else:
-            logger.warning(f"Failed to start subscriber: {name}")
+        except Exception as e:
+            logger.warning(f"Failed to start subscriber: {e}")
 
     await event_bus.listen()
 
