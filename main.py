@@ -20,7 +20,7 @@ from Engines.task_queue_manager import queue_manager
 
 from Subscribers.subscriber_manager import start_all_subscribers, stop_all_subscribers
 
-from Routers import user_settings_router, websocket_router, webhook_router, auth_router, agent_status_router
+from Routers import user_settings_router, websocket_router, omi_router, auth_router, agent_status_router, gmail_router, settings_router
 
 logger = LoggerCreator.create_advanced_console("Main")
 task_runner = TaskRunner()
@@ -64,9 +64,11 @@ _include_routers([
     user_settings_router.router,
     agent_status_router.router,
     auth_router.router,
-    webhook_router.router,
     websocket_router.router,
+    omi_router.router,
+    settings_router.router,
+    gmail_router.router
 ])
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=6000)
+    uvicorn.run("main:app", host="127.0.0.1", port=5000)
