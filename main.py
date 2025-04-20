@@ -20,7 +20,7 @@ from Engines.task_queue_manager import queue_manager
 
 from Subscribers.subscriber_manager import start_all_subscribers, stop_all_subscribers
 
-from Routers import user_settings_router, websocket_router, omi_router, auth_router, agent_status_router, gmail_router, settings_router, composio_router
+from Routers import *
 
 logger = LoggerCreator.create_advanced_console("Main")
 task_runner = TaskRunner()
@@ -68,7 +68,8 @@ _include_routers([
     omi_router.router,
     settings_router.router,
     gmail_router.router,
-    composio_router.router
+    composio_router.router,
+    admin_router
 ])
 
 if __name__ == "__main__":
