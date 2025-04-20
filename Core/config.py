@@ -115,12 +115,6 @@ class AppSettings(BaseSettings):
         default_factory=lambda: {"gmail": App.GMAIL}
     )
 
-    # Configuration models for services
-    config_models: Dict[str, Type[BaseModel]] = {
-        "gmail": GmailConfig,
-        # "notion": NotionConfig
-    }
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -131,8 +125,8 @@ class AppSettings(BaseSettings):
         return self._service_apps.get(service_name, "")
 
     def get_service_config(self, service_name: str) -> dict[str, Any]:
-        config_model = self.get_service_config_model(service_name)
-        config_model().model_dump()
+        config_model: BaseModel = self.get_service_config_model(service_name)
+        config_model.model_dump()
 
     def get_service_config_model(self, service_name: str) -> Optional[Type[BaseModel]]:
         if hasattr(self.services, service_name):
