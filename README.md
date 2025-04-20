@@ -1,204 +1,251 @@
-## 🧠 Agent Mate
+<h1 align="center">🧠 Agent Mate</h1>
+<p align="center">
+  <b>Modular · Event-Driven · AI-Powered</b><br/>
+  <i>The cognitive bridge between your world and Omi.</i>
+</p>
 
-Welcome to the **Agent Mate** — a fully modular, intelligent, and scalable framework designed to connect real-world data sources with your AI assistant.
-
-In a world where digital information is scattered across emails, notes, calendars, and chat platforms, this system acts as a **unified brain**, continuously feeding Omi with **summarized insights**, **classified signals**, and **personal context**.
-
----
-
-### 🎯 What Problem Does It Solve?
-
-Most users have valuable information trapped inside:
-
-- 📩 Emails (important discussions, decisions, deadlines)
-- 📆 Calendar events (meetings, milestones)
-- 🗒️ Notes (ideas, plans, knowledge)
-- 💬 Messages (feedback, announcements, insights)
-
-But these are **raw** — not useful to an AI out of the box.
-
-This system:
-
-- 🧠 Understands and filters your raw digital content
-- ✂️ Summarizes, classifies, tags, and ranks it
-- 🤖 Sends it to Omi as **Memory** or **Conversation**
-- ⚡ Runs in the background, continuously and intelligently
+<p align="center">
+  <img src="https://img.shields.io/badge/Built%20With-FastAPI-blue?style=flat-square" />
+  <img src="https://img.shields.io/badge/AI%20Engine-OpenAI-green?style=flat-square" />
+  <img src="https://img.shields.io/badge/Database-PostgreSQL-lightblue?style=flat-square" />
+  <img src="https://img.shields.io/badge/Event%20System-Redis-orange?style=flat-square" />
+</p>
 
 ---
 
-### 🔧 What Makes It Special?
+## 🚀 Overview
 
-✅ **Multi-Agent Architecture**  
-Each service (Gmail, Notion, Slack...) is handled by its own isolated agent. Agents work independently, scale horizontally, and can be hot-restarted individually.
-
-✅ **Event-Driven & Async**  
-Built on `asyncio` and Redis Pub/Sub, it can handle thousands of users in parallel, without bottlenecks.
-
-✅ **Plug & Play AI Engine**  
-OpenAI GPT-based summarizer and classifier engines, reusable across agents, with JSON schema enforced responses and tool-calling support.
-
-✅ **WebSocket Feedback**  
-Agents push real-time updates to the frontend — users are instantly informed when memories or conversations are created.
-
-✅ **Dynamic Config**  
-Each agent is user-configurable via API or UI — control frequency, filters, categories, and more.
+**Agent Mate** is a highly modular, async-powered backend framework designed for seamless integration with [Omi](https://docs.omi.me/). It enables AI agents to ingest, process, and relay structured information from multiple data sources like Gmail, Notion, and more — delivering it back to Omi in the form of conversations or memories.
 
 ---
 
-## ⚡ What Can It Do?
+## 🧠 Key Capabilities
 
-| 🚀 Feature                           | Description |
-|------------------------------------|-------------|
-| 📥 Auto-fetch emails from Gmail    | Periodically checks for new emails |
-| 🧠 Smart classification             | Detects importance, topic, urgency, sentiment |
-| 📝 Auto-summarization               | Converts email content into 200-character personal insight |
-| 📤 Sends data to Omi API           | Integrates with both `Memory` and `Conversation` endpoints |
-| ⚙️ Configurable via UI             | Each user sets interval, source, filters etc. |
-| 📡 WebSocket-based feedback         | Real-time updates to the frontend after processing |
-
----
-
-## 🧠 Why Is It Powerful?
-
-### ✅ Modular Architecture
-Each external source (Gmail, Notion, Calendar, etc.) is handled by a separate, pluggable **Agent**.
-
-### 🧠 AI-Powered Engine
-Powered by **OpenAI GPT-4**, our engine:
-- Classifies content
-- Summarizes meaning
-- Tags intent
-- Suggests actions
-
-### 🔄 Event-Driven Processing
-Everything works through **Redis Pub/Sub**:
-- `gmail.inbox.classify` → run classification
-- `gmail.inbox.summary` → run summarization
-
-### ⚡ Performance Optimized
-- `asyncio + thread pool` = fast concurrent execution
-- Emails processed in **parallel batch tasks**
-- Memory-safe processing with duplication prevention
+- 🔄 Real-Time & Scheduled Data Collection  
+- 🧠 AI-Based Summarization & Classification  
+- ⚙️ Dynamic Plugin-based Agent/Subscriber System  
+- 🔗 Seamless Omi Memory & Conversation API Integration  
+- 🚦 Async Architecture + Redis Event Bus  
+- 🔄 Automatic Retry & Rate Limit Management  
+- 🔐 OAuth-Based Auth
 
 ---
 
-## 🤖 Agent Examples
+## 🏗️ Architecture
 
-Build any of the following agents in minutes:
-
-| Agent Type             | What It Does |
-|------------------------|--------------|
-| ✅ `GmailAgent`        | Connects to Gmail and fetches emails |
-| 🔜 `NotionAgent`       | Pulls content from Notion pages |
-| 🔜 `CalendarAgent`     | Extracts upcoming events |
-| 🔜 `SlackAgent`        | Analyzes Slack messages |
-| 🔜 `WebScraperAgent`   | Scrapes websites for relevant updates |
-
-Agents implement the common `IAgent` interface and are registered via `AgentFactory`.
-
----
-
-## 🔁 System Flow
-
-```mermaid
-flowchart TD
-    A[User Trigger or Scheduled Interval] --> B[Agent Initialization]
-    B --> C[Load Service Config from Database]
-    C --> D{Service Logged In?}
-    D -- No --> D1[Abort or Retry Login]
-    D -- Yes --> E[Fetch Latest Data]
-
-    E --> F{Already Processed?}
-    F -- Yes --> F1[Skip and Wait Next Cycle]
-    F -- No --> G[Preprocess Data - Clean and Extract]
-
-    G --> H{Processing Mode}
-    H -- Summarization --> I1[Run Summarizer Engine]
-    H -- Classification --> I2[Run Classifier Engine]
-    H -- Both --> I3[Run Both in Parallel]
-
-    I1 --> J[Prepare Memory Data]
-    I2 --> K[Prepare Conversation Data]
-    I3 --> J & K
-
-    J --> L[Send to Omi Memory API]
-    K --> M[Send to Omi Conversation API]
-
-    L --> N[Mark as Processed in DB]
-    M --> N
-    N --> O[Notify Frontend via WebSocket]
-    O --> P[Sleep Until Next Round]
+```
+AgentMate/
+├── Agents/             # Data source agents like Gmail and LLM
+├── Connectors/         # External system connectors (e.g., Omi)
+├── Core/               # Core logic: EventBus, config, DI, logging, retry
+├── DB/                 # Database structure: models, schemas, repos, services
+├── Engines/            # AI processing engines (Classifier, Summarizer, Queue, Token tools)
+├── Plugins/            # Plugin system interfaces and implementations
+├── Routers/            # FastAPI endpoint routers
+├── Subscribers/        # Event subscribers / consumers
+└── main.py             # Entry point of the application
 ```
 
-## 🌐 Full API Reference
+---
 
-### 🧾 User Settings
+## 🔌 Agent Overview
 
-| Method | Endpoint                                   | Description                     |
-|--------|--------------------------------------------|---------------------------------|
-| `POST` | `/settings/`                               | Create or update service config |
-| `GET`  | `/settings/{uid}/{service_name}`           | Get current config for service  |
+| Agent               | Status | Functionality |
+|--------------------|--------|----------------|
+| `GmailAgent`        | ✅      | Periodically fetches and classifies emails |
+| `NotionAgent`       | 🔜      | Extracts content blocks and page metadata |
+| `CalendarAgent`     | 🔜      | Pulls upcoming events |
+| `FacebookAgent`     | 🔜      | Reads user feed and messages |
+| `InstagramAgent`    | 🔜      | Captures post insights and messages |
+| `YouTubeAgent`      | 🔜      | Gathers video metadata and notifications |
+| `WhatsAppAgent`     | 🔜      | Parses chat messages for intent and memory |
+| `DiscordAgent`      | 🔜      | Listens to server channels and DMs |
+| `LinkedInAgent`     | 🔜      | Extracts professional interactions and alerts |
+
+All agents implement the shared `IAgent` interface, and are registered via `AgentFactory`.
 
 ---
 
-### 🤖 Agents
+## 🧪 AI Engine Layer
 
-| Method | Endpoint         | Description               |
-|--------|------------------|---------------------------|
-| `GET`  | `/agent/status`  | List user’s active agents |
+The NLP processing pipeline supports:
 
----
+- 📝 **Summarization** (OpenAI, GPT)  
+- 🗂️ **Classification**  
+- 🧠 **Memory & Conversation Mapping**  
+- 🧾 **Intent/NLU & Entity Extraction (NER)**
 
-### 🔐 Unified Auth
-
-| Method | Endpoint                     | Description                        |
-|--------|------------------------------|------------------------------------|
-| `GET`  | `/{service}/is-logged-in`    | Check if user is logged in         |
-| `POST` | `/{service}/login-directly`  | Programmatic login (token-based)   |
-| `POST` | `/{service}/logout`          | Logout from the service            |
-| `GET`  | `/{service}/login`           | Start OAuth login flow             |
-| `GET`  | `/{service}/callback`        | OAuth callback handler             |
+All processors are pluggable and can be run in parallel using asyncio.
 
 ---
 
-### 🔧 Unified Service Webhook
+## 🔁 Event-Driven System
 
-| Method | Endpoint                          | Description                              |
-|--------|-----------------------------------|------------------------------------------|
-| `GET`  | `/{service}/get-settings`         | Get default or saved config              |
-| `POST` | `/{service}/update-settings`      | Update config and restart agent          |
-| `GET`  | `/setup-complete`                 | Check if user completed initial setup    |
+We utilize **Redis Pub/Sub** to:
 
-### ✉️ Gmail Webhook
-| Method | Endpoint                          | Description                              |
-|--------|-----------------------------------|------------------------------------------|
-| `GET`  | `/gmail/get-email-subjects`       | List recent email subjects (paginated)   |
-| `POST` | `/gmail/convert-to-memory`        | Convert selected emails to Omi memories  |
+- Trigger agents dynamically  
+- Communicate between micro-modules  
+- Schedule async background jobs  
+- Broadcast processed data to WebSocket endpoints
 
 ---
 
-> 💡 **Note:** All `{service}` parameters support dynamic values such as `gmail`, `notion`, `calendar`, etc.  
-> The system automatically resolves the correct agent & handler for each.
+## 🧩 Design Patterns
+
+| Pattern     | Purpose |
+|-------------|---------|
+| **Factory** | Create agents dynamically |
+| **Observer**| Manage event subscriptions |
+| **Strategy**| NLP engine logic |
+| **Adapter** | Normalize 3rd-party APIs |
+| **Builder** | Format memory/conversation payloads |
+| **DI**      | Plugin/subscriber/service injection |
 
 ---
 
-## 🧠 How to Add a New Agent
+## 🧱 Database Schema
 
-1. Create a class implementing `IAgent` interface
-2. Register it: `AgentFactory.register("myagent", MyAgent)`
-3. Optionally: Add `Subscriber` to listen for events
-4. Add UI support if needed
+### `user_settings`
+| Column        | Type     | Description               |
+|---------------|----------|---------------------------|
+| uid           | TEXT     | Omi user ID               |
+| service_name  | TEXT     | Agent name (gmail, etc.)  |
+| service_id    | TEXT     | OAuth/session token key   |
+| config        | JSONB    | Agent config JSON         |
+| is_logged_in  | BOOLEAN  | Service login status      |
 
-That’s it — plug-and-play!
+### `processed_data`
+| Column        | Type     | Description               |
+|---------------|----------|---------------------------|
+| uid           | TEXT     | User ID                   |
+| service       | TEXT     | Agent name                |
+| data_type     | TEXT     | `summary`, `classify`     |
+| content       | TEXT     | Final processed result    |
 
 ---
 
-## 📦 Summary
+## 🧠 Omi Integration
 
-✅ Directly integrates with **Omi API**  
-✅ Fully **async**, **modular**, and **event-driven**  
-✅ AI-powered insights from Gmail (and more!)  
-✅ Real-time user feedback via **WebSocket**  
-✅ Easy to expand for new services
+- ✅ Uses [Omi Conversation API](https://docs.omi.me/docs/developer/apps/Import#implementing-the-create-conversation-import)  
+- ✅ Uses [Omi Memory API](https://docs.omi.me/docs/developer/apps/Import#implementing-the-create-memories-import)
 
-> 💬 “Not just email parsing. This is memory engineering for your personal AI.”
+---
+
+## 🛠️ Setup Guide
+
+### Requirements
+
+- Python 3.9+
+- PostgreSQL
+- Redis
+- Docker (optional)
+
+### Installation
+
+```bash
+git clone https://github.com/ibrahimAlbyrk/AgentMate.git
+cd AgentMate
+
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+cp .env.template .env
+# Update .env with your values
+```
+
+### Run Server
+
+```bash
+python main.py
+```
+
+---
+
+## 🧑‍💻 Developer Usage
+
+### Create a New Agent
+
+```python
+class MyAgent(IAgent):
+    VERSION = AgentVersion(1, 0, 0)
+
+    async def _initialize_impl(self): ...
+    async def _run_impl(self): ...
+    async def _stop_impl(self): ...
+```
+
+### Add a Subscriber
+
+```python
+class MySubscriber(BaseSubscriber):
+    async def setup(self, event_bus, **services): ...
+    async def handle_event(self, data): ...
+    async def stop(self): ...
+```
+
+---
+
+## 📡 API Reference
+
+### 👤 User Settings
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/settings/` | Create or update user settings |
+| `GET`  | `/settings/{uid}/{service_name}` | Fetch user settings for specific service |
+
+### ⚙️ Service Configuration
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET`  | `/{service}/get-settings` | Retrieve merged config (user + default) |
+| `POST` | `/{service}/update-settings` | Update user config and restart agent |
+
+### 🔐 Auth System
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET`  | `/{service}/login` | Begin OAuth login |
+| `GET`  | `/{service}/callback` | OAuth callback |
+| `GET`  | `/{service}/is-logged-in` | Check login state |
+| `POST` | `/{service}/login-directly` | Login using known service ID |
+| `POST` | `/{service}/logout` | Logout and revoke token |
+
+### 🤖 Agent Status
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/agent/status` | Show currently active agents for user |
+
+### 📩 Gmail API
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET`  | `/gmail/get-email-subjects` | Fetch recent email subjects |
+| `POST` | `/gmail/convert-to-memory` | Convert selected/last emails to memory |
+
+### 🔧 Admin Tools
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/admin/user-count` | Return total unique user count |
+
+### 🔄 Composio Webhook
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/composio/webhook` | Webhook listener for composio actions |
+
+### 🧠 Omi Integration
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/setup-complete` | Check if user's setup is complete |
+
+### 🌐 WebSocket
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `WS`   | `/ws/{uid}` | WebSocket endpoint for real-time events |
+
+## 📄 License
+
+MIT License – see `LICENSE` file.
+
+---
+
+<p align="center">
+  <i>Build AI agents that truly think, act, and integrate — with Agent Mate.</i>
+</p>
