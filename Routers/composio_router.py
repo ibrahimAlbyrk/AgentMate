@@ -27,7 +27,7 @@ async def webhook(request: Request, session: AsyncSession = Depends(get_db)):
         return {"status": "error", "message": "There is no payload"}
 
     data = payload.get("data", {})
-    listener_type = payload.get("type")
+    listener_type = payload.get("type", "").upper()
 
     connection_id = data.get("connection_id")
 
