@@ -218,8 +218,7 @@ class IAgent(ABC):
 
             if self.listener:
                 self.listener.stop()
-
-            del self._listener_refs
+                del self._listener_refs
 
             success = await self._stop_impl()
 

@@ -73,8 +73,10 @@ class AgentManager:
             self.logger.warning(f"No running agent for {uid}/{service} to stop")
             return
 
-        await agent.stop()
-        await agent.run()
+        is_stopped = await agent.stop()
+
+        if is_stopped:
+            await agent.run()
 
     async def start_all_for_user(self, uid: str, services: list[str]):
         for service in services:
