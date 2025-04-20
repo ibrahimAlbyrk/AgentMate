@@ -2,7 +2,7 @@ from typing import Dict, Any, List, Optional
 
 from composio_openai import App, Action
 
-from Core.event_bus import EventBus
+from Core.EventBus import EventBus
 from Core.logger import LoggerCreator
 
 from Agents.LLM.llm_agent import LLMActionData
