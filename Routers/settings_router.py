@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from DB.database import get_db
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from DB.Schemas.gmail_config import GmailConfig
+from Core.config import GmailConfig
 from Engines.email_memory_summarizer_engine import EmailMemorySummarizerEngine
 from Connectors.omi_connector import OmiConnector, MemoryData
 from DB.Services.user_settings_service import UserSettingsService
@@ -34,7 +34,7 @@ async def get_settings(uid: str, service: str, session: AsyncSession = Depends(g
         raise HTTPException(status_code=400, detail=f"UID not provided")
 
     config = await UserSettingsService.get_config(session, uid, service)
-    default = settings.get_config(service)
+    default = settings.get_service_config(service)
 
     if not config:
         return default
@@ -57,7 +57,7 @@ async def update_settings(uid: str, service: str, request: Request, db: AsyncSes
 
     config_data = data.get("settings")
 
-    config_model = settings.get_config_model(service)
+    config_model = settings.get_service_config(service)
     if config_model:
         try:
             config = config_model(**config_data).model_dump()

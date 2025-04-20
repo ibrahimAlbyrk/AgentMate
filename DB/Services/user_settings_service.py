@@ -1,7 +1,7 @@
 from typing import Optional
 from sqlalchemy import select, distinct, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from DB.Schemas.gmail_config import GmailConfig
+from Core.config import GmailConfig
 from DB.Models.user_settings import UserSettings
 from DB.Schemas.user_settings import UserSettingsCreate
 from DB.Repositories.user_settings import UserSettingsRepository
