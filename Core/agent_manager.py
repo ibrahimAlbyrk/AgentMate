@@ -1,7 +1,6 @@
-from Agents.gmail_agent import GmailAgent
 from Core.logger import LoggerCreator
 from Core.agent_factory import AgentFactory
-from Interfaces.agent_interface import IAgent
+from Agents.agent_interface import IAgent
 
 from typing import ClassVar
 from typing import TypeVar, Type, cast

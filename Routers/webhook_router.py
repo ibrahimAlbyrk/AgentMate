@@ -13,7 +13,7 @@ from DB.Services.user_settings_service import UserSettingsService
 from DB.Services.processed_gmail_service import ProcessedGmailService
 from fastapi import APIRouter, Request, HTTPException, status, Depends
 
-from Agents.gmail_agent import GmailAgent
+from Agents.Gmail.gmail_agent import GmailAgent
 from Core.agent_manager import AgentManager
 
 from Core.config import settings
