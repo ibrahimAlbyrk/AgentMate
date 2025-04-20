@@ -7,7 +7,7 @@ from DB.database import get_db
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from DB.Schemas.gmail_config import GmailConfig
-from Engines.ai_engine import EmailMemorySummarizerEngine
+from Engines.email_memory_summarizer_engine import EmailMemorySummarizerEngine
 from Connectors.omi_connector import OmiConnector, MemoryData
 from DB.Services.user_settings_service import UserSettingsService
 from DB.Services.processed_gmail_service import ProcessedGmailService

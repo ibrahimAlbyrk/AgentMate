@@ -4,7 +4,8 @@ from Core.logger import LoggerCreator
 from Core.Models.domain import Event, EventType
 
 from Connectors.omi_connector import MemoryData, ConversationData
-from Engines.ai_engine import EmailMemorySummarizerEngine, EmailClassifierEngine
+from Engines.email_classifier_engine import EmailClassifierEngine
+from Engines.email_memory_summarizer_engine import EmailMemorySummarizerEngine
 
 from DB.database import AsyncSessionLocal
 from DB.Services.user_settings_service import UserSettingsService
