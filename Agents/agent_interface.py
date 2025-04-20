@@ -81,6 +81,7 @@ class IAgent(ABC):
         try:
             self.listener = self.toolset.create_trigger_listener(timeout=3)
         except Exception as e:
+            self.listener = None
             self.logger.error(f"Create trigger listener error: {str(e)}")
 
         self._listener_refs = []
@@ -90,6 +91,9 @@ class IAgent(ABC):
         self.llm = LLMAgent(self.app_name, self.uid, self.toolset, self.actions)
 
     def add_listener(self, trigger_name: str, handler: callable, config: Optional[Dict[str, Any]] = None):
+        if not self.listener:
+            return
+
         config = config or {}
 
         self.entity.enable_trigger(
@@ -212,7 +216,9 @@ class IAgent(ABC):
 
             self.lifecycle_state = AgentLifecycleState.STOPPING
 
-            self.listener.stop()
+            if self.listener:
+                self.listener.stop()
+
             del self._listener_refs
 
             success = await self._stop_impl()
