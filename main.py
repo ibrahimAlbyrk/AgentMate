@@ -61,14 +61,14 @@ def _include_routers(routers: []):
 
 
 _include_routers([
-    user_settings_router.router,
-    agent_status_router.router,
-    auth_router.router,
-    websocket_router.router,
-    omi_router.router,
-    settings_router.router,
-    gmail_router.router,
-    composio_router.router,
+    user_settings_router,
+    agent_status_router,
+    auth_router,
+    websocket_router,
+    omi_router,
+    settings_router,
+    gmail_router,
+    composio_router,
     admin_router
 ])
 
