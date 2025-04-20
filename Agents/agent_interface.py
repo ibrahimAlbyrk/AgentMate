@@ -81,7 +81,7 @@ class IAgent(ABC):
         try:
             self.listener = self.toolset.create_trigger_listener(timeout=3)
         except Exception as e:
-            logger.error(f"Create trigger listener error: {str(e)}")
+            self.logger.error(f"Create trigger listener error: {str(e)}")
 
         self._listener_refs = []
 
