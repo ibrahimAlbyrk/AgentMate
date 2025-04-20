@@ -139,6 +139,7 @@ async def _service_login_handler(uid: str, service: str, service_id: str, sessio
         await UserSettingsService.change_service_id(session, uid, service, service_id)
     else:
         default_config = settings.get_service_config(service)
+        print("default_config", default_config)
         if default_config:
             await UserSettingsService.set_config(session, uid, service_id, service, default_config)
         else:
