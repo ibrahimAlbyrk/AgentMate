@@ -33,8 +33,6 @@ class AgentManager:
 
     async def start_agent(self, uid: str, service: str):
         agent = AgentFactory.create(uid, service)
-        print(type(agent))
-        print(agent)
         if not agent:
             self.logger.warning(f"No agent registered for {service} service")
             return

@@ -75,7 +75,11 @@ class IAgent(ABC):
         self.toolset = ComposioToolSet(api_key=settings.api.composio_api_key)
         self.entity = self.toolset.get_entity(uid)
         self.app_name: Optional[App] = None
-        self.listener = self.toolset.create_trigger_listener()
+        try:
+            self.listener = self.toolset.create_trigger_listener(timeout=3)
+        except Exception as e:
+            logger.error(f"Create trigger listener error: {str(e)}")
+
         self._listener_refs = []
 
         # Logging
