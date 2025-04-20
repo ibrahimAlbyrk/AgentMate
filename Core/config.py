@@ -140,10 +140,12 @@ class AppSettings(BaseSettings):
     )
 
     def get_config(self, config_name: str) -> dict[str, Any]:
+        print(f"Getting config {config_name}")
         config_cls = self.get_config_model(config_name)
         if not config_cls:
             return {}
 
+        print("return")
         return config_cls().model_dump()
     def get_config_model(self, config_name: str) -> Optional[Type[BaseModel]]:
         config_cls = self.config_models.get(config_name, None)
