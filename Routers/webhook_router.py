@@ -54,11 +54,10 @@ async def update_settings(uid: str, service: str, request: Request, db: AsyncSes
 
     try:
         data = await request.json()
-        print(data)
     except Exception:
         return {"error": "Invalid or empty JSON body."}
 
-    config_data = data.get("config")
+    config_data = data.get("settings")
 
     config_model = settings.get_config_model(service)
     if config_model:
