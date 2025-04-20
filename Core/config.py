@@ -145,7 +145,7 @@ class AppSettings(BaseSettings):
         if not config_cls:
             return {}
 
-        print("return")
+        print(config_cls().model_dump())
         return config_cls().model_dump()
     def get_config_model(self, config_name: str) -> Optional[Type[BaseModel]]:
         config_cls = self.config_models.get(config_name, None)
