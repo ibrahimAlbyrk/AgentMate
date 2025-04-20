@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 from typing import Optional, Generic, List, Dict, Any
 
-from Engines.ai_engine import BaseAIEngine
+from Engines.ai_engine import BaseAIEngine, AIRequest
 
 class EmailClassifierEngine(BaseAIEngine):
     """

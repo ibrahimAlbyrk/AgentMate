@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Dict, Any, Type
 
-from Engines.ai_engine import BaseAIEngine
+from Engines.ai_engine import BaseAIEngine, AIRequest
 
 
 class EmailMemorySummarizerEngine(BaseAIEngine):
