@@ -199,7 +199,7 @@ class IAgent(ABC):
             self.lifecycle_state = AgentLifecycleState.STOPPING
 
             if self.listeners:
-                del self.listeners
+                self.listeners.clear()
 
             success = await self._stop_impl()
 
