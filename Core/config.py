@@ -10,8 +10,6 @@ from pydantic import BaseModel, Field, root_validator, field_validator, PrivateA
 
 from composio_openai import App
 
-from DB.Schemas.gmail_config import GmailConfig
-
 load_dotenv()
 
 T = TypeVar('T', bound=BaseModel)
@@ -58,8 +56,8 @@ class AsyncSettings(BaseModel):
     task_timeout: int = 60
 
 
-class ClassificationConfig(BaseModel):
-    default_important_categories: List[str] = Field(
+class GmailConfig(BaseModel):
+    important_categories: List[str] = Field(
         default_factory=lambda: [
             "urgent", "important", "asap", "reply needed", "action required",
             "meeting", "invoice", "billing", "payment",
@@ -69,7 +67,7 @@ class ClassificationConfig(BaseModel):
             "deadline", "reminder", "support", "job interview", "application"
         ]
     )
-    default_ignored_categories: List[str] = Field(
+    ignored_categories: List[str] = Field(
         default_factory=lambda: [
             "newsletter", "promotion", "social", "spam",
             "survey", "event", "job alert", "greetings",
@@ -78,20 +76,10 @@ class ClassificationConfig(BaseModel):
     )
 
 
-class GmailSettings(BaseModel):
-    redirect_uri: str = "https://omi-wroom.org/api/gmail/callback"
-    scopes: List[str] = Field(
-        default_factory=lambda: ["https://www.googleapis.com/auth/gmail.readonly"]
-    )
-    mail_check_interval: int = 60
-    mail_count: int = 3
-    classification: ClassificationConfig = Field(default_factory=ClassificationConfig)
-
-
 class ServiceSettings(BaseModel):
-    gmail: GmailSettings = Field(default_factory=GmailSettings)
+    gmail: GmailConfig = Field(default_factory=GmailConfig)
     # Add other services as needed
-    # notion: NotionSettings = Field(default_factory=NotionSettings)
+    # notion: NotionConfig = Field(default_factory=NotionConfig)
 
 
 class ApiSettings(BaseModel):
@@ -140,13 +128,12 @@ class AppSettings(BaseSettings):
     )
 
     def get_config(self, config_name: str) -> dict[str, Any]:
-        print(f"Getting config {config_name}")
         config_cls = self.get_config_model(config_name)
         if not config_cls:
             return {}
 
-        print(config_cls().model_dump())
         return config_cls().model_dump()
+
     def get_config_model(self, config_name: str) -> Optional[Type[BaseModel]]:
         config_cls = self.config_models.get(config_name, None)
         if not config_cls:
