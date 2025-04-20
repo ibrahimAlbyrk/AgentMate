@@ -62,7 +62,8 @@ async def update_settings(uid: str, service: str, request: Request, db: AsyncSes
     config_model = settings.get_config_model(service)
     if config_model:
         try:
-            config = config_model(**config_data).model_dump()
+            config_instance = config_model_cls(**config_data)
+            config = config_instance.model_dump()
         except ValidationError as e:
             raise HTTPException(status_code=400, detail=f"Invalid {service} config: {str(e)}")
     else:
