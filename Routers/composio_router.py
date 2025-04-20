@@ -29,7 +29,7 @@ async def webhook(request: Request, session: AsyncSession = Depends(get_db)):
 
     connection_id = data.get("connection_id")
 
-    user: UserSettings = UserSettingsService.get_by_service_id(session, connection_id)
+    user: UserSettings = await UserSettingsService.get_by_service_id(session, connection_id)
     if not user:
         return {"status": "error", "message": "User not found"}
 
