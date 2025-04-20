@@ -64,8 +64,12 @@ class AgentSubscriber(SubscriberPlugin):
             uid = data["uid"]
             service = data["service"]
 
-            if self.agent_manager.is_running(uid, service):
-                await self.agent_manager.stop_agent(uid, service)
+            async def stop():
+                if self.agent_manager.is_running(uid, service):
+                    await self.agent_manager.stop_agent(uid, service)
+
+            asyncio.create_task(stop())
+
         except Exception as e:
             logger.error(f"Stop agent error: {str(e)}")
 
@@ -75,10 +79,13 @@ class AgentSubscriber(SubscriberPlugin):
             uid = data["uid"]
             service = data["service"]
 
-            if self.agent_manager.is_running(uid, service):
-                await self.agent_manager.restart_agent(uid, service)
-            else:
-                await self.agent_manager.start_agent(uid, service)
+            async def restart():
+                if self.agent_manager.is_running(uid, service):
+                    await self.agent_manager.restart_agent(uid, service)
+                else:
+                    await self.agent_manager.start_agent(uid, service)
+
+            asyncio.create_task(restart())
 
         except Exception as e:
             logger.error(f"Restart agent error: {str(e)}")
