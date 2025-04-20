@@ -131,7 +131,7 @@ class AppSettings(BaseSettings):
         return self._service_apps.get(service_name, "")
 
     def get_service_config(self, service_name: str) -> dict[str, Any]:
-        config_model = get_service_config_model(service_name)
+        config_model = self.get_service_config_model(service_name)
         config_model().model_dump()
 
     def get_service_config_model(self, service_name: str) -> Optional[Type[BaseModel]]:
