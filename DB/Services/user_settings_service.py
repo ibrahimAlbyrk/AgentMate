@@ -13,6 +13,10 @@ class UserSettingsService:
         return await UserSettingsRepository.get_by_uid_and_service(session, uid, service_name)
 
     @staticmethod
+    async def get_by_service_id(session: AsyncSession, service_id: str) -> Optional[UserSettings]:
+        return await UserSettingsRepository.get_by_service_id(session, service_id)
+
+    @staticmethod
     async def get_user_uids(session: AsyncSession) -> list[str]:
         result = await session.execute(
             select(distinct(UserSettings.uid))

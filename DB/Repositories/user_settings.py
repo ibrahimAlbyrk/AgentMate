@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy import update
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,6 +8,12 @@ from DB.Schemas.user_settings import UserSettingsCreate, UserSettingsUpdate
 
 
 class UserSettingsRepository:
+    @staticmethod
+    async def get_by_service_id(session: AsyncSession, service_id: str) -> Optional[UserSettings]:
+        result = await session.execute(
+            select(UserSettings).where(UserSettings.service_id == service_id)
+        )
+        return result.scalars().first()
 
     @staticmethod
     async def get_by_uid_and_service(session: AsyncSession, uid: str, service_name: str) -> UserSettings | None:
