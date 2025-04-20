@@ -60,6 +60,9 @@ class IAgent(ABC):
         self.uid = uid
         self.config = config or {}
 
+        # Logging
+        self.logger = LoggerCreator.create_advanced_console(self.__class__.__name__)
+
         # Agent state
         self.lifecycle_state = AgentLifecycleState.CREATED
         self.status = AgentStatus.IDLE
@@ -81,9 +84,6 @@ class IAgent(ABC):
             logger.error(f"Create trigger listener error: {str(e)}")
 
         self._listener_refs = []
-
-        # Logging
-        self.logger = LoggerCreator.create_advanced_console(self.__class__.__name__)
 
     def initialize_llm(self, actions: Dict[str, LLMActionData] = None):
         self.actions = actions or {}
