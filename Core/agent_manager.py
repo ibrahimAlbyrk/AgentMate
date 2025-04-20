@@ -1,5 +1,6 @@
 from Core.logger import LoggerCreator
 from Core.agent_factory import AgentFactory
+
 from Agents.agent_interface import IAgent
 
 from typing import ClassVar
@@ -32,6 +33,8 @@ class AgentManager:
 
     async def start_agent(self, uid: str, service: str):
         agent = AgentFactory.create(uid, service)
+        print(type(agent))
+        print(agent)
         if not agent:
             self.logger.warning(f"No agent registered for {service} service")
             return
