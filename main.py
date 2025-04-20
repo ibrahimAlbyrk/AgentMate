@@ -35,9 +35,10 @@ async def lifespan(app: FastAPI):
         await start_all_user_agents(session)
 
     yield
-    await stop_all_subscribers()
     async with AsyncSessionLocal() as session:
         await stop_all_user_agents(session)
+
+    await stop_all_subscribers()
 
     task_runner.executor.shutdown(wait=False)
     logger.info("Shutdown complete.")
