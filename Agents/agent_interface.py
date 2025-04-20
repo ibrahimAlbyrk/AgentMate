@@ -58,7 +58,6 @@ class IAgent(ABC):
 
     def __init__(self, uid: str, config: Optional[Dict[str, Any]] = None):
         self.uid = uid
-        self.service_id = service_id
         self.config = config or {}
 
         # Agent state
