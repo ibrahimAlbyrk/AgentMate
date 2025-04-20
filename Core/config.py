@@ -150,7 +150,7 @@ class AppSettings(BaseSettings):
         if not config_cls:
             return None
 
-        return config_cls()
+        return config_cls
 
     def get_app(self, service_name: str) -> Optional[App]:
         return self._service_apps.get(service_name, "")
