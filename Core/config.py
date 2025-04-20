@@ -127,24 +127,14 @@ class AppSettings(BaseSettings):
         extra="ignore"
     )
 
-    def get_config(self, config_name: str) -> dict[str, Any]:
-        config_cls = self.get_config_model(config_name)
-        if not config_cls:
-            return {}
-
-        return config_cls().model_dump()
-
-    def get_config_model(self, config_name: str) -> Optional[Type[BaseModel]]:
-        config_cls = self.config_models.get(config_name, None)
-        if not config_cls:
-            return None
-
-        return config_cls
-
     def get_app(self, service_name: str) -> Optional[App]:
         return self._service_apps.get(service_name, "")
 
-    def get_service_config(self, service_name: str) -> Any:
+    def get_service_config(self, service_name: str) -> dict[str, Any]:
+        config_model = get_service_config_model(service_name)
+        config_model().model_dump()
+
+    def get_service_config_model(self, service_name: str) -> Optional[Type[BaseModel]]:
         if hasattr(self.services, service_name):
             return getattr(self.services, service_name)
         raise ValueError(f"No configuration found for service: {service_name}")

@@ -57,7 +57,7 @@ async def update_settings(uid: str, service: str, request: Request, db: AsyncSes
 
     config_data = data.get("settings")
 
-    config_model = settings.get_service_config(service)
+    config_model = settings.get_service_config_model(service)
     if config_model:
         try:
             config = config_model(**config_data).model_dump()
