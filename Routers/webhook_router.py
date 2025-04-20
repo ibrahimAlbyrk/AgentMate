@@ -58,6 +58,7 @@ async def update_settings(uid: str, service: str, request: Request, db: AsyncSes
         return {"error": "Invalid or empty JSON body."}
 
     config_data = data.get("config")
+    print(config_data)
 
     config_model = settings.get_config_model(service)
     if config_model:
