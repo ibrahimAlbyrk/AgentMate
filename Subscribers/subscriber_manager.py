@@ -1,7 +1,6 @@
 from Core.EventBus import EventBus
 from Core.logger import LoggerCreator
 from Core.task_runner import TaskRunner
-from Core.agent_manager import AgentManager
 from Connectors.omi_connector import OmiConnector
 
 from Plugins import plugin_utils
@@ -20,8 +19,7 @@ async def start_all_subscribers():
     shared_services = {
         "omi": OmiConnector(),
         "event_bus": event_bus,
-        "task_runner": TaskRunner(),
-        "agent_manager": AgentManager()
+        "task_runner": TaskRunner()
     }
 
     plugin_utils.discover_plugins(subscriber_registry, "Subscribers")

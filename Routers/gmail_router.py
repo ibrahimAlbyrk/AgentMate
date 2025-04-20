@@ -6,12 +6,10 @@ from Agents.Gmail.gmail_agent import GmailAgent
 
 from Core.config import settings
 from Core.EventBus import EventBus
-from Core.agent_manager import AgentManager
+from Core.agent_manager import agent_manager
 from Core.Models.domain import Event, EventType
 
 router = APIRouter(prefix="/gmail", tags=["Gmail"])
-
-agent_manager = AgentManager()
 
 event_bus = EventBus()
 

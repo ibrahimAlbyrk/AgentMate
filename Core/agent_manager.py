@@ -96,3 +96,5 @@ class AgentManager:
 
     def is_running(self, uid: str, service: str):
         return uid in self.running_agents and service in self.running_agents[uid]
+
+agent_manager = AgentManager()

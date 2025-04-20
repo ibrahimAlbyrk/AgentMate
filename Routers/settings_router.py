@@ -14,15 +14,13 @@ from DB.Services.processed_gmail_service import ProcessedGmailService
 from fastapi import APIRouter, Request, HTTPException, status, Depends
 
 from Agents.Gmail.gmail_agent import GmailAgent
-from Core.agent_manager import AgentManager
+from Core.agent_manager import agent_manager
 
 from Core.config import settings
 from Core.EventBus import EventBus
 from Core.Models.domain import Event, EventType
 
 router = APIRouter(tags=["Unified Settings"])
-
-agent_manager = AgentManager()
 
 memory_engine = EmailMemorySummarizerEngine()
 omi = OmiConnector()
