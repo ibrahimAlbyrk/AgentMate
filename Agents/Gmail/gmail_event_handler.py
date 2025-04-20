@@ -2,9 +2,10 @@ import json
 import asyncio
 from typing import Dict, Any, Optional, Callable
 
-from Core.Utils.email_utils import EmailUtils
+from Core.Models import EventType
 from Core.event_bus import EventBus
 from Core.logger import LoggerCreator
+from Core.Utils.email_utils import EmailUtils
 
 
 class GmailEventHandler:
@@ -18,7 +19,7 @@ class GmailEventHandler:
             email = EmailUtils.decode_email(raw_data)
 
             data = {"uid": self.uid, "emails": [email]}
-            asyncio.create_task(self._publish_event("gmail.inbox.classify", data))
+            asyncio.create_task(self._publish_event(EventType.GMAIL_CLASSIFY, data))
 
             self.logger.debug(f"Processed new email: {email.get('subject', 'No subject')}")
         except Exception as e:
