@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 router = APIRouter(prefix="/composio", tags=["Composio"])
 
 
-@router.get("/webhook")
+@router.post("/webhook")
 async def webhook(request: Request, session: AsyncSession = Depends(get_db)):
     payload = await request.json()
 
