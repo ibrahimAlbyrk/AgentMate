@@ -73,9 +73,9 @@ class IAgent(ABC):
 
         # Composio components
         self.toolset = ComposioToolSet(api_key=settings.api.composio_api_key)
-        self.entity = toolset.get_entity(uid)
+        self.entity = self.toolset.get_entity(uid)
         self.app_name: Optional[App] = None
-        self.listener = toolset.create_trigger_listener()
+        self.listener = self.toolset.create_trigger_listener()
         self._listener_refs = []
 
         # Logging
