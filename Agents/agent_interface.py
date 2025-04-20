@@ -78,32 +78,14 @@ class IAgent(ABC):
         self.toolset = ComposioToolSet(api_key=settings.api.composio_api_key)
         self.entity = self.toolset.get_entity(uid)
         self.app_name: Optional[App] = None
-        try:
-            self.listener = self.toolset.create_trigger_listener(timeout=3)
-        except Exception as e:
-            self.listener = None
-            self.logger.error(f"Create trigger listener error: {str(e)}")
-
-        self._listener_refs = []
+        self.listeners: Dict[str, callable] = {}
 
     def initialize_llm(self, actions: Dict[str, LLMActionData] = None):
         self.actions = actions or {}
         self.llm = LLMAgent(self.app_name, self.uid, self.toolset, self.actions)
 
-    def add_listener(self, trigger_name: str, handler: callable, config: Optional[Dict[str, Any]] = None):
-        if not self.listener:
-            return
-
-        config = config or {}
-
-        self.entity.enable_trigger(
-            app=self.app_name,
-            trigger_name=trigger_name,
-            config=config
-        )
-
-        decorated = self.listener.callback(filters={"trigger_name": trigger_name})(handler)
-        self._listener_refs.append(decorated)
+    def add_listener(self, trigger_name: str, handler: callable):
+       self.listeners[trigger_name] = handler
 
     async def initialize(self) -> bool:
         try:
@@ -216,9 +198,8 @@ class IAgent(ABC):
 
             self.lifecycle_state = AgentLifecycleState.STOPPING
 
-            if self.listener:
-                self.listener.stop()
-                del self._listener_refs
+            if self.listeners:
+                del self.listeners
 
             success = await self._stop_impl()
 

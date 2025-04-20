@@ -2,8 +2,6 @@ import json
 import asyncio
 from typing import Dict, Any, Optional, Callable
 
-from composio.client.collections import TriggerEventData
-
 from Core.Utils.email_utils import EmailUtils
 from Core.event_bus import EventBus
 from Core.logger import LoggerCreator
@@ -15,9 +13,9 @@ class GmailEventHandler:
         self.event_bus = event_bus or EventBus()
         self.logger = LoggerCreator.create_advanced_console("GmailEventHandler")
 
-    def handle_new_email_messages(self, event: TriggerEventData) -> None:
+    def handle_new_email_messages(self, data: Dict[str, Any]) -> None:
         try:
-            raw_data = json.loads(event.model_dump_json())['payload']
+            raw_data =data['payload']
             email = EmailUtils.decode_email(raw_data)
 
             data = {"uid": self.uid, "emails": [email]}
@@ -33,7 +31,7 @@ class GmailEventHandler:
         except Exception as e:
             self.logger.error(f"Error publishing event to {channel}: {str(e)}")
 
-    def get_event_handlers(self) -> Dict[str, Callable[[TriggerEventData], None]]:
+    def get_event_handlers(self) -> Dict[str, Callable[[Dict[str, Any]], None]]:
         return {
             "GMAIL_NEW_GMAIL_MESSAGE": self.handle_new_email_messages
         }
