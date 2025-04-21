@@ -26,7 +26,6 @@ async def transcript_processed(uid: str, transcript: dict, session: AsyncSession
     segments = transcript["segments"]
     for segment in segments:
         text = segment["text"].lower()
-        logger.debug(text)
         if any(word in text.lower() for word in wake_words):
             return {"message": "Hey, It's Agent Mate. stay in touch is still under development"}
 
