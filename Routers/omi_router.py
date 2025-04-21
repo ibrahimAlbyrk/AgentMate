@@ -24,6 +24,7 @@ async def transcript_processed(uid: str, transcript: dict, session: AsyncSession
     segments = transcript["segments"]
     for segment in segments:
         text = segment["text"].lower()
+        logger.debug(text)
         if "hey, agent mate" in text:
             return {"message": "hey {user} or {{user}}"}
 
