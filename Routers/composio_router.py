@@ -42,7 +42,7 @@ async def webhook(request: Request, session: AsyncSession = Depends(get_db)):
     agent_type = AgentFactory.registry.get(agent_name, None)
     if not agent_type:
         logger.debug("Agent Type not found")
-        return {"status": "error", "message": "Agent not found"}
+        return {"status": "error", "message": "Agent Type not found"}
 
     agent: IAgent = agent_manager.get_agent(uid, agent_name, agent_type)
     if not agent:
