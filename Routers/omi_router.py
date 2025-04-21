@@ -21,7 +21,7 @@ async def is_setup_completed(uid: str, session: AsyncSession = Depends(get_db)):
 
 @router.post("/transcript-processed")
 async def transcript_processed(uid: str, transcript: dict, session: AsyncSession = Depends(get_db)):
-    wake_words  = ["hey omi", "omi", "yo omi", "ok omi", "hey, omi", "hey, omi.", "omi.", "hey omi."]
+    wake_words  = ["hey omi", "omi", "yo omi", "ok omi", "hey, omi", "hey, omi.", "omi.", "hey omi.", "ome", "hey ome"]
 
     segments = transcript["segments"]
     for segment in segments:
