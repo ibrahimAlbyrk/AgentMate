@@ -23,5 +23,8 @@ async def is_setup_completed(uid: str, session: AsyncSession = Depends(get_db)):
 async def transcript_processed(uid: str, transcript: dict, session: AsyncSession = Depends(get_db)):
     segments = transcript["segments"]
     for segment in segments:
-        text = segment["text"]
-        logger.debug(text)
+        text = segment["text"].lower()
+        if "hey agent mate" in text:
+            return {"message": "hey {user} or {{user}}"}
+
+    return {}
