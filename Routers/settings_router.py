@@ -37,7 +37,7 @@ async def get_settings(uid: str, service: str, session: AsyncSession = Depends(g
     default = settings.get_service_config(service)
 
     if not config:
-        return default
+        return {}
 
     return {
         key: config.get(key, default.get(key))
