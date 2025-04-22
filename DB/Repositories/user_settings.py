@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from sqlalchemy import update
 from sqlalchemy.future import select
@@ -8,6 +8,20 @@ from DB.Schemas.user_settings import UserSettingsCreate, UserSettingsUpdate
 
 
 class UserSettingsRepository:
+
+    @staticmethod
+    async def get_all_users(session: AsyncSession) -> Optional[List[UserSettings]]:
+        result = await session.execute(select(UserSettings))
+        return result.scalars().all()
+
+    @staticmethod
+    async def get_user(uid: str, session: AsyncSession) -> Optional[List[UserSettings]]:
+        result = await session.execute(
+            select(UserSettings).where(UserSettings.uid == uid)
+        )
+
+        return result.scalars().all()
+
     @staticmethod
     async def get_by_service_id(session: AsyncSession, service_id: str) -> Optional[UserSettings]:
         result = await session.execute(

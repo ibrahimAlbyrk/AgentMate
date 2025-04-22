@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy import select, distinct, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from Core.config import GmailConfig
@@ -8,6 +8,15 @@ from DB.Repositories.user_settings import UserSettingsRepository
 
 
 class UserSettingsService:
+
+    @staticmethod
+    async def get_all_users(session: AsyncSession) -> Optional[List[UserSettings]]:
+        return await UserSettingsRepository.get_all_users(session)
+
+    @staticmethod
+    async def get_user_by_uid(uid: str, session: AsyncSession) -> Optional[List[UserSettings]]:
+        return await UserSettingsRepository.get_user(uid, session)
+
     @staticmethod
     async def get(session: AsyncSession, uid: str, service_name: str) -> Optional[UserSettings]:
         return await UserSettingsRepository.get_by_uid_and_service(session, uid, service_name)
