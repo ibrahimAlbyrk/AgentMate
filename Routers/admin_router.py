@@ -24,10 +24,18 @@ async def get_user_count(session: AsyncSession = Depends(get_db)):
 async def get_users_info(session: AsyncSession = Depends(get_db)):
     users_data = await UserSettingsService.get_all_users(session)
 
-    users: Dict[str, Dict[str, Any]] = {}
+    users: Dict[str, list[Dict[str, Any]]] = {}
 
     for user_data in users_data:
-        if user_data.uid in users.keys():
-            users[user_data.uid] = {"service": user_data.service_name, "is logged in": user_data.is_logged_in}
+        uid = user_data.uid
+        service_info = {
+            "service": user_data.service_name,
+            "is_logged_in": user_data.is_logged_in
+        }
+
+        if uid not in users:
+            users[uid] = []
+
+        users[uid].append(service_info)
 
     return {"users": users}
