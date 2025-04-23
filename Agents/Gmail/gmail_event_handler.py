@@ -2,17 +2,17 @@ import json
 import asyncio
 from typing import Dict, Any, Optional, Callable
 
-from Core.Models import Event, EventType
+from Agents.agent_event_handler import AgentEventHandler
+
 from Core.EventBus import EventBus
 from Core.logger import LoggerCreator
+from Core.Models import Event, EventType
 from Core.Utils.email_utils import EmailUtils
 
 
-class GmailEventHandler:
+class GmailEventHandler(AgentEventHandler):
     def __init__(self, uid: str, event_bus: Optional[EventBus] = None):
-        self.uid = uid
-        self.event_bus = event_bus or EventBus()
-        self.logger = LoggerCreator.create_advanced_console("GmailEventHandler")
+        super().__init__("Gmail", uid, event_bus)
 
     def handle_new_email_messages(self, raw_data: Dict[str, Any]) -> None:
         try:
@@ -26,12 +26,6 @@ class GmailEventHandler:
             self.logger.debug(f"Processed new email: {email.get('subject', 'No subject')}")
         except Exception as e:
             self.logger.error(f"Error handling new email message: {str(e)}")
-
-    async def _publish_event(self, channel: str, data: Dict[str, Any]) -> None:
-        try:
-            await self.event_bus.publish(channel, json.dumps(data))
-        except Exception as e:
-            self.logger.error(f"Error publishing event to {channel}: {str(e)}")
 
     def get_event_handlers(self) -> Dict[str, Callable[[Dict[str, Any]], None]]:
         return {
