@@ -85,7 +85,8 @@ class IAgent(ABC):
         self.llm = LLMAgent(self.app_name, self.uid, self.toolset, self.actions)
 
     def add_listener(self, trigger_name: str, handler: callable):
-       self.listeners[trigger_name] = handler
+        self.entity.enable_trigger(self.app_name, trigger_name, {})
+        self.listeners[trigger_name] = handler
 
     async def initialize(self) -> bool:
         try:
