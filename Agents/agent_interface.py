@@ -79,6 +79,7 @@ class IAgent(ABC):
         self.entity = self.toolset.get_entity(uid)
         self.app_name: Optional[App] = None
         self.listeners: Dict[str, callable] = {}
+        self.trigger_ids: Dict[str, str] = {}
 
     def initialize_llm(self, actions: Dict[str, LLMActionData] = None):
         self.actions = actions or {}
@@ -86,7 +87,11 @@ class IAgent(ABC):
 
     def add_listener(self, trigger_name: str, handler: callable):
         res = self.entity.enable_trigger(self.app_name, trigger_name, {})
-        print(res)
+
+        trigger_id = res.get("triggerId", "")
+        if trigger_id:
+            self.trigger_ids[trigger_name] = trigger_id
+
         self.listeners[trigger_name] = handler
 
     async def initialize(self) -> bool:
@@ -156,6 +161,9 @@ class IAgent(ABC):
 
             self.lifecycle_state = AgentLifecycleState.PAUSED
 
+            for trigger_id in self.trigger_ids.values():
+                self.entity.disable_trigger(trigger_id)
+
             success = await self._pause_impl()
 
             if not success:
@@ -177,6 +185,9 @@ class IAgent(ABC):
                 return False
 
             self.lifecycle_state = AgentLifecycleState.RUNNING
+
+            for trigger_name in self.trigger_ids.keys():
+                self.entity.enable_trigger(self.app_name, trigger_name, {})
 
             success = await self._resume_impl()
 
@@ -202,6 +213,11 @@ class IAgent(ABC):
 
             if self.listeners:
                 self.listeners.clear()
+
+            if self.trigger_ids:
+                for trigger_id in self.trigger_ids.values():
+                    self.entity.disable_trigger(trigger_id)
+                self.trigger_ids.clear()
 
             success = await self._stop_impl()
 
