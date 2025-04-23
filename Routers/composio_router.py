@@ -49,7 +49,6 @@ async def webhook(request: Request, session: AsyncSession = Depends(get_db)):
         logger.debug("Agent not found")
         return {"status": "error", "message": "Agent not found"}
 
-    logger.debug(listener_type)
     for key, value in agent.listeners.items():
         logger.debug(key)
 
