@@ -4,8 +4,12 @@ import pickle
 import requests
 
 from DB.database import get_db
+
 from Core.config import settings
 from Core.logger import LoggerCreator
+from Core.EventBus import EventBus
+from Core.Models.domain import Event, EventType
+
 from google_auth_oauthlib.flow import Flow
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,6 +27,8 @@ logger = LoggerCreator.create_advanced_console("AuthRouter")
 OAUTH_FLOW_CACHE: dict[str, dict] = {}
 
 toolset = ComposioToolSet(api_key=settings.api.composio_api_key)
+
+event_bus = EventBus()
 
 @router.get("/{service}/is-logged-in")
 async def is_logged_in(service: str, uid: str, session: AsyncSession = Depends(get_db)):
@@ -87,6 +93,10 @@ async def service_logout(uid: str, service: str, session: AsyncSession = Depends
 
     if logout_success:
         await UserSettingsService.set_logged_in(session, uid, service, False)
+        await event_bus.publish_event(Event(
+            type=EventType.STOP_AGENT,
+            data={"uid": uid, "service": service},
+        ))
 
     return {
         "success": logout_success,
