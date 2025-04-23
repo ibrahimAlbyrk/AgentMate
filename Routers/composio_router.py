@@ -21,7 +21,9 @@ logger = LoggerCreator.create_advanced_console("ComposioRouter")
 
 @router.post("/webhook")
 async def webhook(request: Request, session: AsyncSession = Depends(get_db)):
+    logger.debug("entered composio webhook")
     payload = await request.json()
+    logger.debug(payload)
 
     if not payload:
         return {"status": "error", "message": "There is no payload"}
