@@ -1,6 +1,8 @@
 from typing import Any, Dict
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header, HTTPException
+
+from Core.config import settings
 
 from sqlalchemy import select, func, distinct
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,6 +13,9 @@ from DB.Models.user_settings import UserSettings
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
+def verify_admin_token(x_admin_token: str = Header(...)):
+    if x_admin_token != settings.admin_token:
+        raise HTTPException(status_code=403, detail="Unauthorized")
 
 @router.get("/user-count")
 async def get_user_count(session: AsyncSession = Depends(get_db)):
@@ -18,7 +23,7 @@ async def get_user_count(session: AsyncSession = Depends(get_db)):
     return {"user_count": count}
 
 @router.get("/users-info")
-async def get_users_info(session: AsyncSession = Depends(get_db)):
+async def get_users_info(session: AsyncSession = Depends(get_db), x_admin_token: str = Depends(verify_admin_token)):
     users_data = await UserSettingsService.get_all_users(session)
 
     users: Dict[str, list[Dict[str, Any]]] = {}
