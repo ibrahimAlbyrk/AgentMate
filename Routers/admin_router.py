@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException
 
 from Core.config import settings
 
@@ -13,7 +13,7 @@ from DB.Models.user_settings import UserSettings
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
-def verify_admin_token(x_admin_token: str = Header(...)):
+def verify_admin_token(x_admin_token: str = Query(...)):
     if x_admin_token != settings.admin_token:
         raise HTTPException(status_code=403, detail="Unauthorized")
 
