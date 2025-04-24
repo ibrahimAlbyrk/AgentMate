@@ -8,7 +8,7 @@ from Agents.agent_interface import IAgent
 class AgentFactory:
     registry: dict[str, type[IAgent]] = {
         "gmail": GmailAgent,
-        # "notion": NotionAgent
+        "notion": NotionAgent
         # "calendar": CalendarAgent,
         # "slack": SlackAgent,
     }

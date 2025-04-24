@@ -75,11 +75,13 @@ class GmailConfig(BaseModel):
         ]
     )
 
+class NotionConfig(BaseModel):
+    pass
+
 
 class ServiceSettings(BaseModel):
     gmail: GmailConfig = Field(default_factory=GmailConfig)
-    # Add other services as needed
-    # notion: NotionConfig = Field(default_factory=NotionConfig)
+    notion: NotionConfig = Field(default_factory=NotionConfig)
 
 
 class ApiSettings(BaseModel):
