@@ -49,9 +49,6 @@ async def webhook(request: Request, session: AsyncSession = Depends(get_db)):
         logger.debug("Agent not found")
         return {"status": "error", "message": "Agent not found"}
 
-    for key, value in agent.listeners.items():
-        logger.debug(key)
-
     listener: callable = agent.listeners.get(listener_type)
     if not listener:
         logger.debug("Listener not found")
@@ -61,7 +58,5 @@ async def webhook(request: Request, session: AsyncSession = Depends(get_db)):
         await listener(data)
     else:
         listener(data)
-
-    logger.debug("called listener")
 
     return {"status": "success", "message": f"{listener_type} is triggered"}
