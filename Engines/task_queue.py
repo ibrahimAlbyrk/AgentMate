@@ -29,6 +29,9 @@ class TaskQueue:
         if not self.running:
             asyncio.create_task(self._start())
 
+    async def stop(self):
+        await self.queue.put(None)
+
     async def _start(self):
         self.running = True
         while True:
