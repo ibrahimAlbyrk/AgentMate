@@ -1,5 +1,6 @@
 import asyncio
 from typing import Callable, Awaitable, Any
+
 from Engines.global_token_orchestrator import GlobalTokenOrchestrator
 
 from Core.logger import LoggerCreator
@@ -38,6 +39,9 @@ class TaskQueue:
 
             await self.semaphore.acquire()
             asyncio.create_task(self._run_task(task_func, content))
+
+            await asyncio.sleep(0.3)
+
         self.running = False
 
     async def _run_task(self, task_func: Callable[[], Awaitable[Any]], content: str):

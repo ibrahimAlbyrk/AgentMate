@@ -46,7 +46,9 @@ class TaskQueueManager:
                 if now - data["last_used"] > self.queue_idle_timeout:
                     to_remove.append(user_id)
             for user_id in to_remove:
-                del self.queues[user_id]
+                queue = self.queues.pop(uid, None)
+                if queue:
+                    await queue.stop()
                 logger.debug(f"Queue for {user_id} removed due to inactivity.")
             await asyncio.sleep(60)
 
