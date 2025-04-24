@@ -40,6 +40,17 @@ class UserSettingsService:
         return result.first() is not None
 
     @staticmethod
+    async def has_service(session: AsyncSession, uid: str, service_name: str):
+        result = await session.execute(
+            select(UserSettings.uid)
+            .where(
+                UserSettings.uid == uid,
+                UserSettings.service_name == service_name
+            )
+        )
+        return result.first() is not None
+
+    @staticmethod
     async def change_service_id(session: AsyncSession, uid: str, service_name: str, new_service_id: str) -> bool:
         try:
             stmt = (

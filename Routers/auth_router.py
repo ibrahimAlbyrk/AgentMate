@@ -143,9 +143,9 @@ async def _service_login_handler(uid: str, service: str, service_id: str, sessio
     if not service_id:
         raise HTTPException(status_code=400, detail="Missing service_id")
 
-    has_user = await UserSettingsService.has_any(session, uid)
+    has_service = await UserSettingsService.has_service(session, uid, serice)
 
-    if has_user:
+    if has_service:
         await UserSettingsService.set_logged_in(session, uid, service, True)
         await UserSettingsService.change_service_id(session, uid, service, service_id)
     else:
