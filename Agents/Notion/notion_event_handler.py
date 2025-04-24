@@ -13,12 +13,18 @@ class NotionEventHandler(AgentEventHandler):
         super().__init__("Notion", uid, event_bus)
 
     def handle_new_page_added(self, raw_data: Dict[str, Any]) -> None:
+        self.logger.debug("New page added")
+        self.logger.debug(raw_data)
         pass
 
     def handle_page_updated(self, raw_data: Dict[str, Any]) -> None:
+        self.logger.debug("page updated")
+        self.logger.debug(raw_data)
         pass
 
     def handle_page_added_to_database(self, raw_data: Dict[str, Any]) -> None:
+        self.logger.debug("page added to database")
+        self.logger.debug(raw_data)
         pass
 
 
