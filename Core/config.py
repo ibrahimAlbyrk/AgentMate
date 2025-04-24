@@ -76,7 +76,13 @@ class GmailConfig(BaseModel):
     )
 
 class NotionConfig(BaseModel):
-    pass
+    tracked_database_ids: List[str] = Field(
+        default_factory=list,
+    )
+
+    tracked_page_types: List[str] = Field(
+        default_factory=lambda: ["Task", "Note", "Meeting", "Project"],
+    )
 
 
 class ServiceSettings(BaseModel):
