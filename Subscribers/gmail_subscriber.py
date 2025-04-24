@@ -1,4 +1,5 @@
 import traceback
+from typing import Any, Dict, List
 
 from Core.logger import LoggerCreator
 from Core.Models.domain import Event, EventType
@@ -90,9 +91,16 @@ class GmailSubscriber(SubscriberPlugin):
                     config.ignored_categories
                 )
 
+                # Filtering for if these are important emails n
+                filtered_pairs = [
+                    (email, classification)
+                    for email, classification in zip(unprocessed, classifications)
+                    if classification.get("answer", False)
+                ]
+
                 tasks = [
                     self.omi.create_conversation(uid, self._build_conversation(email, classification))
-                    for email, classification in zip(unprocessed, classifications)
+                    for email, classification in filtered_pairs
                 ]
 
                 await self.task_runner.run_async_tasks(tasks)
