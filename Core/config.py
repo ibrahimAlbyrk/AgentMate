@@ -110,7 +110,7 @@ class AppSettings(BaseSettings):
     token_path: str = "tokens/{service}/{uid}.pickle"
     post_login_redirect: str = "https://omi-wroom.org/{service}/settings?uid={uid}"
 
-    admin_token: os.getenv("ADMIN_TOKEN")
+    admin_token: str = os.getenv("ADMIN_TOKEN")
 
     # Component settings
     database: DatabaseSettings = Field(default_factory=DatabaseSettings)
