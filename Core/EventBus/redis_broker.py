@@ -48,7 +48,7 @@ class RedisBroker(MessageBroker):
             await self.connect()
 
         await self.redis.publish(message.topic, message.to_json())
-        self.logger.debug(f"Published message to {message.topic}")
+        # self.logger.debug(f"Published message to {message.topic}")
 
     async def subscribe(self, topic: str, callback: MessageCallback) -> None:
         """
@@ -62,7 +62,7 @@ class RedisBroker(MessageBroker):
 
         if self.pubsub:
             await self.pubsub.subscribe(topic)
-            self.logger.debug(f"Subscribed to {topic}")
+            # self.logger.debug(f"Subscribed to {topic}")
 
     async def unsubscribe(self, topic: str) -> None:
         """
