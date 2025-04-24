@@ -85,4 +85,8 @@ class OmiConnector:
         async with httpx.AsyncClient(timeout=timeout_config) as client:
             response = await client.post(url, json=payload, headers=headers)
             self.logger.debug(f"Conversation creation response: {response.status_code} - {response.text}")
+
+            if 500 <= response.status_code < 600:
+                raise Exception(f"Error {response.status_code}: {response.text}")
+
             return response
