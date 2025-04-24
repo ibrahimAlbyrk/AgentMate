@@ -42,9 +42,12 @@ class AgentManager:
             self.logger.debug(f"Agent for {service} already running for {uid}")
             return
 
-        await agent.run()
-        self.running_agents[uid][service] = agent
-        self.logger.debug(f"Started {service} agent for {uid}")
+        success = await agent.run()
+        if not success:
+            self.logger.error(f"{service} Agent couldn't started for {uid}")
+        else:
+            self.running_agents[uid][service] = agent
+            self.logger.debug(f"Started {service} agent for {uid}")
 
     async def stop_agent(self, uid: str, service: str):
         agent = self.running_agents.get(uid, {}).get(service)
