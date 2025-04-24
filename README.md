@@ -221,9 +221,11 @@ class MySubscriber(BaseSubscriber):
 | `POST` | `/gmail/convert-to-memory` | Convert selected/last emails to memory |
 
 ### 🔧 Admin Tools
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/admin/user-count` | Return total unique user count |
+| Method | Endpoint            | Description                                                                     |
+|--------|---------------------|---------------------------------------------------------------------------------|
+| `GET` | `/admin/user-count` | Return total unique user count                                                  |
+| `GET` | `/admin/users-info` | Return total unique user count<br/>and users' services status, logged-in status |
+> Info: To use the users-info API, you need to send the x_admin_token info as a query. You can assign from the .env
 
 ### 🔄 Composio Webhook
 | Method | Endpoint | Description |
