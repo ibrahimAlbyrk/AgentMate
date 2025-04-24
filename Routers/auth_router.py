@@ -52,6 +52,7 @@ async def is_logged_in(service: str, uid: str, session: AsyncSession = Depends(g
 
 @router.post("/{service}/login-directly")
 async def service_login_directly(uid: str, service: str, service_id: str, session: AsyncSession = Depends(get_db)):
+    logger.debug(f"Logging in: {uid}/{service}/{service_id}")
     redirect_url = await _service_login_handler(uid, service, service_id, session)
     return RedirectResponse(url=redirect_url)
 
