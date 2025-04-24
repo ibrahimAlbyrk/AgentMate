@@ -79,7 +79,6 @@ class GmailAgent(IAgent):
             for trigger_name, handler in handlers.items():
                 self.add_listener(trigger_name, handler)
 
-            self.logger.info(f"Gmail agent started for user {self.uid}")
             return True
         except Exception as e:
             self.logger.error(f"Error running Gmail agent: {str(e)}")
