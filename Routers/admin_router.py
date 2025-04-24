@@ -14,7 +14,7 @@ router = APIRouter(prefix="/admin", tags=["Admin"])
 
 @router.get("/user-count")
 async def get_user_count(session: AsyncSession = Depends(get_db)):
-    count = _get_user_count(session)
+    count = await _get_user_count(session)
     return {"user_count": count}
 
 @router.get("/users-info")
@@ -35,7 +35,7 @@ async def get_users_info(session: AsyncSession = Depends(get_db)):
 
         users[uid].append(service_info)
 
-    user_count = _get_user_count(session)
+    user_count = await _get_user_count(session)
 
     return {
         "count": user_count,
