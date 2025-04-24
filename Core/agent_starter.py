@@ -45,7 +45,9 @@ async def stop_user_agents(uid: str, session: AsyncSession):
 
 async def _get_services(uid: str, session: AsyncSession) -> list:
     result = await session.execute(
-        select(UserSettings.service_name).where(UserSettings.uid == uid)
+        select(UserSettings.service_name)
+        .where(UserSettings.uid == uid)
+        .where(UserSettings.is_logged_in == True)
     )
     services = [row[0] for row in result.all()]
 
