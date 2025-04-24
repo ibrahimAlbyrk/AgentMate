@@ -10,7 +10,6 @@ async def start_all_user_agents(session: AsyncSession):
     try:
         result = await session.execute(
             select(UserSettings.uid)
-            .where(UserSettings.is_logged_in == True)
             .distinct())
         uid_list = [row[0] for row in result.all()]
 
@@ -27,7 +26,6 @@ async def stop_all_user_agents(session: AsyncSession):
     try:
         result = await session.execute(
             select(UserSettings.uid)
-            .where(UserSettings.is_logged_in == True)
             .distinct())
         uid_list = [row[0] for row in result.all()]
 
