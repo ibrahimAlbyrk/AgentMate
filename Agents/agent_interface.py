@@ -161,8 +161,12 @@ class IAgent(ABC):
 
             self.lifecycle_state = AgentLifecycleState.PAUSED
 
-            for trigger_id in self.trigger_ids.values():
-                self.entity.disable_trigger(trigger_id)
+
+            try:
+                for trigger_id in self.trigger_ids.values():
+                    self.entity.disable_trigger(trigger_id)
+            except Exception as e:
+                self.logger.error(f"Error in pause state for disabling triggers: {str(e)}")
 
             success = await self._pause_impl()
 
@@ -214,10 +218,13 @@ class IAgent(ABC):
             if self.listeners:
                 self.listeners.clear()
 
-            if self.trigger_ids:
-                for trigger_id in self.trigger_ids.values():
-                    self.entity.disable_trigger(trigger_id)
-                self.trigger_ids.clear()
+            try:
+                if self.trigger_ids:
+                    for trigger_id in self.trigger_ids.values():
+                        self.entity.disable_trigger(trigger_id)
+                    self.trigger_ids.clear()
+            except Exception as e:
+                self.logger.error(f"Error in stop state for disabling triggers: {str(e)}")
 
             success = await self._stop_impl()
 
