@@ -35,22 +35,22 @@ class NotionEventHandler(AgentEventHandler):
 
 
     async def get_events(self) -> Dict[str, Dict[str, Any]]:
-        session: AsyncSession = get_db()
+        async for session in get_db():
+            user_config: Dict[str, Any] = await UserSettingsService.get_config(session, self.uid, "notion")
+            print(f"user_config: {user_config}")
 
-        user_config: Dict[str, Any] = await UserSettingsService.get_config(session, self.uid, "notion")
-        print(f"user_config: {user_config}")
-
-        return {
-            "NOTION_PAGE_ADDED_TRIGGER": {
-                "handler": self.handle_new_page_added,
-                "config": {}
-            },
-            "NOTION_PAGE_UPDATED_TRIGGER": {
-                "handler": self.handle_page_updated,
-                "config": {}
-            },
-            "NOTION_PAGE_ADDED_TO_DATABASE": {
-                "handler": self.handle_page_added_to_database,
-                "config": {}
+            return {
+                "NOTION_PAGE_ADDED_TRIGGER": {
+                    "handler": self.handle_new_page_added,
+                    "config": {}
+                },
+                "NOTION_PAGE_UPDATED_TRIGGER": {
+                    "handler": self.handle_page_updated,
+                    "config": {}
+                },
+                "NOTION_PAGE_ADDED_TO_DATABASE": {
+                    "handler": self.handle_page_added_to_database,
+                    "config": {}
+                }
             }
-        }
+        return {}
