@@ -11,7 +11,7 @@ class GlobalTokenOrchestrator:
     def __init__(self, max_token_budget: int = 90000, task_timeout: int = 120):
         self.model = settings.gpt_model
         self.max_token_budget = max_token_budget
-        self.token_estimator = TokenEstimator(model)
+        self.token_estimator = TokenEstimator(self.model)
         self.current_token_usage = 0
         self.lock = asyncio.Lock()
         self.task_timeout = task_timeout  # seconds
