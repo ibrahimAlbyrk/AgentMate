@@ -87,7 +87,7 @@ class IAgent(ABC):
         self.actions = actions or {}
         self.llm = LLMAgent(self.app_name, self.uid, self.toolset, self.actions)
 
-    def add_listener(self, trigger_name: str, handler: callable, config: Optional[Dict[str, Any]] = None):
+    def add_listener(self, trigger_name: str, handler: callable, config: Optional[Dict[str, Any]] = {}):
         res = self.entity.enable_trigger(self.app_name, trigger_name, config)
 
         trigger_id = res.get("triggerId", "")
