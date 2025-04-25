@@ -139,8 +139,9 @@ class AppSettings(BaseSettings):
         return config_model.model_dump()
 
     def get_service_config_model(self, service_name: str) -> Optional[Type[BaseModel]]:
-        if hasattr(self.services, service_name):
-            return getattr(self.services, service_name)
+        service_config_instance = getattr(self.services, service_name, None)
+        if service_config_instance:
+            return service_config_instance.__class__
         raise ValueError(f"No configuration found for service: {service_name}")
 
     def get_auth_provider_config(self, service_name: str) -> Dict[str, Any]:
