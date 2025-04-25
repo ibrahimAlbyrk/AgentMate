@@ -91,8 +91,6 @@ class GmailSubscriber(SubscriberPlugin):
                     config.ignored_categories
                 )
 
-                print(classifications)
-
                 # Filtering if these are important emails
                 filtered_pairs = [
                     (email, classification)
