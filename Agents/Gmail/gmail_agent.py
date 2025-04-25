@@ -75,7 +75,7 @@ class GmailAgent(IAgent):
 
     async def _run_impl(self) -> bool:
         try:
-            events = self.event_handler.get_events()
+            events = await self.event_handler.get_events()
             for trigger_name, data in events.items():
                 handler = data["handler"]
                 config = data.get("config", {})
