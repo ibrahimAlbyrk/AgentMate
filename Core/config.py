@@ -70,8 +70,8 @@ class GmailConfig(BaseModel):
     ignored_categories: List[str] = Field(
         default_factory=lambda: [
             "newsletter", "promotion", "social", "spam",
-            "survey", "event", "job alert", "greetings",
-            "notification", "update", "blog", "media"
+            "survey", "job alert", "greetings",
+            "blog"
         ]
     )
 
