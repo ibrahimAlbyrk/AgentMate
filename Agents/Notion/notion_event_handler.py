@@ -34,8 +34,8 @@ class NotionEventHandler(AgentEventHandler):
 
     async def get_events(self) -> Dict[str, Dict[str, Any]]:
 
-        user_config: Dict[str, Any] = await UserSettingsService.get_config(get_db, self.uid, "notion")
-        print(user_config)
+        user_config: Dict[str, Any] = await UserSettingsService.get_config(get_db(), self.uid, "notion")
+        print(f"user_config: {user_config}")
 
         return {
             "NOTION_PAGE_ADDED_TRIGGER": {
