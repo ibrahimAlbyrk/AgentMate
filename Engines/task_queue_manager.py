@@ -32,6 +32,9 @@ class TaskQueueManager:
         limiter = ConcurrencyLimiter(self.token_limit_per_minute)
         max_concurrent = limiter.calculate_max_concurrent_tasks(texts)
 
+        if max_concurrent < 1:
+            max_concurrent = 1
+
         logger.debug(f"Created queue for {user_id} with max {max_concurrent} concurrency")
 
         queue = TaskQueue(max_concurrent_tasks=max_concurrent, orchestrator=self.orchestrator)

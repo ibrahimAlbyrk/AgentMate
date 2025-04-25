@@ -10,8 +10,8 @@ logger = LoggerCreator.create_advanced_console("TaskQueue")
 class TaskQueue:
     def __init__(self, max_concurrent_tasks: int = 5, orchestrator: GlobalTokenOrchestrator = None):
         self.queue = asyncio.Queue()
+        self.max_concurrent = max(1, max_concurrent_tasks)
         self.semaphore = asyncio.Semaphore(max_concurrent_tasks)
-        self.max_concurrent = max_concurrent_tasks
         self.running = False
         self.orchestrator = orchestrator
 
@@ -48,15 +48,18 @@ class TaskQueue:
         self.running = False
 
     async def _run_task(self, task_func: Callable[[], Awaitable[Any]], content: str):
-        used_tokens = 0
+        task_id = None
+        timeout = 90
         try:
             if self.orchestrator:
-                used_tokens = await self.orchestrator.register_task(content)
+                task_id = await self.orchestrator.register_task(content)
 
-            await task_func()
+            await asyncio.wait_for(task_func(), timeout=timeout)
+        except TimeoutError:
+            logger.error(f"Task timeout after {timeout}s: {content[:120]}")
         except Exception as e:
             logger.error(f"Task Failed: {str(e)}")
         finally:
-            if self.orchestrator:
-                await self.orchestrator.complete_task(used_tokens)
+            if self.orchestrator and task_id:
+                await self.orchestrator.complete_task(task_id)
             self.semaphore.release()
