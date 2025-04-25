@@ -82,15 +82,13 @@ class IAgent(ABC):
         self.trigger_ids: Dict[str, str] = {}
 
         connections = self.entity.get_connections()
-        for connection in connections:
-            self.logger.debug(f"{connection.appName}: {connection.id}")
 
     def initialize_llm(self, actions: Dict[str, LLMActionData] = None):
         self.actions = actions or {}
         self.llm = LLMAgent(self.app_name, self.uid, self.toolset, self.actions)
 
-    def add_listener(self, trigger_name: str, handler: callable):
-        res = self.entity.enable_trigger(self.app_name, trigger_name, {})
+    def add_listener(self, trigger_name: str, handler: callable, config: Optional[Dict[str, Any]] = None):
+        res = self.entity.enable_trigger(self.app_name, trigger_name, config)
 
         trigger_id = res.get("triggerId", "")
         if trigger_id:
