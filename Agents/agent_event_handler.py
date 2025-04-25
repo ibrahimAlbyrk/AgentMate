@@ -15,8 +15,9 @@ class AgentEventHandler(ABC):
         self.handler_name = handler_name
         self.uid = uid
         self.event_bus = event_bus or EventBus()
+
         self.logger = LoggerCreator.create_advanced_console(f"{handler_name}EventHandler")
 
     @abstractmethod
-    def get_event_handlers(self) -> Dict[str, Callable[[Dict[str, Any]], None]]:
+    def get_events(self) -> Dict[str, Dict[str, Any]]:
         ...

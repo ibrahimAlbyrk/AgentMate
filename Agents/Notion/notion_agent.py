@@ -46,9 +46,11 @@ class NotionAgent(IAgent):
 
     async def _run_impl(self) -> bool:
         try:
-            handlers = self.event_handler.get_event_handlers()
-            for trigger_name, handler in handlers.items():
-                self.add_listener(trigger_name, handler)
+            events = self.event_handler.get_events()
+            for trigger_name, data in events.items():
+                handler = data["handler"]
+                config = data.get("config", {})
+                self.add_listener(trigger_name, handler, config)
 
             return True
         except Exception as e:

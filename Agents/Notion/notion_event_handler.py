@@ -28,9 +28,18 @@ class NotionEventHandler(AgentEventHandler):
         pass
 
 
-    def get_event_handlers(self) -> Dict[str, Callable[[Dict[str, Any]], None]]:
+    def get_events(self) -> Dict[str, Dict[str, Any]]:
         return {
-            "NOTION_PAGE_ADDED_TRIGGER": self.handle_new_page_added,
-            "NOTION_PAGE_UPDATED_TRIGGER": self.handle_page_updated,
-            "NOTION_PAGE_ADDED_TO_DATABASE": self.handle_page_added_to_database
+            "NOTION_PAGE_ADDED_TRIGGER": {
+                "handler": self.handle_new_page_added,
+                "config": {}
+            },
+            "NOTION_PAGE_UPDATED_TRIGGER": {
+                "handler": self.handle_page_updated,
+                "config": {}
+            },
+            "NOTION_PAGE_ADDED_TO_DATABASE": {
+                "handler": self.handle_page_added_to_database,
+                "config": {}
+            }
         }
