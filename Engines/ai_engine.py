@@ -27,7 +27,7 @@ class AIRequest:
     such as messages, model, temperature, tools, etc.
     """
     messages: List[Dict[str, str]]
-    model: str = "gpt-4.1-nano"
+    model: str = "gpt-4.1-mini"
     temperature: float = 0.5
     tools: Optional[List[Dict[str, Any]]] = None
     tool_choice: Optional[Dict[str, Any]] = None
@@ -55,7 +55,7 @@ class BaseAIEngine:
     @staticmethod
     def estimate_total_tokens(messages: List[Dict[str, str]], estimated_response_tokens: int) -> int:
         try:
-            enc = encoding_for_model("gpt-4.1-nano")
+            enc = encoding_for_model(settings.gpt_model)
             prompt_text = json.dumps(messages, sort_keys=True)
             prompt_tokens = len(enc.encode(prompt_text))
             return prompt_tokens + estimated_response_tokens

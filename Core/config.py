@@ -112,6 +112,9 @@ class AppSettings(BaseSettings):
 
     admin_token: str = os.getenv("ADMIN_TOKEN")
 
+    # Open-ai
+    gpt_model: str = "gpt-4.1-mini"
+
     # Component settings
     database: DatabaseSettings = Field(default_factory=DatabaseSettings)
     redis: RedisSettings = Field(default_factory=RedisSettings)

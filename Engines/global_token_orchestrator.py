@@ -2,12 +2,14 @@ import uuid
 import asyncio
 from Engines.token_estimator import TokenEstimator
 
+from Core.config import settings
+
 class GlobalTokenOrchestrator:
     _instance = None
     _lock = asyncio.Lock()
 
-    def __init__(self, model: str = "gpt-4.1-nano", max_token_budget: int = 90000, task_timeout: int = 120):
-        self.model = model
+    def __init__(self, max_token_budget: int = 90000, task_timeout: int = 120):
+        self.model = settings.gpt_model
         self.max_token_budget = max_token_budget
         self.token_estimator = TokenEstimator(model)
         self.current_token_usage = 0

@@ -1,9 +1,11 @@
 from Engines.token_estimator import TokenEstimator
 
+from Core.config import settings
+
 class ConcurrencyLimiter:
-    def __init__(self, token_limit_per_minute: int = 90000, model: str = "gpt-4.1-nano"):
+    def __init__(self, token_limit_per_minute: int = 90000):
         self.token_limit_per_minute = token_limit_per_minute
-        self.estimator = TokenEstimator(model)
+        self.estimator = TokenEstimator(settings.gpt_model)
 
     def calculate_max_concurrent_tasks(self, texts: list[str]) -> int:
         token_counts = [self.estimator.count_tokens(t) for t in texts]
