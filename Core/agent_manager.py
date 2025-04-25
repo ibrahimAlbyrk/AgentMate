@@ -79,7 +79,9 @@ class AgentManager:
         is_stopped = await agent.stop()
 
         if is_stopped:
-            await agent.run()
+            is_started = await agent.run()
+            if is_started:
+                self.logger.debug(f"Restarted {service} agent for {uid}")
 
     async def start_all_for_user(self, uid: str, services: list[str]):
         for service in services:
