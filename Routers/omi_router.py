@@ -21,12 +21,13 @@ async def is_setup_completed(uid: str, session: AsyncSession = Depends(get_db)):
 
 @router.post("/transcript-processed")
 async def transcript_processed(uid: str, transcript: dict, session: AsyncSession = Depends(get_db)):
-    wake_words  = ["hey omi", "omi", "yo omi", "ok omi", "hey, omi", "hey, omi.", "omi.", "hey omi.", "ome", "hey ome", "hey omir"]
-
-    segments = transcript["segments"]
-    for segment in segments:
-        text = segment["text"].lower()
-        if any(word in text.lower() for word in wake_words):
-            return {"message": "Hey, It's Agent Mate. stay in touch is still under development"}
+    # TODO: Will be useful later
+    # wake_words  = ["hey omi", "omi", "yo omi", "ok omi", "hey, omi", "hey, omi.", "omi.", "hey omi.", "ome", "hey ome", "hey omir"]
+    #
+    # segments = transcript["segments"]
+    # for segment in segments:
+    #     text = segment["text"].lower()
+    #     if any(word in text.lower() for word in wake_words):
+    #         return {"message": "Hey, It's Agent Mate. stay in touch is still under development"}
 
     return {}
