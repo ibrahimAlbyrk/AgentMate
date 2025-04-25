@@ -19,5 +19,5 @@ class AgentEventHandler(ABC):
         self.logger = LoggerCreator.create_advanced_console(f"{handler_name}EventHandler")
 
     @abstractmethod
-    def get_events(self) -> Dict[str, Dict[str, Any]]:
+    async def get_events(self) -> Dict[str, Dict[str, Any]]:
         ...

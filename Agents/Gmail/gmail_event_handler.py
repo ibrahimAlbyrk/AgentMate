@@ -27,7 +27,7 @@ class GmailEventHandler(AgentEventHandler):
         except Exception as e:
             self.logger.error(f"Error handling new email message: {str(e)}")
 
-    def get_events(self) -> Dict[str, Dict[str, Any]]:
+    async def get_events(self) -> Dict[str, Dict[str, Any]]:
         return {
             "GMAIL_NEW_GMAIL_MESSAGE": {
                 "handler": self.handle_new_email_messages,

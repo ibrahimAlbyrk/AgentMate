@@ -32,9 +32,9 @@ class NotionEventHandler(AgentEventHandler):
         pass
 
 
-    def get_events(self) -> Dict[str, Dict[str, Any]]:
+    async def get_events(self) -> Dict[str, Dict[str, Any]]:
 
-        user_config: Dict[str, Any] = UserSettingsService.get_config(get_db, self.uid, "notion")
+        user_config: Dict[str, Any] = await UserSettingsService.get_config(get_db, self.uid, "notion")
         print(user_config)
 
         return {
