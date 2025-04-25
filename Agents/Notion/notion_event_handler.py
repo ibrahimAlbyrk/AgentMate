@@ -2,6 +2,8 @@ import json
 import asyncio
 from typing import Dict, Any, Optional, Callable
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from DB.database import get_db
 
 from Agents.agent_event_handler import AgentEventHandler
@@ -33,8 +35,9 @@ class NotionEventHandler(AgentEventHandler):
 
 
     async def get_events(self) -> Dict[str, Dict[str, Any]]:
+        session: AsyncSession = get_db()
 
-        user_config: Dict[str, Any] = await UserSettingsService.get_config(get_db(), self.uid, "notion")
+        user_config: Dict[str, Any] = await UserSettingsService.get_config(session, self.uid, "notion")
         print(f"user_config: {user_config}")
 
         return {
