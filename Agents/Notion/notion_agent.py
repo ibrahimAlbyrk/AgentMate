@@ -57,6 +57,9 @@ class NotionAgent(IAgent):
                 config = data.get("config", {})
                 self.add_listener(trigger_name, handler, config)
 
+            pages = await self.fetcher.get_pages()
+            print(pages)
+
             return True
         except Exception as e:
             self.logger.error(f"Error running Notion agent: {str(e)}")
