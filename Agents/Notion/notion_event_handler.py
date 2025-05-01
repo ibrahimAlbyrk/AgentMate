@@ -35,22 +35,36 @@ class NotionEventHandler(AgentEventHandler):
 
 
     async def get_events(self) -> Dict[str, Dict[str, Any]]:
-        async for session in get_db():
-            user_config: Dict[str, Any] = await UserSettingsService.get_config(session, self.uid, "notion")
-            print(f"user_config: {user_config}")
+        page_ids = self._get_page_ids(data=None)
 
-            return {
-                "NOTION_PAGE_ADDED_TRIGGER": {
-                    "handler": self.handle_new_page_added,
-                    "config": {}
-                },
-                "NOTION_PAGE_UPDATED_TRIGGER": {
-                    "handler": self.handle_page_updated,
-                    "config": {}
-                },
-                "NOTION_PAGE_ADDED_TO_DATABASE": {
-                    "handler": self.handle_page_added_to_database,
-                    "config": {}
-                }
+        events = {}
+        for page_id in page_ids:
+            event = self._get_event_for_page(page_id)
+            events.update(event)
+
+        return events
+
+    def _get_event_for_page(self, page_id) -> Dict[str, Any]:
+        return {
+            "NOTION_PAGE_ADDED_TRIGGER": {
+                "handler": self.handle_new_page_added,
+                "config": {"parent_page_id": page_id}
+            },
+            "NOTION_PAGE_UPDATED_TRIGGER": {
+                "handler": self.handle_page_updated,
+                "config": {"parent_page_id": page_id}
+            },
+            "NOTION_PAGE_ADDED_TO_DATABASE": {
+                "handler": self.handle_page_added_to_database,
+                "config": {"parent_page_id": page_id}
             }
-        return {}
+        }
+
+    def _get_page_ids(self, data: Dict[str, Any]) -> List[str]:
+        page_ids = [
+            page["id"]
+            for page in data["response_data"]["results"]
+            if page["object"] == "page"
+        ]
+
+        return page_ids
