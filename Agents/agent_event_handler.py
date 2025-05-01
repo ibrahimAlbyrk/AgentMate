@@ -11,7 +11,8 @@ from Core.logger import LoggerCreator
 
 
 class AgentEventHandler(ABC):
-    def __init__(self, handler_name: str, uid: str, event_bus: Optional[EventBus] = None):
+    def __init__(self, agent: IAgent, handler_name: str, uid: str, event_bus: Optional[EventBus] = None):
+        self.agent = agent
         self.handler_name = handler_name
         self.uid = uid
         self.event_bus = event_bus or EventBus()
