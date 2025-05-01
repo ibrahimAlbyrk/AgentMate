@@ -43,9 +43,6 @@ class NotionAgent(IAgent):
             self.fetcher = NotionFetcher(self.llm)
             self.event_handler = NotionEventHandler(self.uid, self.event_bus)
 
-            pages = await self.fetcher.get_pages()
-            print(pages)
-
             return True
         except Exception as e:
             self.logger.error(f"Error initializing Notion agent: {str(e)}")
