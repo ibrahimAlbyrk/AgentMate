@@ -4,9 +4,12 @@ from typing import Dict, Any, Optional, Callable, List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from Agents.Notion.notion_agent import NotionAgent
 from DB.database import get_db
 
 from Agents.agent_event_handler import AgentEventHandler
+
+from Agents.agent_interface import IAgent
 
 from Core.EventBus import EventBus
 from Core.logger import LoggerCreator
@@ -15,8 +18,8 @@ from DB.Services.user_settings_service import UserSettingsService
 
 
 class NotionEventHandler(AgentEventHandler):
-    def __init__(self, uid: str, event_bus: Optional[EventBus] = None):
-        super().__init__("Notion", uid, event_bus)
+    def __init__(self, agent: IAgent, uid: str, event_bus: Optional[EventBus] = None):
+        super().__init__(agent, "Notion", uid, event_bus)
 
     def handle_new_page_added(self, raw_data: Dict[str, Any]) -> None:
         self.logger.debug("New page added")
@@ -35,7 +38,12 @@ class NotionEventHandler(AgentEventHandler):
 
 
     async def get_events(self) -> Dict[str, Dict[str, Any]]:
-        page_ids = self._get_page_ids(data=None)
+        if not isinstance(self.agent, NotionAgent):
+            return {}
+
+        pages = self.agent.get_pages()
+
+        page_ids = self._get_page_ids(data=pages)
 
         events = {}
         for page_id in page_ids:
