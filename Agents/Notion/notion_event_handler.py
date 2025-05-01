@@ -4,7 +4,6 @@ from typing import Dict, Any, Optional, Callable, List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from Agents.Notion.notion_agent import NotionAgent
 from DB.database import get_db
 
 from Agents.agent_event_handler import AgentEventHandler
@@ -38,6 +37,7 @@ class NotionEventHandler(AgentEventHandler):
 
 
     async def get_events(self) -> Dict[str, Dict[str, Any]]:
+        from Agents.Notion.notion_agent import NotionAgent
         if not isinstance(self.agent, NotionAgent):
             return {}
 
