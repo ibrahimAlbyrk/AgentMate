@@ -6,6 +6,7 @@ from Core.EventBus import EventBus
 from Core.logger import LoggerCreator
 
 from Agents.LLM.llm_agent import LLMActionData
+from Agents.Notion.notion_fetcher import NotionFetcher
 from Agents.agent_interface import IAgent, AgentVersion
 from Agents.Notion.notion_event_handler import NotionEventHandler
 
@@ -31,11 +32,15 @@ class NotionAgent(IAgent):
         """
         try:
             # Set up LLM actions
-            self.actions = {}
+            self.actions = {"get_pages": LLMActionData(
+                Action.NOTION_SEARCH_NOTION_PAGE,
+                processors={}
+            )}
 
             self.initialize_llm(self.actions)
 
             # Initialize components
+            self.fetcher = NotionFetcher(self.llm)
             self.event_handler = NotionEventHandler(self.uid, self.event_bus)
 
 
@@ -64,3 +69,6 @@ class NotionAgent(IAgent):
         except Exception as e:
             self.logger.error(f"Error stopping Notion agent: {str(e)}")
             return False
+
+    async def get_pages(self) -> Dict[str, Any]:
+        return await self.fetcher.get_pages()
