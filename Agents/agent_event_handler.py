@@ -5,6 +5,8 @@ from abc import ABC, abstractmethod
 
 from typing import Dict, Any, Optional, Callable
 
+from Agents.agent_interface import IAgent
+
 from Core.Models import Event, EventType
 from Core.EventBus import EventBus
 from Core.logger import LoggerCreator
