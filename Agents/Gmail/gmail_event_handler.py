@@ -2,6 +2,7 @@ import json
 import asyncio
 from typing import Dict, Any, Optional, Callable
 
+from Agents.agent_interface import IAgent
 from Agents.agent_event_handler import AgentEventHandler
 
 from Core.EventBus import EventBus
@@ -11,8 +12,8 @@ from Core.Utils.email_utils import EmailUtils
 
 
 class GmailEventHandler(AgentEventHandler):
-    def __init__(self, uid: str, event_bus: Optional[EventBus] = None):
-        super().__init__("Gmail", uid, event_bus)
+    def __init__(self, agent: IAgent, uid: str, event_bus: Optional[EventBus] = None):
+        super().__init__(agent, "Gmail", uid, event_bus)
 
     def handle_new_email_messages(self, raw_data: Dict[str, Any]) -> None:
         try:
