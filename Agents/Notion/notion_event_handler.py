@@ -1,6 +1,6 @@
 import json
 import asyncio
-from typing import Dict, Any, Optional, Callable
+from typing import Dict, Any, Optional, Callable, List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
