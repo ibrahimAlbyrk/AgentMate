@@ -41,7 +41,7 @@ class NotionAgent(IAgent):
 
             # Initialize components
             self.fetcher = NotionFetcher(self.llm)
-            self.event_handler = NotionEventHandler(self.uid, self.event_bus)
+            self.event_handler = NotionEventHandler(self, self.uid, self.event_bus)
 
             return True
         except Exception as e:

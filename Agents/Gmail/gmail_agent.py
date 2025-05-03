@@ -66,7 +66,7 @@ class GmailAgent(IAgent):
             # Initialize components
             self.processor = GmailProcessor()
             self.fetcher = GmailFetcher(self.llm, self.include_labels)
-            self.event_handler = GmailEventHandler(self.uid, self.event_bus)
+            self.event_handler = GmailEventHandler(self, self.uid, self.event_bus)
 
             return True
         except Exception as e:
