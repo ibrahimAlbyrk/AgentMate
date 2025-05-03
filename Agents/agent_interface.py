@@ -81,8 +81,6 @@ class IAgent(ABC):
         self.listeners: Dict[str, callable] = {}
         self.trigger_ids: Dict[str, str] = {}
 
-        connections = self.entity.get_connections()
-
     def initialize_llm(self, actions: Dict[str, LLMActionData] = None):
         self.actions = actions or {}
         self.llm = LLMAgent(self.app_name, self.uid, self.toolset, self.actions)
