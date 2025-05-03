@@ -41,7 +41,7 @@ class NotionEventHandler(AgentEventHandler):
         if not isinstance(self.agent, NotionAgent):
             return {}
 
-        pages = self.agent.get_pages()
+        pages = await self.agent.get_pages()
 
         page_ids = self._get_page_ids(data=pages)
 
