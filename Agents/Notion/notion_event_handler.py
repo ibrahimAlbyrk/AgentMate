@@ -88,7 +88,9 @@ class NotionEventHandler(AgentEventHandler):
         database_ids = set()
         parent_page_ids = set()
 
-        for page in data["data"]["response_data"]["results"]:
+        print(data)
+
+        for page in data["response_data"]["results"]:
             page_ids.append(page["id"])
             parent = page.get("parent", {})
 
