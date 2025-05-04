@@ -46,7 +46,7 @@ class NotionEventHandler(AgentEventHandler):
         ids = self._get_page_ids(data=pages)
 
         events = {}
-        for id_data in page_ids:
+        for id_data in ids:
             event = self._get_event_for_page(id_data)
             events.update(event)
 
