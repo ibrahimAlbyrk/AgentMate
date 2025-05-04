@@ -45,17 +45,12 @@ class NotionEventHandler(AgentEventHandler):
 
         ids = self._get_page_ids(data=pages)
 
-        events = {}
-        for id_data in ids:
-            event = self._get_event_for_page(id_data)
-            events.update(event)
+        return self._get_events_for_pages(ids)
 
-        return events
-
-    def _get_event_for_page(self, id_data) -> Dict[str, Any]:
-        page_ids = id_data.get("page_ids", [])
-        database_ids = id_data.get("database_ids", [])
-        parent_page_ids = id_data.get("parent_page_ids", [])
+    def _get_events_for_pages(self, ids: Dict[str, list]) -> Dict[str, Any]:
+        page_ids = ids.get("page_ids", [])
+        database_ids = ids.get("database_ids", [])
+        parent_page_ids = ids.get("parent_page_ids", [])
 
         events: Dict[str, Any] = {}
 
