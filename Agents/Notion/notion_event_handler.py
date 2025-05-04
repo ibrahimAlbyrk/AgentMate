@@ -43,36 +43,67 @@ class NotionEventHandler(AgentEventHandler):
 
         pages = await self.agent.get_pages()
 
-        page_ids = self._get_page_ids(data=pages)
+        ids = self._get_page_ids(data=pages)
 
         events = {}
-        for page_id in page_ids:
-            event = self._get_event_for_page(page_id)
+        for id_data in page_ids:
+            event = self._get_event_for_page(id_data)
             events.update(event)
 
         return events
 
-    def _get_event_for_page(self, page_id) -> Dict[str, Any]:
-        return {
-            "NOTION_PAGE_ADDED_TRIGGER": {
-                "handler": self.handle_new_page_added,
-                "config": {"parent_page_id": page_id}
-            },
-            "NOTION_PAGE_UPDATED_TRIGGER": {
+    def _get_event_for_page(self, id_data) -> Dict[str, Any]:
+        page_ids = id_data.get("page_ids", [])
+        database_ids = id_data.get("database_ids", [])
+        parent_page_ids = id_data.get("parent_page_ids", [])
+
+        events: Dict[str, Any] = {}
+
+        for page_id in page_ids:
+            event = {
+                "NOTION_PAGE_UPDATED_TRIGGER": {
                 "handler": self.handle_page_updated,
-                "config": {"parent_page_id": page_id}
-            },
-            "NOTION_PAGE_ADDED_TO_DATABASE": {
-                "handler": self.handle_page_added_to_database,
-                "config": {"parent_page_id": page_id}
+                "config": {"page_id": page_id}
+                }
             }
+            events.update(event)
+
+        for database_id in database_ids:
+            event = {
+                "NOTION_PAGE_ADDED_TO_DATABASE": {
+                    "handler": self.handle_new_page_added,
+                    "config": {"database_id": database_id}
+                }
+            }
+            events.update(event)
+
+        for parent_page_id in parent_page_ids:
+            event = {
+                "NOTION_PAGE_ADDED_TRIGGER": {
+                    "handler": self.handle_new_page_added,
+                    "config": {"parent_page_id": parent_page_id}
+                }
+            }
+            events.update(event)
+
+        return events
+
+    def _get_page_ids(self, data: Dict[str, Any]):
+        page_ids = []
+        database_ids = set()
+        parent_page_ids = set()
+
+        for page in data["data"]["response_data"]["results"]:
+            page_ids.append(page["id"])
+            parent = page.get("parent", {})
+
+            if parent.get("type") == "database_id":
+                database_ids.add(parent["database_id"])
+            elif parent.get("type") == "page_id":
+                parent_page_ids.add(parent["page_id"])
+
+        return {
+            "page_ids": page_ids,
+            "database_ids": list(database_ids),
+            "parent_page_ids": list(parent_page_ids)
         }
-
-    def _get_page_ids(self, data: Dict[str, Any]) -> List[str]:
-        page_ids = [
-            page["id"]
-            for page in data["response_data"]["results"]
-            if page["object"] == "page"
-        ]
-
-        return page_ids
