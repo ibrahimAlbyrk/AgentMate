@@ -55,6 +55,7 @@ class NotionEventHandler(AgentEventHandler):
         events: Dict[str, Any] = {}
 
         for page_id in page_ids:
+            print(page_id)
             event = {
                 "NOTION_PAGE_UPDATED_TRIGGER": {
                 "handler": self.handle_page_updated,
@@ -64,6 +65,7 @@ class NotionEventHandler(AgentEventHandler):
             events.update(event)
 
         for database_id in database_ids:
+            print(database_id)
             event = {
                 "NOTION_PAGE_ADDED_TO_DATABASE": {
                     "handler": self.handle_new_page_added,
@@ -73,6 +75,7 @@ class NotionEventHandler(AgentEventHandler):
             events.update(event)
 
         for parent_page_id in parent_page_ids:
+            print(parent_page_id)
             event = {
                 "NOTION_PAGE_ADDED_TRIGGER": {
                     "handler": self.handle_new_page_added,
