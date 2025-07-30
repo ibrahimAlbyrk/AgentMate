@@ -1,5 +1,6 @@
 from Agents.Gmail.gmail_agent import GmailAgent
 from Agents.Notion.notion_agent import NotionAgent
+from Agents.Outlook.outlook_agent import OutlookAgent
 # from Agents.Calendar.calendar_agent import CalenderAgent
 # from Agents.Slack.slack_agent import SlackAgent
 
@@ -8,7 +9,8 @@ from Agents.agent_interface import IAgent
 class AgentFactory:
     registry: dict[str, type[IAgent]] = {
         "gmail": GmailAgent,
-        "notion": NotionAgent
+        "notion": NotionAgent,
+        "outlook": OutlookAgent,
         # "calendar": CalendarAgent,
         # "slack": SlackAgent,
     }
