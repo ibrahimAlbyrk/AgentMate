@@ -53,6 +53,7 @@ AgentMate/
 | Agent               | Status | Functionality |
 |--------------------|--------|----------------|
 | `GmailAgent`        | ✅      | Periodically fetches and classifies emails |
+| `OutlookAgent`      | ✅      | Retrieves Outlook emails |
 | `NotionAgent`       | 🔜      | Extracts content blocks and page metadata |
 | `CalendarAgent`     | 🔜      | Pulls upcoming events |
 | `FacebookAgent`     | 🔜      | Reads user feed and messages |
